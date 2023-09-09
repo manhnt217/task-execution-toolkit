@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class LogTemplate extends Template<LogTemplate.LogDto, Object> {
 
 	@Override

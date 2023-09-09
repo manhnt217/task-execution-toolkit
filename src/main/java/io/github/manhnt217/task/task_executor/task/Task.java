@@ -64,6 +64,6 @@ public abstract class Task implements Proc {
 	 * Define which source (JSON) to apply the <code>inputMappingExpression</code> (JSLT transformation)
 	 */
 	public enum InputType {
-		CONTEXT, PREVIOUS_TASK
+		NONE, CONTEXT, PREVIOUS_TASK
 	}
 }
