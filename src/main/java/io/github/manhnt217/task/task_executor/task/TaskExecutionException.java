@@ -10,4 +10,8 @@ public class TaskExecutionException extends RuntimeException {
 	public TaskExecutionException(TemplateExecutionException e) {
 		super(e);
 	}
+
+	public TaskExecutionException(String message, Exception e) {
+		super(message, e);
+	}
 }
