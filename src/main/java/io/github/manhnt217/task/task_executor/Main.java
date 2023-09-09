@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import io.github.manhnt217.task.task_executor.task.CompoundTask;
+import io.github.manhnt217.task.task_executor.task.Task;
 import io.github.manhnt217.task.task_executor.task.TaskExecutionContext;
 import io.github.manhnt217.task.task_executor.task.TemplateTask;
 
@@ -19,6 +20,13 @@ import java.util.Map;
 public class Main {
 
 	public static final ObjectMapper om = new ObjectMapper();
+	public static final String SQL = "DECLARE\\n" +
+			"    p varchar2(10);\\n" +
+			"BEGIN\\n" +
+			"    select DUMMY into p from dual;\\n" +
+			"    insert into TESTPLSQL(RECORD_NAME) values ('Hell o PL/SQL');" +
+			"    DBMS_OUTPUT.PUT_LINE('Got a result: ================ ' || p);\\n" +
+			"END;";
 
 	static {
 		om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -35,26 +43,29 @@ public class Main {
 		task1.setId(TASK_1);
 		task1.setProcessClassName("CurlTemplate");
 		task1.setInputMappingExpression(TaskExecutionContext.EXP_INIT_PARAMS);
+		task1.setInputType(Task.InputType.CONTEXT);
 		task1.setOutputMappingExpression(".statusCode");
 		task1.setEndLogExpression("\"Finish task 1\"");
 
 		TemplateTask task2 = new TemplateTask();
 		task2.setId(TASK_2);
 		task2.setProcessClassName("LogTemplate");
+		task2.setInputType(Task.InputType.PREVIOUS_TASK);
 		task2.setInputMappingExpression("{\"severity\": \"INFO\", \"message\": \"Status code is \" + .}");
 		task2.setDependencies(Collections.singletonList(TASK_1));
 
 		TemplateTask task3 = new TemplateTask();
 		task3.setId("task3");
 		task3.setProcessClassName("SqlTemplate");
-		task3.setInputMappingExpression("\"Select * from dual\"");
+		task3.setInputType(Task.InputType.CONTEXT);
+		task3.setInputMappingExpression("{\"sql\":\"" + SQL + "\",\"dataSource\":\"abdc\"}");
 
 		Map<String, Object> input = ImmutableMap.of(
 													"url", "https://example.com",
 													"method", "GET"
 													);
 
-		CompoundTask mainTask = new CompoundTask(Sets.newHashSet(task1, task2, task3));
+		CompoundTask mainTask = new CompoundTask(Sets.newHashSet(task3));
 
 
 		//		mainTask.setOutputMappingExpression("{\"out_1\": .task1.out, \"out_2\": .task2.out}");
