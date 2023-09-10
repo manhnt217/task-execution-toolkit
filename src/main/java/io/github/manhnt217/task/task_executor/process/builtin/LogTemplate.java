@@ -5,7 +5,6 @@ import io.github.manhnt217.task.task_executor.process.Severity;
 import io.github.manhnt217.task.task_executor.process.Template;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 public class LogTemplate extends Template<LogTemplate.LogDto, Object> {
 
@@ -15,8 +14,8 @@ public class LogTemplate extends Template<LogTemplate.LogDto, Object> {
 	}
 
 	@Override
-	public Object exec(LogDto input, LogHandler log) {
-		log.log(input.getSeverity(), input.getMessage());
+	public Object exec(LogDto input, LogHandler logHandler) {
+		logHandler.log(input.getSeverity(), input.getMessage());
 		System.out.println("We have just logged this one: " + input);
 		return new Object();
 	}
