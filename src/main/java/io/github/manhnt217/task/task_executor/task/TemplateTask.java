@@ -9,13 +9,13 @@ import io.github.manhnt217.task.task_executor.process.TemplateExecutionException
 
 @Getter @Setter
 public class TemplateTask extends Task {
-	private String processClassName;
+	private String templateName;
 
 	@Override
 	public JsonNode process(JsonNode inputJSON) {
 
 		try {
-			JsonNode output = Template.run(this.getProcessClassName(), inputJSON, (severity, message) -> logs.add(new ExecutionLog(severity, message)));
+			JsonNode output = Template.run(this.getTemplateName(), inputJSON, (severity, message) -> logs.add(new ExecutionLog(severity, message)));
 			return transformOutput(output);
 		} catch (TemplateExecutionException e) {
 			throw new TaskExecutionException(e);

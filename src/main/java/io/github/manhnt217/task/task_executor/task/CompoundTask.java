@@ -47,6 +47,7 @@ public class CompoundTask extends Task {
 		return subTasks.stream().sorted(Comparator.comparing(Task::getId)).collect(Collectors.toList());
 	}
 
+	// TODO: Deal with TaskExecutionException
 	private void executeTask(Task task, TaskExecutionContext context) {
 
 		JsonNode inputAfterTransform = extractInput(task, context);
