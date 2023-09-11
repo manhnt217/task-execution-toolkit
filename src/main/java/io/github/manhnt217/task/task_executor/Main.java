@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+import io.github.manhnt217.task.task_executor.executor.CompoundTaskExecutor;
+import io.github.manhnt217.task.task_executor.executor.TaskExecutor;
 import io.github.manhnt217.task.task_executor.task.CompoundTask;
 import io.github.manhnt217.task.task_executor.task.Task;
 import io.github.manhnt217.task.task_executor.task.TaskExecutionContext;
@@ -65,15 +67,29 @@ public class Main {
 													"method", "GET"
 													);
 
-		CompoundTask mainTask = new CompoundTask(Sets.newHashSet(task1, task2, task3));
+		CompoundTask compoundTask1 = new CompoundTask(Sets.newHashSet(task1, task2, task3));
+		compoundTask1.setId("c1");
+		compoundTask1.setInputType(Task.InputType.CONTEXT);
+		compoundTask1.setInputMappingExpression(TaskExecutionContext.EXP_INIT_PARAMS);
 
+		CompoundTask compoundTask2 = new CompoundTask(Sets.newHashSet(task1, task2, task3));
+		compoundTask2.setId("c2");
+		compoundTask2.setInputType(Task.InputType.CONTEXT);
+		compoundTask2.setInputMappingExpression(TaskExecutionContext.EXP_INIT_PARAMS);
 
-		//		mainTask.setOutputMappingExpression("{\"out_1\": .task1.out, \"out_2\": .task2.out}");
+		CompoundTask mainTask = new CompoundTask(Sets.newHashSet(compoundTask1, compoundTask2));
+
+		// FIXME: If a task executed more than once, the logs will add up.
+//		mainTask.setOutputMappingExpression("{\"out_1\": .task1.out, \"out_2\": .task2.out}");
 		mainTask.setOutputMappingExpression("{}");
-		JsonNode output = mainTask.process(Main.om.valueToTree(input));
+
+
+		JsonNode input1 = Main.om.valueToTree(input);
+		TaskExecutor executor = TaskExecutor.getTaskExecutor(mainTask);
+		JsonNode output = executor.execute(mainTask, input1);
 		System.out.println("Task output:");
 		System.out.println(om.writerWithDefaultPrettyPrinter().writeValueAsString(output));
 		System.out.println("Task logs");
-		System.out.println(om.writerWithDefaultPrettyPrinter().writeValueAsString(mainTask.getLogs()));
+		System.out.println(om.writerWithDefaultPrettyPrinter().writeValueAsString(executor.getLogs()));
 	}
 }

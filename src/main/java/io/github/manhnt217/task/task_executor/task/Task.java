@@ -1,15 +1,13 @@
 package io.github.manhnt217.task.task_executor.task;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import io.github.manhnt217.task.task_executor.process.ExecutionLog;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter @Setter
-public abstract class Task implements Proc {
+public abstract class Task {
 
 	/**
 	 * <ul>
@@ -25,7 +23,6 @@ public abstract class Task implements Proc {
 
 	protected String inputMappingExpression;
 
-	@Getter(AccessLevel.NONE)
 	protected String outputMappingExpression;
 
 	protected String startLogExpression;
@@ -33,12 +30,6 @@ public abstract class Task implements Proc {
 	protected String endLogExpression;
 
 	protected List<String> dependencies = new ArrayList<>(0);
-
-	protected List<ExecutionLog> logs;
-
-	public Task() {
-		this.logs = new ArrayList<>(0);
-	}
 
 	public boolean isIndependent() {
 		return getDependencies().size() == 0;
