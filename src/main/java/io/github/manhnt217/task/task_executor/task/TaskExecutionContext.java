@@ -3,10 +3,6 @@ package io.github.manhnt217.task.task_executor.task;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.manhnt217.task.task_executor.Main;
-import io.github.manhnt217.task.task_executor.process.ExecutionLog;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TaskExecutionContext {
 
@@ -21,13 +17,10 @@ public class TaskExecutionContext {
 	 */
 	private ObjectNode contextParams; // root object to evaluate JSLT expression
 
-	private List<ExecutionLog> logs;
-
 	public TaskExecutionContext() {
 		this.contextParams = Main.om.createObjectNode();
 		this.globalSpace = Main.om.createObjectNode();
 		this.contextParams.set(KEY_GLOBAL_SPACE, globalSpace);
-		this.logs = new ArrayList<>();
 	}
 
 	public void saveInput(Task task, JsonNode input) {
