@@ -38,11 +38,9 @@ public class Main {
 	}
 
 	public static void main(String[] args) throws IOException {
-		String TASK_1 = "task1";
-		String TASK_2 = "task2";
 
 		TemplateTask task1 = new TemplateTask();
-		task1.setId(TASK_1);
+		task1.setId("task1");
 		task1.setTemplateName("CurlTemplate");
 		task1.setInputMappingExpression(TaskExecutionContext.EXP_INIT_PARAMS);
 		task1.setInputType(Task.InputType.CONTEXT);
@@ -50,11 +48,10 @@ public class Main {
 		task1.setEndLogExpression("\"Finish task 1\"");
 
 		TemplateTask task2 = new TemplateTask();
-		task2.setId(TASK_2);
+		task2.setId("task2");
 		task2.setTemplateName("LogTemplate");
 		task2.setInputType(Task.InputType.PREVIOUS_TASK);
 		task2.setInputMappingExpression("{\"severity\": \"INFO\", \"message\": \"Status code is \\n\" + .}");
-		task2.setDependencies(Collections.singletonList(TASK_1));
 
 		TemplateTask task3 = new TemplateTask();
 		task3.setId("task3");
@@ -62,12 +59,15 @@ public class Main {
 		task3.setInputType(Task.InputType.CONTEXT);
 		task3.setInputMappingExpression("{\"sql\":\"" + SQL + "\",\"dataSource\":\"abdc\"}");
 
+		task2.setDependencies(Sets.newHashSet(task1.getId()));
+		task3.setDependencies(Sets.newHashSet(task2.getId()));
+
 		Map<String, Object> input = ImmutableMap.of(
 													"url", "https://example.com",
 													"method", "GET"
 													);
 
-		CompoundTask compoundTask1 = new CompoundTask(Sets.newHashSet(task1, task2, task3));
+		CompoundTask compoundTask1 = new CompoundTask(Sets.newHashSet(task1, task3, task2));
 		compoundTask1.setId("c1");
 		compoundTask1.setInputType(Task.InputType.CONTEXT);
 		compoundTask1.setInputMappingExpression(TaskExecutionContext.EXP_INIT_PARAMS);
