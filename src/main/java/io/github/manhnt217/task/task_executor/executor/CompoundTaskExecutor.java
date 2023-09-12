@@ -6,15 +6,11 @@ import io.github.manhnt217.task.task_executor.process.ExecutionLog;
 import io.github.manhnt217.task.task_executor.process.Severity;
 import io.github.manhnt217.task.task_executor.task.CompoundTask;
 import io.github.manhnt217.task.task_executor.task.Task;
-import io.github.manhnt217.task.task_executor.task.TaskExecutionContext;
-import io.github.manhnt217.task.task_executor.task.TaskExecutionException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static io.github.manhnt217.task.task_executor.Main.om;
 
 public class CompoundTaskExecutor extends TaskExecutor {
 
@@ -26,7 +22,7 @@ public class CompoundTaskExecutor extends TaskExecutor {
         }
         CompoundTask compoundTask = (CompoundTask) task;
 
-        TaskExecutionContext context = new TaskExecutionContext();
+        ParamContext context = new ParamContext();
 
         context.saveGlobalInput(input);
 
@@ -63,22 +59,22 @@ public class CompoundTaskExecutor extends TaskExecutor {
     }
 
     // TODO: Deal with TaskExecutionException
-    private void executeTask(Task task, TaskExecutionContext context) {
+    private void executeTask(Task task, ParamContext context) {
 
         JsonNode inputAfterTransform = extractInput(task, context);
 
         context.saveTaskInput(task, inputAfterTransform);
-        log(task.getStartLogExpression(), context);
+        log(task, task.getStartLogExpression(), context);
 
         TaskExecutor executor = getTaskExecutor(task);
         JsonNode output = executor.execute(task, inputAfterTransform);
         logs.addAll(executor.getLogs());
 
         context.saveTaskOutput(task, output);
-        log(task.getEndLogExpression(), context);
+        log(task, task.getEndLogExpression(), context);
     }
 
-    private static JsonNode extractInput(Task task, TaskExecutionContext context) {
+    private static JsonNode extractInput(Task task, ParamContext context) {
         if (task.getInputType() == null || task.getInputType() == Task.InputType.NONE) {
             return NullNode.getInstance();
         } else if (Task.InputType.CONTEXT.equals(task.getInputType())) {
@@ -90,15 +86,15 @@ public class CompoundTaskExecutor extends TaskExecutor {
         }
     }
 
-    private void log(String jslt, TaskExecutionContext ctx) {
+    private void log(Task task, String jslt, ParamContext ctx) {
         if (StringUtils.isBlank(jslt)) {
             return;
         }
         try {
             JsonNode jsonNode = ctx.applyTransform(jslt);
-            logs.add(new ExecutionLog(Severity.INFO, jsonNode.isContainerNode() ? om.writeValueAsString(jsonNode) : jsonNode.asText()));
+            logs.add(new ExecutionLog(task.getId(), Severity.INFO, jsonNode.isContainerNode() ? om.writeValueAsString(jsonNode) : jsonNode.asText()));
         } catch (Exception e) {
-            logs.add(new ExecutionLog(Severity.WARN, "Error while applying log expression to the context. Expression = " + jslt));
+            logs.add(new ExecutionLog(task.getId(), Severity.WARN, "Error while applying log expression to the context. Expression = " + jslt));
         }
     }
 
