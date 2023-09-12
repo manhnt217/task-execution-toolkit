@@ -1,6 +1,7 @@
 package io.github.manhnt217.task.task_executor.process.builtin;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.github.manhnt217.task.task_executor.executor.TaskExecutor;
 import io.github.manhnt217.task.task_executor.process.LogHandler;
 import io.github.manhnt217.task.task_executor.process.Template;
 import kong.unirest.HttpMethod;
@@ -12,7 +13,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import io.github.manhnt217.task.task_executor.Main;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -78,7 +78,7 @@ public class CurlTemplate extends Template<CurlTemplate.Input, CurlTemplate.Outp
 				) {
 					params.put(key, v);
 				} else {
-					params.put(key, Main.om.writeValueAsString(v));
+					params.put(key, TaskExecutor.om.writeValueAsString(v));
 				}
 			}
 		}
