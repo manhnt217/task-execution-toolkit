@@ -23,8 +23,6 @@ public abstract class Task {
 
 	protected String inputMappingExpression;
 
-	protected String outputMappingExpression;
-
 	protected String startLogExpression;
 
 	protected String endLogExpression;

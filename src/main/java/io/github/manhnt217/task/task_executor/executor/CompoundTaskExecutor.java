@@ -23,7 +23,7 @@ public class CompoundTaskExecutor extends TaskExecutor {
 
         ParamContext context = new ParamContext();
 
-        context.setGlobalInput(input);
+        context.setParentInput(input);
 
         List<Task> executionOrder = null;
         try {
@@ -35,7 +35,7 @@ public class CompoundTaskExecutor extends TaskExecutor {
             executeTask(subTask, context);
         }
 
-        return context.transform(task.getOutputMappingExpression());
+        return context.allTaskOutputs();
     }
 
     private List<Task> resolveDependencies(Set<Task> tasks) throws UnresolvableDependencyException {
@@ -61,8 +61,6 @@ public class CompoundTaskExecutor extends TaskExecutor {
     private void executeTask(Task task, ParamContext context) {
 
         JsonNode inputAfterTransform = extractInput(task, context);
-
-        context.saveTaskInput(task, inputAfterTransform);
         log(task, task.getStartLogExpression(), context);
 
         TaskExecutor executor = getTaskExecutor(task);

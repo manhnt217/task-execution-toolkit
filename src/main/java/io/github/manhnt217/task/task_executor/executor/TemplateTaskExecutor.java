@@ -15,8 +15,10 @@ public class TemplateTaskExecutor extends TaskExecutor {
         }
         TemplateTask templateTask = (TemplateTask) task;
         try {
-            JsonNode output = Template.run(templateTask.getTemplateName(), input, (severity, message) -> this.logs.add(new ExecutionLog(templateTask.getId(), severity, message)));
-            return JSLTUtil.applyTransform(templateTask.getOutputMappingExpression(), output);
+            return Template.run(
+                    templateTask.getTemplateName(),
+                    input,
+                    (severity, message) -> this.logs.add(new ExecutionLog(templateTask.getId(), severity, message)));
         } catch (TemplateExecutionException e) {
             throw new TaskExecutionException(e);
         }
