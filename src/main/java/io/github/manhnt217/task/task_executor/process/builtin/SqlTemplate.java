@@ -101,14 +101,15 @@ public class SqlTemplate extends Template<SqlTemplate.Input, Object> {
     // Hardcode data
     private static DataSource getDataSource() {
         DataSource dataSource = new DataSource();
+        dataSource.setName("foo");
         Map<String, DataSourceConfig> configs = new HashMap<>();
         configs.put("hibernate.connection.driver_class", new DataSourceConfig(dataSource, "hibernate.connection.driver_class", "oracle.jdbc.OracleDriver"));
         configs.put("hibernate.dialect", new DataSourceConfig(dataSource, "hibernate.dialect", "org.hibernate.dialect.Oracle12cDialect"));
         configs.put("hibernate.hikari.connectionTimeout", new DataSourceConfig(dataSource, "hibernate.hikari.connectionTimeout", "20000"));
         configs.put("hibernate.hikari.idleTimeout", new DataSourceConfig(dataSource, "hibernate.hikari.idleTimeout", "30000"));
         configs.put("hibernate.connection.url", new DataSourceConfig(dataSource, "hibernate.connection.url", "jdbc:oracle:thin:@dbserver:1521/FORTNAWCS"));
-        configs.put("hibernate.connection.username", new DataSourceConfig(dataSource, "hibernate.connection.username", "housekeeping"));
-        configs.put("hibernate.connection.password", new DataSourceConfig(dataSource, "hibernate.connection.password", "housekeeping"));
+        configs.put("hibernate.connection.username", new DataSourceConfig(dataSource, "hibernate.connection.username", "foo"));
+        configs.put("hibernate.connection.password", new DataSourceConfig(dataSource, "hibernate.connection.password", "foo"));
         configs.put("hibernate.hikari.minimumIdle", new DataSourceConfig(dataSource, "hibernate.hikari.minimumIdle", "2"));
         configs.put("hibernate.hikari.maximumPoolSize", new DataSourceConfig(dataSource, "hibernate.hikari.maximumPoolSize", "5"));
         dataSource.setConfigs(configs);
