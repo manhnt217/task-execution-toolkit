@@ -35,6 +35,6 @@ public abstract class Task {
 	 * Define which source (JSON) to apply the <code>inputMappingExpression</code> (JSLT transformation)
 	 */
 	public enum InputType {
-		NONE, CONTEXT, PREVIOUS_TASK
+		NONE, PARENT, PREVIOUS_TASK, GLOBAL
 	}
 }
