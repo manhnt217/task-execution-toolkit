@@ -1,8 +1,10 @@
 package io.github.manhnt217.task.task_executor.process;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
 public class TemplateExecutionException extends Exception {
 	public TemplateExecutionException(Exception e) {
-		super(e);
+		super("Cannot execute template. Caused by: " + ExceptionUtils.getRootCauseMessage(e));
 	}
 
 	public TemplateExecutionException(String message) {
@@ -10,6 +12,6 @@ public class TemplateExecutionException extends Exception {
 	}
 
 	public TemplateExecutionException(String message, Exception e) {
-		super(message, e);
+		super(message + "\nCaused by: " + ExceptionUtils.getRootCauseMessage(e));
 	}
 }

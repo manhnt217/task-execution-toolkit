@@ -1,32 +1,19 @@
 package io.github.manhnt217.task.task_executor.executor;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class DependencyResolver {
 
-    private final Map<String, DependentItem> itemMap;
+    private final List<DependentItem> items;
 
-    public DependencyResolver(Set<DependentItem> items) {
-        this.itemMap = items.stream().collect(Collectors.toMap(DependentItem::getName, Function.identity()));
+    public DependencyResolver(List<DependentItem> items) {
+        this.items = new ArrayList<>(items);
     }
 
-    private void buildDependencyGraph() throws DependencyNotFoundException {
-        for (DependentItem item : itemMap.values()) {
-            Set<String> dependencies = item.getDependencies();
-            for (String dependency : dependencies) {
-                DependentItem dependentItem = itemMap.get(dependency);
-                if (dependentItem == null) {
-                    throw new DependencyNotFoundException(dependency);
-                }
-                dependentItem.addDependant(item);
-            }
-        }
-    }
-
-    // TODO: Very dummy implementation
+    // TODO: Very naive implementation
 
     /**
      * Retrieve and remove the next item without any dependency left
@@ -34,18 +21,19 @@ public class DependencyResolver {
      * @return next item without no dependency remaining
      */
     public DependentItem next() throws UnresolvableDependencyException {
-        if (itemMap.isEmpty()) {
+        if (items.isEmpty()) {
             return null;
         }
-        for (DependentItem item : itemMap.values()) {
+        Iterator<DependentItem> iterator = items.iterator();
+        for (DependentItem item; (item = iterator.next()) != null; ){
             if (item.getDependencies().isEmpty()) {
-                itemMap.remove(item.getName());
-                for (DependentItem remainItem : itemMap.values()) {
+                iterator.remove();
+                for (DependentItem remainItem : items) {
                     remainItem.getDependencies().remove(item.getName());
                 }
                 return item;
             }
         }
-        throw new UnresolvableDependencyException(itemMap.keySet());
+        throw new UnresolvableDependencyException(items.stream().map(DependentItem::getName).collect(Collectors.toSet()));
     }
 }
