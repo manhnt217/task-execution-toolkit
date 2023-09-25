@@ -2,7 +2,6 @@ package io.github.manhnt217.task.task_executor.process;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import io.github.manhnt217.task.task_executor.executor.TaskExecutionException;
 import io.github.manhnt217.task.task_executor.executor.TaskExecutor;
 
 import java.lang.reflect.InvocationTargetException;
@@ -13,7 +12,7 @@ public abstract class Template<P, R> {
 	public static final String EXEC_METHOD_NAME = "run";
 	private static final String BUILTIN_TEMPLATE_PACKAGE = Template.class.getPackage().getName() + ".builtin.";
 
-	public static JsonNode run(String templateName, JsonNode input, LogHandler log) throws TemplateExecutionException {
+	public static JsonNode run(String templateName, JsonNode input, TemplateLogHandler log) throws TemplateExecutionException {
 		try {
 			String className = BUILTIN_TEMPLATE_PACKAGE + templateName;
 			Class<?> clazz = Class.forName(className);
@@ -21,7 +20,7 @@ public abstract class Template<P, R> {
 				throw new TemplateExecutionException("Template class " + className + " does not extend " + Template.class.getName());
 			}
 
-			Method runMethod = clazz.getMethod(EXEC_METHOD_NAME, JsonNode.class, LogHandler.class);
+			Method runMethod = clazz.getMethod(EXEC_METHOD_NAME, JsonNode.class, TemplateLogHandler.class);
 			Object templateInstance = clazz.newInstance();
 			Object result = runMethod.invoke(templateInstance, input, log);
 			return TaskExecutor.om.valueToTree(result);
@@ -35,13 +34,13 @@ public abstract class Template<P, R> {
     }
 
 	@SuppressWarnings("unused")
-	public final JsonNode run(JsonNode inputJS, LogHandler logHandler) throws TemplateExecutionException {
+	public final JsonNode run(JsonNode inputJS, TemplateLogHandler logHandler) throws TemplateExecutionException {
 		P input;
 		try {
 			input = TaskExecutor.om.treeToValue(inputJS, getInputClass());
 		} catch (JsonProcessingException e) {
 			logHandler.log(Severity.ERROR, "Cannot convert input");
-			throw new TaskExecutionException("Cannot convert input. Process stop", e);
+			throw new TemplateExecutionException("Cannot convert input. Task stop", e);
 		}
 		try {
 			R rs = exec(input, logHandler);
@@ -53,5 +52,5 @@ public abstract class Template<P, R> {
 
 	protected abstract Class<? extends P> getInputClass();
 
-	public abstract R exec(P input, LogHandler logHandler);
+	public abstract R exec(P input, TemplateLogHandler logHandler) throws Exception;
 }

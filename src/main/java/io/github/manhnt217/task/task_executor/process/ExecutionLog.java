@@ -8,12 +8,14 @@ import java.time.ZoneId;
 @Getter
 public class ExecutionLog {
 
+	private final String executionSessionId;
 	private final String taskId;
 	private final OffsetDateTime logTime;
 	private final String content;
 	private final Severity severity;
 
-	public ExecutionLog(String taskId, Severity severity, String content) {
+	public ExecutionLog(String executionSessionId, String taskId, Severity severity, String content) {
+		this.executionSessionId = executionSessionId;
 		this.taskId = taskId;
 		this.logTime = OffsetDateTime.now(ZoneId.systemDefault());
 		this.content = content;

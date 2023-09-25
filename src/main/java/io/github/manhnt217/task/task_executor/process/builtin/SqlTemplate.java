@@ -1,14 +1,15 @@
 package io.github.manhnt217.task.task_executor.process.builtin;
 
-import io.github.manhnt217.task.task_executor.process.LogHandler;
 import io.github.manhnt217.task.task_executor.process.Severity;
 import io.github.manhnt217.task.task_executor.process.Template;
-import io.github.manhnt217.task.task_executor.process.builtin.sql.DataSource;
-import io.github.manhnt217.task.task_executor.process.builtin.sql.DataSourceConfig;
-import io.github.manhnt217.task.task_executor.process.builtin.sql.DataSourceConnector;
+import io.github.manhnt217.task.task_executor.process.TemplateLogHandler;
+import io.github.manhnt217.task.task_executor.common.sql.DataSource;
+import io.github.manhnt217.task.task_executor.common.sql.DataSourceConfig;
+import io.github.manhnt217.task.task_executor.common.sql.DataSourceConnector;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.hibernate.Session;
 import org.hibernate.query.NativeQuery;
 
@@ -23,21 +24,26 @@ import java.util.stream.Stream;
 
 @Slf4j
 public class SqlTemplate extends Template<SqlTemplate.Input, Object> {
+
+    public SqlTemplate() {
+        super();
+    }
+
     @Override
     protected Class<? extends Input> getInputClass() {
         return Input.class;
     }
 
     @Override
-    public Object exec(Input input, LogHandler logHanlder) {
+    public Object exec(Input input, TemplateLogHandler logHanlder) throws Exception {
 
         DataSourceConnector dataSourceConnector = null;
         try {
-            DataSource dataSource = getDataSource();
+            DataSource dataSource = getDataSource(input.getDataSource());
             dataSourceConnector = new DataSourceConnector(dataSource);
             dataSourceConnector.executeTransation(session -> this.execute(session, input.getSql(), logHanlder));
         } catch (Exception e) {
-            log.error("Got an exception while executing query: " + input.getSql(), e);
+            throw new RuntimeException("Cannot execute following SQL script: [\n" + input.getSql() + "\n]. Caused by: " + ExceptionUtils.getRootCauseMessage(e));
         } finally {
             if (dataSourceConnector != null) {
                 dataSourceConnector.close();
@@ -47,7 +53,7 @@ public class SqlTemplate extends Template<SqlTemplate.Input, Object> {
         return new Object();
     }
 
-    private void execute(Session session, String sql, LogHandler logHanlder) {
+    private void execute(Session session, String sql, TemplateLogHandler logHanlder) {
         try {
             enabledDBMSOutput(session);
 
@@ -60,7 +66,7 @@ public class SqlTemplate extends Template<SqlTemplate.Input, Object> {
         }
     }
 
-    private static void logOutput(LogHandler logHanlder, Connection connection) {
+    private static void logOutput(TemplateLogHandler logHanlder, Connection connection) {
         try (CallableStatement call = connection.prepareCall(
                 "declare "
                         + " num integer := 1000;"
@@ -98,8 +104,7 @@ public class SqlTemplate extends Template<SqlTemplate.Input, Object> {
         enableDMBSOutputQuery.executeUpdate();
     }
 
-    // Hardcode data
-    private static DataSource getDataSource() {
+    private DataSource getDataSource(String dataSourceName) {
         DataSource dataSource = new DataSource();
         dataSource.setName("foo");
         Map<String, DataSourceConfig> configs = new HashMap<>();

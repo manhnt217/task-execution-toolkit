@@ -1,4 +1,4 @@
-package io.github.manhnt217.task.task_executor.process.builtin.sql;
+package io.github.manhnt217.task.task_executor.common.sql;
 
 import lombok.Getter;
 import lombok.Setter;
