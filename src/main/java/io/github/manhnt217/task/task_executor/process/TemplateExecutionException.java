@@ -1,17 +1,14 @@
 package io.github.manhnt217.task.task_executor.process;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class TemplateExecutionException extends Exception {
-	public TemplateExecutionException(Exception e) {
-		super("Cannot execute template. Caused by: " + ExceptionUtils.getRootCauseMessage(e));
-	}
 
 	public TemplateExecutionException(String message) {
 		super(message);
 	}
 
-	public TemplateExecutionException(String message, Exception e) {
-		super(message + "\nCaused by: " + ExceptionUtils.getRootCauseMessage(e));
+	public TemplateExecutionException(String templateName, JsonNode input, Exception e) {
+		super("Could not execute template '" + templateName + "'. Input = " + input.toString(), e);
 	}
 }
