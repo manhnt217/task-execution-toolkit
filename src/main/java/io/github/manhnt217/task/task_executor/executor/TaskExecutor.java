@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
-import io.github.manhnt217.task.task_executor.process.LogHandler;
+import io.github.manhnt217.task.task_executor.process.Logger;
 import io.github.manhnt217.task.task_executor.task.Task;
 import io.github.manhnt217.task.task_executor.task.TemplateTask;
 
@@ -29,5 +29,5 @@ public abstract class TaskExecutor {
         }
     }
 
-    public abstract JsonNode execute(Task task, JsonNode input, String executionSessionId, LogHandler logHandler) throws TaskExecutionException;
+    public abstract JsonNode execute(Task task, JsonNode input, String executionSessionId, Logger logger) throws TaskExecutionException;
 }
