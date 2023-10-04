@@ -7,7 +7,7 @@ import io.github.manhnt217.task.task_executor.task.Task;
 public class ParamContext {
 
     private static final String KEY_PARENT = "_PARENT_";
-    private static final String WITHOUT_PARENT_JSLT = "{\"" + KEY_PARENT + "\": null, * : . }";
+    public static final String WITHOUT_PARENT_JSLT = "{\"" + KEY_PARENT + "\": null, * : . }";
 
     /**
      * Capture all the inputs & outputs of each task
@@ -19,7 +19,7 @@ public class ParamContext {
     }
 
     public void saveTaskOutput(Task task, JsonNode output) {
-        contextParams.set(task.getId(), output);
+        contextParams.set(task.getTaskName(), output);
     }
 
     public void setParentInput(JsonNode globalParams) {
@@ -33,9 +33,5 @@ public class ParamContext {
 
     public JsonNode transform(String jslt) {
         return JSLTUtil.applyTransform(jslt, contextParams);
-    }
-
-    public JsonNode allTaskOutputs() {
-        return JSLTUtil.applyTransform(WITHOUT_PARENT_JSLT, contextParams);
     }
 }

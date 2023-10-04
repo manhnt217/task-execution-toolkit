@@ -1,10 +1,10 @@
 package io.github.manhnt217.task.task_executor.process.builtin;
 
-import io.github.manhnt217.task.task_executor.process.Template;
-import io.github.manhnt217.task.task_executor.process.TemplateLogger;
 import io.github.manhnt217.task.task_executor.common.sql.DataSource;
 import io.github.manhnt217.task.task_executor.common.sql.DataSourceConfig;
 import io.github.manhnt217.task.task_executor.common.sql.DataSourceConnector;
+import io.github.manhnt217.task.task_executor.process.Template;
+import io.github.manhnt217.task.task_executor.process.TemplateLogger;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -33,13 +33,13 @@ public class SqlTemplate extends Template<SqlTemplate.Input, Object> {
     }
 
     @Override
-    public Object exec(Input input, TemplateLogger logHanlder) throws Exception {
+    public Object exec(Input input, TemplateLogger logger) throws Exception {
 
         DataSourceConnector dataSourceConnector = null;
         try {
             DataSource dataSource = getDataSource(input.getDataSource());
             dataSourceConnector = new DataSourceConnector(dataSource);
-            dataSourceConnector.executeTransation(session -> this.execute(session, input.getSql(), logHanlder));
+            dataSourceConnector.executeTransation(session -> this.execute(session, input.getSql(), logger));
         } catch (Exception e) {
             throw new Exception("Cannot execute following SQL script: [" + input.getSql() + "]", e);
         } finally {
@@ -51,20 +51,20 @@ public class SqlTemplate extends Template<SqlTemplate.Input, Object> {
         return new Object();
     }
 
-    private void execute(Session session, String sql, TemplateLogger logHanlder) {
+    private void execute(Session session, String sql, TemplateLogger log) {
         try {
             enabledDBMSOutput(session);
 
             NativeQuery query = session.createNativeQuery(sql);
             query.executeUpdate();
 
-            session.doWork((Connection connection) -> logOutput(logHanlder, connection));
+            session.doWork((Connection connection) -> logOutput(log, connection));
         } finally {
             disableDBMSOutput(session);
         }
     }
 
-    private static void logOutput(TemplateLogger logHanlder, Connection connection) {
+    private static void logOutput(TemplateLogger log, Connection connection) {
         try (CallableStatement call = connection.prepareCall(
                 "declare "
                         + " num integer := 1000;"
@@ -81,7 +81,7 @@ public class SqlTemplate extends Template<SqlTemplate.Input, Object> {
                 array = call.getArray(1);
                 Stream.of((Object[]) array.getArray())
                         .filter(Objects::nonNull)
-                        .forEach(o -> logHanlder.info(String.valueOf(o)));
+                        .forEach(o -> log.info(String.valueOf(o)));
             } finally {
                 if (array != null)
                     array.free();
