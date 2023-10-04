@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -20,13 +19,19 @@ import java.util.Map;
 
 public class CurlTemplate extends Template<CurlTemplate.Input, CurlTemplate.Output> {
 
+	// Uncomment this to disable redirect globally
+	//	static {
+	//		Unirest.config()
+	//				.followRedirects(false);
+	//	}
+
 	@Override
 	protected Class<? extends Input> getInputClass() {
 		return Input.class;
 	}
 
 	@Override
-	public Output exec(Input input, TemplateLogger logHandler) throws Exception {
+	public Output exec(Input input, TemplateLogger logger) throws Exception {
 		return doRequest(input.getUrl(), input.getMethod(), input.getHeaders(), input.getQueryParams(), input.getBody());
 	}
 
@@ -49,13 +54,7 @@ public class CurlTemplate extends Template<CurlTemplate.Input, CurlTemplate.Outp
 		if (res.isSuccess()) {
 			return new Output(res.getStatus(), res.getBody());
 		} else {
-			return new Output(res.getStatus(),
-					"Got an exception while making the request to portainer" +
-							". URL = " + requestURL +
-							". Code = " + res.getStatus() +
-							". Message = " + res.getBody() +
-							". Stacktrace = " + res.getParsingError().map(ExceptionUtils::getRootCauseMessage).orElse("")
-					);
+			return new Output(res.getStatus(), "Got an exception while making the request");
 		}
 	}
 

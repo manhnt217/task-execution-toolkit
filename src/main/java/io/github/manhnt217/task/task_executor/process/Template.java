@@ -3,6 +3,7 @@ package io.github.manhnt217.task.task_executor.process;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.task_executor.executor.TaskExecutor;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public abstract class Template<P, R> {
@@ -15,7 +16,7 @@ public abstract class Template<P, R> {
             String className = BUILTIN_TEMPLATE_PACKAGE + templateName;
             Class<?> clazz = Class.forName(className);
             if (!Template.class.isAssignableFrom(clazz)) {
-                throw new TemplateExecutionException("Template class " + className + " does not extend " + Template.class.getName());
+                throw new TemplateExecutionException(templateName, "Template class does not extend " + Template.class.getName());
             }
 
             Method runMethod = clazz.getMethod(EXEC_METHOD_NAME, JsonNode.class, TemplateLogger.class);
@@ -23,13 +24,15 @@ public abstract class Template<P, R> {
             Object result = runMethod.invoke(templateInstance, input, log);
             return TaskExecutor.om.valueToTree(result);
         } catch (ClassNotFoundException e) {
-            throw new TemplateExecutionException("Could not find any builtin template with name: " + templateName);
+            throw new TemplateExecutionException(templateName, "Could not find any builtin template");
         } catch (NoSuchMethodException e) {
-            throw new TemplateExecutionException("Could not find method run(JsonNode, LogHandler) in template class: " + templateName);
+            throw new TemplateExecutionException(templateName, "Could not find method run(JsonNode, LogHandler) in template");
         } catch (InstantiationException e) {
-            throw new TemplateExecutionException("Could not create template instance of template class: " + templateName);
+            throw new TemplateExecutionException(templateName, "Could not create a new instance of template");
         } catch (IllegalAccessException e) {
-            throw new TemplateExecutionException("Could not access method run(JsonNode, LogHandler) in template class: " + templateName);
+            throw new TemplateExecutionException(templateName, "Could not access method run(JsonNode, LogHandler) in template instance");
+        } catch (InvocationTargetException e) {
+            throw new TemplateExecutionException(templateName, input, e.getTargetException());
         } catch (Exception e) {
             throw new TemplateExecutionException(templateName, input, e);
         }
@@ -43,5 +46,5 @@ public abstract class Template<P, R> {
 
     protected abstract Class<? extends P> getInputClass();
 
-    public abstract R exec(P input, TemplateLogger logHandler) throws Exception;
+    public abstract R exec(P input, TemplateLogger logger) throws Exception;
 }

@@ -17,7 +17,7 @@ public abstract class Task {
 	 * 	   <li> Example: <code>com-fortna-wes-hk-cron1</code> </li>
 	 * </ul>
 	 */
-	protected String id;
+	protected String taskName;
 
 	protected String inputMappingExpression;
 

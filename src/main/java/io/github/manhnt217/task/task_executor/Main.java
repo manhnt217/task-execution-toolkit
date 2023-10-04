@@ -50,7 +50,7 @@ public class Main {
 		);
 
 		TemplateTask task1 = new TemplateTask();
-		task1.setId("task1");
+		task1.setTaskName("task1");
 		task1.setTemplateName("CurlTemplate");
 		task1.setEndLogExpression("\"Finish task 1\"");
 		task1.setInputMappingExpression("{\"uurl\": ._PARENT_.address, \"method\": ._PARENT_.\"http-method\"}");
@@ -62,7 +62,7 @@ public class Main {
 		try {
 			output = executor.execute(task, TaskExecutor.om.valueToTree(input), executionSessionId, logHandler);
 		} catch (Exception e) {
-			logHandler.error(executionSessionId, task.getId(), "", e);
+			logHandler.error(executionSessionId, task.getTaskName(), "", e);
 		}
 		System.out.println("Task output:");
 		System.out.println(TaskExecutor.om.writerWithDefaultPrettyPrinter().writeValueAsString(output));
@@ -72,7 +72,7 @@ public class Main {
 
 	private static CompoundTask buildTaskWrapper(Task task) {
 		CompoundTask wrapper = new CompoundTask(Collections.singletonList(task));
-		wrapper.setId("WRAPPER-" + UUID.randomUUID());
+		wrapper.setTaskName("WRAPPER-" + UUID.randomUUID());
 		return wrapper;
 	}
 
@@ -80,35 +80,35 @@ public class Main {
 		DefaultLogger logHandler = new DefaultLogger();
 
 		TemplateTask task1 = new TemplateTask();
-		task1.setId("task1");
+		task1.setTaskName("task1");
 		task1.setInputMappingExpression("._PARENT_");
 		task1.setTemplateName("CurlTemplate");
 		task1.setEndLogExpression("\"Finish task 1\"");
 
 		TemplateTask task2 = new TemplateTask();
-		task2.setId("task2");
+		task2.setTaskName("task2");
 		task2.setTemplateName("LogTemplate");
 		task2.setInputMappingExpression("{\"severity\": \"INFO\", \"message\": \"Status code is \\n\" + .task1.statusCode}");
 
 		TemplateTask task3 = new TemplateTask();
-		task3.setId("task3");
+		task3.setTaskName("task3");
 		task3.setTemplateName("SqlTemplate");
 		task3.setInputMappingExpression("{\"sql\":\"" + SQL + "\",\"dataSource\":\"abdc\"}");
 
-		task2.setDependencies(Sets.newHashSet(task1.getId()));
-		task3.setDependencies(Sets.newHashSet(task2.getId()));
+		task2.setDependencies(Sets.newHashSet(task1.getTaskName()));
+		task3.setDependencies(Sets.newHashSet(task2.getTaskName()));
 
 		CompoundTask compoundTask1 = new CompoundTask(Lists.newArrayList(task1, task3, task2));
 		compoundTask1.setInputMappingExpression("._PARENT_");
-		compoundTask1.setId("c1");
+		compoundTask1.setTaskName("c1");
 
 		CompoundTask compoundTask2 = new CompoundTask(Lists.newArrayList(task1, task2, task3));
 		compoundTask2.setInputMappingExpression("._PARENT_");
-		compoundTask2.setId("c2");
+		compoundTask2.setTaskName("c2");
 
 		CompoundTask mainTask = new CompoundTask(Lists.newArrayList(compoundTask1, compoundTask2));
 		mainTask.setInputMappingExpression("._PARENT_");
-		mainTask.setId("main");
+		mainTask.setTaskName("main");
 
 		Map<String, Object> input = ImmutableMap.of(
 				"url", "https://example.com",
