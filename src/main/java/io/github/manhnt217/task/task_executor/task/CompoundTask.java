@@ -15,7 +15,7 @@ public class CompoundTask extends Task {
 
     private List<Task> subTasks;
 
-    private String outputMapping;
+    private String outputMapping = WITHOUT_PARENT_JSLT;
 
     public CompoundTask() {
         this.subTasks = new ArrayList<>(0);

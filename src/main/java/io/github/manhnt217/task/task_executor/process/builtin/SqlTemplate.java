@@ -23,10 +23,6 @@ import java.util.stream.Stream;
 @Slf4j
 public class SqlTemplate extends Template<SqlTemplate.Input, Object> {
 
-    public SqlTemplate() {
-        super();
-    }
-
     @Override
     protected Class<? extends Input> getInputClass() {
         return Input.class;
@@ -37,7 +33,7 @@ public class SqlTemplate extends Template<SqlTemplate.Input, Object> {
 
         DataSourceConnector dataSourceConnector = null;
         try {
-            DataSource dataSource = getDataSource(input.getDataSource());
+            DataSource dataSource = getDataSource(input);
             dataSourceConnector = new DataSourceConnector(dataSource);
             dataSourceConnector.executeTransation(session -> this.execute(session, input.getSql(), logger));
         } catch (Exception e) {
@@ -102,21 +98,26 @@ public class SqlTemplate extends Template<SqlTemplate.Input, Object> {
         enableDMBSOutputQuery.executeUpdate();
     }
 
-    private DataSource getDataSource(String dataSourceName) {
+    private DataSource getDataSource(Input input) {
         DataSource dataSource = new DataSource();
-        dataSource.setName("foo");
-        Map<String, DataSourceConfig> configs = new HashMap<>();
-        configs.put("hibernate.connection.driver_class", new DataSourceConfig(dataSource, "hibernate.connection.driver_class", "oracle.jdbc.OracleDriver"));
-        configs.put("hibernate.dialect", new DataSourceConfig(dataSource, "hibernate.dialect", "org.hibernate.dialect.Oracle12cDialect"));
-        configs.put("hibernate.hikari.connectionTimeout", new DataSourceConfig(dataSource, "hibernate.hikari.connectionTimeout", "20000"));
-        configs.put("hibernate.hikari.idleTimeout", new DataSourceConfig(dataSource, "hibernate.hikari.idleTimeout", "30000"));
-        configs.put("hibernate.connection.url", new DataSourceConfig(dataSource, "hibernate.connection.url", "jdbc:oracle:thin:@dbserver:1521/FORTNAWCS"));
-        configs.put("hibernate.connection.username", new DataSourceConfig(dataSource, "hibernate.connection.username", "foo"));
-        configs.put("hibernate.connection.password", new DataSourceConfig(dataSource, "hibernate.connection.password", "foo"));
-        configs.put("hibernate.hikari.minimumIdle", new DataSourceConfig(dataSource, "hibernate.hikari.minimumIdle", "2"));
-        configs.put("hibernate.hikari.maximumPoolSize", new DataSourceConfig(dataSource, "hibernate.hikari.maximumPoolSize", "5"));
-        dataSource.setConfigs(configs);
+        dataSource.setName(input.getDataSource());
+        dataSource.setConfigs(buildDSConfigs(input));
+
         return dataSource;
+    }
+
+    private static Map<String, DataSourceConfig> buildDSConfigs(Input input) {
+        Map<String, String> dataSourceProperties = input.getDataSourceProperties();
+        Map<String, DataSourceConfig> configs = new HashMap<>(dataSourceProperties.size());
+        for (Map.Entry<String, String> entry : dataSourceProperties.entrySet()) {
+            configs.computeIfAbsent(entry.getKey(), k -> {
+                DataSourceConfig hkDataSourceConfig = new DataSourceConfig();
+                hkDataSourceConfig.setConfigKey(entry.getKey());
+                hkDataSourceConfig.setConfigValue(entry.getValue());
+                return hkDataSourceConfig;
+            });
+        }
+        return configs;
     }
 
     @Getter
@@ -124,5 +125,6 @@ public class SqlTemplate extends Template<SqlTemplate.Input, Object> {
     public static class Input {
         private String sql;
         private String dataSource;
+        private Map<String, String> dataSourceProperties;
     }
 }
