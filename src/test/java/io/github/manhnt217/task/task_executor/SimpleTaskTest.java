@@ -3,7 +3,7 @@ package io.github.manhnt217.task.task_executor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
-import io.github.manhnt217.task.task_executor.executor.TaskExecutionException;
+import io.github.manhnt217.task.task_executor.task.TaskExecutionException;
 import io.github.manhnt217.task.task_executor.process.DefaultLogger;
 import io.github.manhnt217.task.task_executor.process.builtin.CurlTemplate;
 import io.github.manhnt217.task.task_executor.task.TemplateTask;
@@ -27,7 +27,7 @@ public class SimpleTaskTest {
         );
 
         TemplateTask task = new TemplateTask();
-        task.setTaskName("simpleTask");
+        task.setName("simpleTask");
         task.setTemplateName("CurlTemplate");
         task.setEndLogExpression("\"Finish task 1\"");
         task.setInputMappingExpression("{\"url\": ._PARENT_.address, \"method\": ._PARENT_.\"http-method\"}");

@@ -1,8 +1,8 @@
-package io.github.manhnt217.task.task_executor.executor;
+package io.github.manhnt217.task.task_executor.task;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.github.manhnt217.task.task_executor.task.Task;
+import io.github.manhnt217.task.task_executor.activity.Activity;
 
 public class ParamContext {
 
@@ -15,11 +15,15 @@ public class ParamContext {
     private final ObjectNode contextParams; // root object to evaluate JSLT expression
 
     public ParamContext() {
-        this.contextParams = TaskExecutor.om.createObjectNode();
+        this.contextParams = Task.OBJECT_MAPPER.createObjectNode();
     }
 
-    public void saveTaskOutput(Task task, JsonNode output) {
-        contextParams.set(task.getTaskName(), output);
+    public void saveOutput(Activity activity, JsonNode output) {
+        if (activity instanceof Task) {
+            contextParams.set(activity.getName(), output);
+        } else {
+            throw new UnsupportedOperationException("Not implemented yet");
+        }
     }
 
     public void setParentInput(JsonNode globalParams) {

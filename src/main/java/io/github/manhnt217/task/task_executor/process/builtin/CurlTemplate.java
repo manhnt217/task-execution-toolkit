@@ -1,9 +1,9 @@
 package io.github.manhnt217.task.task_executor.process.builtin;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.manhnt217.task.task_executor.executor.TaskExecutor;
 import io.github.manhnt217.task.task_executor.process.Template;
 import io.github.manhnt217.task.task_executor.process.TemplateLogger;
+import io.github.manhnt217.task.task_executor.task.Task;
 import kong.unirest.HttpMethod;
 import kong.unirest.HttpRequestWithBody;
 import kong.unirest.HttpResponse;
@@ -73,7 +73,7 @@ public class CurlTemplate extends Template<CurlTemplate.Input, CurlTemplate.Outp
 				) {
 					params.put(key, v);
 				} else {
-					params.put(key, TaskExecutor.om.writeValueAsString(v));
+					params.put(key, Task.OBJECT_MAPPER.writeValueAsString(v));
 				}
 			}
 		}
