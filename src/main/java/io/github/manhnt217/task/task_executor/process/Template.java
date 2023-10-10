@@ -1,7 +1,7 @@
 package io.github.manhnt217.task.task_executor.process;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.github.manhnt217.task.task_executor.executor.TaskExecutor;
+import io.github.manhnt217.task.task_executor.task.Task;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -22,7 +22,7 @@ public abstract class Template<P, R> {
             Method runMethod = clazz.getMethod(EXEC_METHOD_NAME, JsonNode.class, TemplateLogger.class);
             Object templateInstance = clazz.newInstance();
             Object result = runMethod.invoke(templateInstance, input, log);
-            return TaskExecutor.om.valueToTree(result);
+            return Task.OBJECT_MAPPER.valueToTree(result);
         } catch (ClassNotFoundException e) {
             throw new TemplateExecutionException(templateName, "Could not find any builtin template");
         } catch (NoSuchMethodException e) {
@@ -40,8 +40,8 @@ public abstract class Template<P, R> {
 
     @SuppressWarnings("unused")
     public final JsonNode run(JsonNode inputJS, TemplateLogger logHandler) throws Exception {
-        R rs = exec(TaskExecutor.om.treeToValue(inputJS, getInputClass()), logHandler);
-        return TaskExecutor.om.valueToTree(rs);
+        R rs = exec(Task.OBJECT_MAPPER.treeToValue(inputJS, getInputClass()), logHandler);
+        return Task.OBJECT_MAPPER.valueToTree(rs);
     }
 
     protected abstract Class<? extends P> getInputClass();
