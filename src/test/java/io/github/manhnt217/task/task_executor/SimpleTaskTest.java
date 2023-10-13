@@ -26,8 +26,7 @@ public class SimpleTaskTest {
                 "http-method", "GET"
         );
 
-        TemplateTask task = new TemplateTask();
-        task.setName("simpleTask");
+        TemplateTask task = new TemplateTask("simpleTask");
         task.setTemplateName("CurlTemplate");
         task.setEndLogExpression("\"Finish task 1\"");
         task.setInputMappingExpression("{\"url\": ._PARENT_.address, \"method\": ._PARENT_.\"http-method\"}");
