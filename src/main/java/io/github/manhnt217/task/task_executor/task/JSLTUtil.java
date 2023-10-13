@@ -12,6 +12,7 @@ public class JSLTUtil {
 			return input;
 		}
 
+		// TODO: Cache the result of compilation if it is time-consuming process (need to monitor)
 		Expression jslt = Parser.compileString(jsltExp);
 		return jslt.apply(input);
 	}

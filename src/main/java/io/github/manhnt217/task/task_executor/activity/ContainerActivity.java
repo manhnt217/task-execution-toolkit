@@ -3,6 +3,7 @@ package io.github.manhnt217.task.task_executor.activity;
 public interface ContainerActivity extends Activity {
 
     String BLANK_GUARD_EXP = "<blank>";
+    String OTHERWISE_GUARD_EXP = "<otherwise>";
 
     /**
      * Add activity to the container.

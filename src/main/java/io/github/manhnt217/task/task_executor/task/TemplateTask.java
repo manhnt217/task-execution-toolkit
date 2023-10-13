@@ -12,6 +12,10 @@ import lombok.Setter;
 public class TemplateTask extends Task {
 	private String templateName;
 
+	public TemplateTask(String name) {
+		super(name);
+	}
+
 	@Override
 	public JsonNode execute(JsonNode input, String executionId, Logger logger) throws TaskExecutionException {
 		try {

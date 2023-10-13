@@ -18,8 +18,7 @@ import java.util.UUID;
 
 import static io.github.manhnt217.task.task_executor.common.CommonUtil.OM;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 public class ComplexTaskTest {
 
@@ -36,28 +35,24 @@ public class ComplexTaskTest {
     public void testComplex1() throws TaskExecutionException, JsonProcessingException {
         DefaultLogger logHandler = new DefaultLogger();
 
-        TemplateTask task1 = new TemplateTask();
-        task1.setName("task1");
+        TemplateTask task1 = new TemplateTask("task1");
         task1.setInputMappingExpression("._PARENT_");
         task1.setTemplateName("CurlTemplate");
         task1.setEndLogExpression("\"Finish task 1\"");
 
-        TemplateTask task2 = new TemplateTask();
-        task2.setName("task2");
+        TemplateTask task2 = new TemplateTask("task2");
         task2.setTemplateName("LogTemplate");
-        task2.setInputMappingExpression("{\"severity\": \"INFO\", \"message\": \"Status code is \\n\" + .task1.statusCode}");
+        task2.setInputMappingExpression("{\"severity\": \"INFO\", \"message\": \"Status code is \" + .task1.statusCode}");
 
-        TemplateTask task3 = new TemplateTask();
-        task3.setName("task3");
+        TemplateTask task3 = new TemplateTask("task3");
         task3.setTemplateName("SqlTemplate");
         task3.setInputMappingExpression("{\"sql\":\"" + SQL + "\"} + ._PARENT_");
 
         task2.setDependencies(Sets.newHashSet(task1.getName()));
         task3.setDependencies(Sets.newHashSet(task2.getName()));
 
-        CompoundTask compoundTask1 = new CompoundTask(Lists.newArrayList(task1, task3, task2));
+        CompoundTask compoundTask1 = new CompoundTask("c1", Lists.newArrayList(task1, task2, task3));
         compoundTask1.setInputMappingExpression("._PARENT_");
-        compoundTask1.setName("c1");
 
         Map<String, Object> input = ImmutableMap.of(
                 "url", "https://example.com",
@@ -84,5 +79,9 @@ public class ComplexTaskTest {
 
         assertThat((Map<String, Object>) out.get("task1"), hasKey("statusCode"));
         assertThat(((Map) out.get("task2")).size(), is(0));
+
+        assertThat(logHandler.getLogs().size(), greaterThanOrEqualTo(2));
+        assertThat(logHandler.getLogs().get(0).getContent(), is("Finish task 1"));
+        assertThat(logHandler.getLogs().get(1).getContent(), is("Status code is 200"));
     }
 }
