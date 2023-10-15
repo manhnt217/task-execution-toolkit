@@ -1,10 +1,10 @@
-package io.github.manhnt217.task.task_executor.process.builtin;
+package io.github.manhnt217.task.task_executor.template.builtin;
 
 import io.github.manhnt217.task.task_executor.common.sql.DataSource;
 import io.github.manhnt217.task.task_executor.common.sql.DataSourceConfig;
 import io.github.manhnt217.task.task_executor.common.sql.DataSourceConnector;
-import io.github.manhnt217.task.task_executor.process.Template;
-import io.github.manhnt217.task.task_executor.process.TemplateLogger;
+import io.github.manhnt217.task.task_executor.template.Template;
+import io.github.manhnt217.task.task_executor.activity.impl.task.TemplateLogger;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;

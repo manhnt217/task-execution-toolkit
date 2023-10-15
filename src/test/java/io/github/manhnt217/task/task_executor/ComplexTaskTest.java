@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.github.manhnt217.task.task_executor.activity.ActivityException;
-import io.github.manhnt217.task.task_executor.process.DefaultLogger;
-import io.github.manhnt217.task.task_executor.task.CompoundTask;
-import io.github.manhnt217.task.task_executor.task.Task;
-import io.github.manhnt217.task.task_executor.task.TemplateTask;
+import io.github.manhnt217.task.task_executor.activity.impl.DefaultLogger;
+import io.github.manhnt217.task.task_executor.activity.impl.task.CompoundTask;
+import io.github.manhnt217.task.task_executor.activity.impl.task.Task;
+import io.github.manhnt217.task.task_executor.activity.impl.task.TemplateTask;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;

@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.task_executor.activity.ActivityException;
 import io.github.manhnt217.task.task_executor.activity.OutboundMessage;
 import io.github.manhnt217.task.task_executor.activity.impl.SimpleInboundMessage;
-import io.github.manhnt217.task.task_executor.process.DefaultLogger;
-import io.github.manhnt217.task.task_executor.task.context.ParamContext;
-import io.github.manhnt217.task.task_executor.task.Task;
-import io.github.manhnt217.task.task_executor.task.TaskExecutionException;
+import io.github.manhnt217.task.task_executor.activity.impl.DefaultLogger;
+import io.github.manhnt217.task.task_executor.activity.impl.task.context.ParamContext;
+import io.github.manhnt217.task.task_executor.activity.impl.task.Task;
+import io.github.manhnt217.task.task_executor.activity.impl.task.TaskExecutionException;
 
 public class TestUtil {
 

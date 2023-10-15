@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import io.github.manhnt217.task.task_executor.activity.ActivityException;
-import io.github.manhnt217.task.task_executor.process.DefaultLogger;
-import io.github.manhnt217.task.task_executor.process.builtin.CurlTemplate;
-import io.github.manhnt217.task.task_executor.task.TemplateTask;
+import io.github.manhnt217.task.task_executor.activity.impl.DefaultLogger;
+import io.github.manhnt217.task.task_executor.template.builtin.CurlTemplate;
+import io.github.manhnt217.task.task_executor.activity.impl.task.TemplateTask;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;

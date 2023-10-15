@@ -1,12 +1,11 @@
-package io.github.manhnt217.task.task_executor.task;
+package io.github.manhnt217.task.task_executor.activity.impl.task;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.task_executor.activity.*;
 import io.github.manhnt217.task.task_executor.activity.impl.SimpleInboundMessage;
 import io.github.manhnt217.task.task_executor.activity.impl.SimpleOutboundMessage;
-import io.github.manhnt217.task.task_executor.process.Logger;
-import io.github.manhnt217.task.task_executor.task.context.ExecContext;
-import io.github.manhnt217.task.task_executor.task.context.ParamContext;
+import io.github.manhnt217.task.task_executor.activity.impl.task.context.ExecContext;
+import io.github.manhnt217.task.task_executor.activity.impl.task.context.ParamContext;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
