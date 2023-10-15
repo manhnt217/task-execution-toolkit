@@ -1,4 +1,4 @@
-package io.github.manhnt217.task.task_executor.process;
+package io.github.manhnt217.task.task_executor.activity;
 
 public interface Logger {
 	void info(String executionSessionId, String taskId, String message);

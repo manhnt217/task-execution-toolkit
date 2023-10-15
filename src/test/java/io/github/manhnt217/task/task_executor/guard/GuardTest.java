@@ -3,11 +3,11 @@ package io.github.manhnt217.task.task_executor.guard;
 import io.github.manhnt217.task.task_executor.TestUtil;
 import io.github.manhnt217.task.task_executor.activity.ActivityException;
 import io.github.manhnt217.task.task_executor.activity.ContainerActivity;
-import io.github.manhnt217.task.task_executor.process.DefaultLogger;
-import io.github.manhnt217.task.task_executor.process.ExecutionLog;
-import io.github.manhnt217.task.task_executor.task.CompoundTask;
-import io.github.manhnt217.task.task_executor.task.TaskExecutionException;
-import io.github.manhnt217.task.task_executor.task.TemplateTask;
+import io.github.manhnt217.task.task_executor.activity.impl.DefaultLogger;
+import io.github.manhnt217.task.task_executor.activity.impl.ExecutionLog;
+import io.github.manhnt217.task.task_executor.activity.impl.task.CompoundTask;
+import io.github.manhnt217.task.task_executor.activity.impl.task.TaskExecutionException;
+import io.github.manhnt217.task.task_executor.activity.impl.task.TemplateTask;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

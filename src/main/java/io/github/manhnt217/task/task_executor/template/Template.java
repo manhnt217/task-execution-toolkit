@@ -1,7 +1,8 @@
-package io.github.manhnt217.task.task_executor.process;
+package io.github.manhnt217.task.task_executor.template;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.github.manhnt217.task.task_executor.task.Task;
+import io.github.manhnt217.task.task_executor.activity.impl.task.Task;
+import io.github.manhnt217.task.task_executor.activity.impl.task.TemplateLogger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

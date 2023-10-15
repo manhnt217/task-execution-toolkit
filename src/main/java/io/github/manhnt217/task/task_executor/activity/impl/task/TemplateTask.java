@@ -1,10 +1,9 @@
-package io.github.manhnt217.task.task_executor.task;
+package io.github.manhnt217.task.task_executor.activity.impl.task;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.github.manhnt217.task.task_executor.process.Logger;
-import io.github.manhnt217.task.task_executor.process.Template;
-import io.github.manhnt217.task.task_executor.process.TemplateExecutionException;
-import io.github.manhnt217.task.task_executor.process.TemplateLogger;
+import io.github.manhnt217.task.task_executor.activity.Logger;
+import io.github.manhnt217.task.task_executor.template.Template;
+import io.github.manhnt217.task.task_executor.template.TemplateExecutionException;
 import lombok.Getter;
 import lombok.Setter;
 
