@@ -2,10 +2,11 @@ package io.github.manhnt217.task.task_executor.task;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.task_executor.activity.*;
-import io.github.manhnt217.task.task_executor.activity.impl.EndActivity;
 import io.github.manhnt217.task.task_executor.activity.impl.SimpleInboundMessage;
-import io.github.manhnt217.task.task_executor.activity.impl.StartActivity;
+import io.github.manhnt217.task.task_executor.activity.impl.SimpleOutboundMessage;
 import io.github.manhnt217.task.task_executor.process.Logger;
+import io.github.manhnt217.task.task_executor.task.context.ExecContext;
+import io.github.manhnt217.task.task_executor.task.context.ParamContext;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
@@ -14,15 +15,20 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.github.manhnt217.task.task_executor.task.ParamContext.WITHOUT_PARENT_JSLT;
-
 @Getter
 @Setter
 public class CompoundTask extends Task implements ContainerActivity {
 
     private List<Activity> activities;
 
-    private String outputMapping = WITHOUT_PARENT_JSLT;
+    public static final String ALL_SUBTASKS_JSLT = "{" +
+            "\"" + ParamContext.KEY_PROPS + "\": null," +
+            "\"" + StartActivity.NAME + "\": null," +
+            "\"" + EndActivity.NAME + "\": null," +
+            " * : . " +
+            "}";
+
+    private String outputMapping;
     private StartActivity startActivity;
     private EndActivity endActivity;
 
@@ -94,19 +100,18 @@ public class CompoundTask extends Task implements ContainerActivity {
     }
 
     @Override
-    public JsonNode execute(JsonNode input, String executionId, Logger logger) throws TaskExecutionException {
+    public JsonNode execute(JsonNode input, String executionId, Logger logger, JsonNode props) throws TaskExecutionException {
 
-        ParamContext context = new ParamContext();
-
-        context.setParentInput(input);
+        ExecContext context = new ParamContext(props);
 
         try {
 
             Activity currentActivity = startActivity;
+            startActivity.setOutput(input);
 
             while (true) {
                 OutboundMessage out = executeActivity(currentActivity, context, executionId, logger);
-                saveOutput(currentActivity, out, context);
+                context.saveOutput(currentActivity, out);
                 Activity nextActivity = getNextActivity(currentActivity, context);
                 if (nextActivity instanceof EndActivity) {
                     break;
@@ -115,13 +120,20 @@ public class CompoundTask extends Task implements ContainerActivity {
             }
 
             try {
-                return context.transform(this.getOutputMapping());
+                return getOutput(context);
             } catch (Exception e) {
                 throw new RuntimeException("Exception while transform the output");
             }
         } catch (Exception e) {
             throw new TaskExecutionException("Unexpected exception occurred", this, e);
         }
+    }
+
+    private JsonNode getOutput(ExecContext context) {
+        if (StringUtils.isBlank(outputMapping)) {
+            return null;
+        }
+        return context.transform(outputMapping);
     }
 
     private OutboundMessage executeActivity(Activity activity, ExecContext context, String executionId, Logger logger) throws ActivityException {
@@ -135,13 +147,7 @@ public class CompoundTask extends Task implements ContainerActivity {
         return activity.process(inboundMessage, executionId, logger, context);
     }
 
-    private void saveOutput(Activity activity, OutboundMessage out, ExecContext context) {
-        if (activity.registerOutput()) {
-            context.saveOutput(activity, out);
-        }
-    }
-
-    private Activity getNextActivity(Activity activity, ParamContext context) {
+    private Activity getNextActivity(Activity activity, ExecContext context) {
         Map<String, Activity> guardToActivityMap = links.get(activity);
         if (guardToActivityMap == null) {
             throw new IllegalStateException("Activity link to no where. Process stops");
@@ -156,7 +162,7 @@ public class CompoundTask extends Task implements ContainerActivity {
         throw new IllegalStateException("Cannot find the next activity because all links from current activity evaluate to FALSE");
     }
 
-    private boolean isTrueGuard(ParamContext context, String guard) {
+    private boolean isTrueGuard(ExecContext context, String guard) {
         if (BLANK_GUARD_EXP.equals(guard) || OTHERWISE_GUARD_EXP.equals(guard)) {
             return true;
         }
@@ -190,11 +196,53 @@ public class CompoundTask extends Task implements ContainerActivity {
         linkActivities(activity, endActivity, null);
     }
 
-    public void setOutputMapping(String outputMapping) {
-        if (StringUtils.isBlank(outputMapping)) {
-            this.outputMapping = WITHOUT_PARENT_JSLT;
-        } else {
-            this.outputMapping = outputMapping;
+    public static class StartActivity implements Activity {
+
+        public static final OutboundMessage START_ACTIVITY_OUTBOUND_MSG = () -> OBJECT_MAPPER.createObjectNode();
+        public static final String NAME = "_START_";
+        private JsonNode output;
+
+        @Override
+        public String getName() {
+            return NAME;
+        }
+
+        @Override
+        public boolean registerOutput() {
+            return true;
+        }
+
+        public void setOutput(JsonNode output) {
+            this.output = output;
+        }
+
+        @Override
+        public OutboundMessage process(InboundMessage in, String executionId, Logger logger, ExecContext context) throws ActivityException {
+            if (output == null) {
+                return START_ACTIVITY_OUTBOUND_MSG;
+            } else {
+                return SimpleOutboundMessage.of(output);
+            }
+        }
+    }
+
+    public static class EndActivity implements Activity {
+
+        public static final String NAME = "_END_";
+
+        @Override
+        public String getName() {
+            return NAME;
+        }
+
+        @Override
+        public boolean registerOutput() {
+            return false;
+        }
+
+        @Override
+        public OutboundMessage process(InboundMessage in, String executionId, Logger logger, ExecContext context) throws ActivityException {
+            return null;
         }
     }
 }
