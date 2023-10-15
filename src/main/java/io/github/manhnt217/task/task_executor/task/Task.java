@@ -11,13 +11,12 @@ import io.github.manhnt217.task.task_executor.activity.InboundMessage;
 import io.github.manhnt217.task.task_executor.activity.OutboundMessage;
 import io.github.manhnt217.task.task_executor.activity.impl.SimpleOutboundMessage;
 import io.github.manhnt217.task.task_executor.process.Logger;
+import io.github.manhnt217.task.task_executor.task.context.ExecContext;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Set;
 
 @Getter @Setter
 public abstract class Task implements Activity {
@@ -35,14 +34,16 @@ public abstract class Task implements Activity {
 		this.name = name;
 	}
 
+	// TODO: Maybe final
 	@Override
 	public OutboundMessage process(InboundMessage in, String executionId, Logger logger, ExecContext context) throws ActivityException {
 
-		log(getStartLogExpression(), context, executionId, logger);
+		log(getStartLog(), context, executionId, logger);
 
-		SimpleOutboundMessage out = SimpleOutboundMessage.of(this.execute(in.getContent(), executionId, logger));
+		JsonNode result = this.execute(in.getContent(), executionId, logger, context.getProps());
+		SimpleOutboundMessage out = SimpleOutboundMessage.of(result);
 
-		log(getEndLogExpression(), context, executionId, logger);
+		log(getEndLog(), context, executionId, logger);
 
 		return out;
 	}
@@ -59,7 +60,7 @@ public abstract class Task implements Activity {
 		}
 	}
 
-	public abstract JsonNode execute(JsonNode input, String executionId, Logger logger) throws TaskExecutionException;
+	public abstract JsonNode execute(JsonNode input, String executionId, Logger logger, JsonNode props) throws TaskExecutionException;
 
 	/**
 	 * <ul>
@@ -68,13 +69,11 @@ public abstract class Task implements Activity {
 	 */
 	protected String name;
 
-	protected String inputMappingExpression;
+	protected String inputMapping;
 
-	protected String startLogExpression;
+	protected String startLog;
 
-	protected String endLogExpression;
-
-	protected Set<String> dependencies = Collections.emptySet();
+	protected String endLog;
 
 	/**
 	 * Output of a task is recorded by default
