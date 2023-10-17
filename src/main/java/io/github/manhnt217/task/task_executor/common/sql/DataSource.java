@@ -5,6 +5,9 @@ import lombok.Setter;
 
 import java.util.Map;
 
+/**
+ * @author manhnguyen
+ */
 @Getter
 @Setter
 public class DataSource {
