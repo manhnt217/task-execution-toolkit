@@ -1,8 +1,8 @@
 package io.github.manhnt217.task.task_executor.common.sql;
 
-import com.google.common.base.Strings;
 import io.github.manhnt217.task.task_executor.common.ConsoleColors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -47,13 +47,13 @@ public class DataSourceConnector implements AutoCloseable {
                 cfg -> configuration.setProperty(cfg.getConfigKey(), cfg.getConfigValue())
         );
 
-        if (Strings.isNullOrEmpty(configuration.getProperty(Environment.DRIVER))) {
+        if (StringUtils.isBlank(configuration.getProperty(Environment.DRIVER))) {
             throw new RuntimeException("Missing configuration: " + Environment.DRIVER);
         }
-        if (Strings.isNullOrEmpty(configuration.getProperty(Environment.DIALECT))) {
+        if (StringUtils.isBlank(configuration.getProperty(Environment.DIALECT))) {
             throw new RuntimeException("Missing configuration: " + Environment.DIALECT);
         }
-        if (Strings.isNullOrEmpty(configuration.getProperty("hibernate.hikari.connectionTimeout"))) {
+        if (StringUtils.isBlank(configuration.getProperty("hibernate.hikari.connectionTimeout"))) {
             throw new RuntimeException("Missing configuration for HikariCP...");
         }
 
