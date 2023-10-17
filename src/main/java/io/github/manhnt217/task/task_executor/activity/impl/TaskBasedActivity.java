@@ -16,8 +16,13 @@ public class TaskBasedActivity extends AbstractSimpleActivity implements Activit
 
     private Task task;
 
-    public TaskBasedActivity(String name) {
+    public TaskBasedActivity(String name, Task task) {
         super(name);
+        this.task = task;
+    }
+
+    public TaskBasedActivity(String name) {
+        this(name, null);
     }
 
     @Override
