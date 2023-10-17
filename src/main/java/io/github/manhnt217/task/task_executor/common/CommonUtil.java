@@ -13,6 +13,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.stream.Collectors;
 
+/**
+ * @author manhnguyen
+ */
 public class CommonUtil {
     public static final ObjectMapper OM = new ObjectMapper();
 

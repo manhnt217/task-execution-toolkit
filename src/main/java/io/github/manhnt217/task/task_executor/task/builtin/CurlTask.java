@@ -1,0 +1,109 @@
+package io.github.manhnt217.task.task_executor.task.builtin;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.github.manhnt217.task.task_executor.task.ClassBasedTask;
+import io.github.manhnt217.task.task_executor.task.TaskLogger;
+import kong.unirest.HttpMethod;
+import kong.unirest.HttpRequestWithBody;
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
+
+import static io.github.manhnt217.task.task_executor.context.ActivityContext.OBJECT_MAPPER;
+
+/**
+ * @author manhnguyen
+ */
+public class CurlTask extends ClassBasedTask<CurlTask.Input, CurlTask.Output> {
+
+    public CurlTask(String name) {
+        super(name);
+    }
+
+    // Uncomment this to disable redirect globally
+    //	static {
+    //		Unirest.config()
+    //				.followRedirects(false);
+    //	}
+
+    @Override
+    protected Class<? extends Input> getInputClass() {
+        return Input.class;
+    }
+
+    @Override
+    public Output exec(Input input, TaskLogger taskLogger) throws Exception {
+        return doRequest(input.getUrl(), input.getMethod(), input.getHeaders(), input.getQueryParams(), input.getBody());
+    }
+
+    private Output doRequest(String requestURL, String method, Map<String, String> headers, Map<String, Object> queryParams, Object payload) throws Exception {
+
+        HashMap<String, Object> params = processQueryParams(queryParams);
+
+        HttpRequestWithBody req = Unirest.request(method, requestURL)
+                .headers(headers)
+                .queryString(params);
+
+
+        HttpResponse<String> res;
+        if (HttpMethod.GET.name().equalsIgnoreCase(method)) {
+            res = req.asString();
+        } else {
+            res = req.body(payload).asString();
+        }
+
+        if (res.isSuccess()) {
+            return new Output(res.getStatus(), res.getBody());
+        } else {
+            return new Output(res.getStatus(), "Got an exception while making the request");
+        }
+    }
+
+    private static HashMap<String, Object> processQueryParams(Map<String, Object> queryParams) throws JsonProcessingException {
+        HashMap<String, Object> params = queryParams == null ? null : new HashMap<>(queryParams.size());
+        if (queryParams != null) {
+            for (Map.Entry<String, Object> entry : queryParams.entrySet()) {
+                Object v = entry.getValue();
+                String key = entry.getKey();
+                if (v instanceof String ||
+                        v instanceof Boolean ||
+                        v instanceof Long ||
+                        v instanceof Integer ||
+                        v instanceof Double ||
+                        v instanceof BigDecimal
+                ) {
+                    params.put(key, v);
+                } else {
+                    params.put(key, OBJECT_MAPPER.writeValueAsString(v));
+                }
+            }
+        }
+        return params;
+    }
+
+    @Getter
+    @Setter
+    public static class Input {
+        private String url;
+        private String method;
+        private Object body;
+        private Map<String, Object> queryParams;
+        private Map<String, String> headers;
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    @Setter
+    public static class Output {
+        private int statusCode;
+        private String responseText;
+    }
+}

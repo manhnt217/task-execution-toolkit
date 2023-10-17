@@ -11,6 +11,9 @@ import org.hibernate.resource.transaction.spi.TransactionStatus;
 
 import java.util.function.Consumer;
 
+/**
+ * @author manhnguyen
+ */
 @Slf4j
 public class DataSourceConnector implements AutoCloseable {
 

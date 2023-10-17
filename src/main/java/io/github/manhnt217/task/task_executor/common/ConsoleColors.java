@@ -1,5 +1,8 @@
 package io.github.manhnt217.task.task_executor.common;
 
+/**
+ * @author manhnguyen
+ */
 public class ConsoleColors {
     // Reset
     public static final String RESET = "\033[0m";  // Text Reset
@@ -74,28 +77,81 @@ public class ConsoleColors {
     public static final String CYAN_BACKGROUND_BRIGHT = "\033[0;106m";  // CYAN
     public static final String WHITE_BACKGROUND_BRIGHT = "\033[0;107m";   // WHITE
 
-    public static String red(String msg) { return RED + msg + RESET; }
-    public static String green(String msg) { return GREEN + msg + RESET; }
-    public static String blue(String msg) { return BLUE + msg + RESET; }
-    public static String yellow(String msg) { return YELLOW + msg + RESET; }
-    public static String black(String msg) { return BLACK + msg + RESET; }
-    public static String white(String msg) { return WHITE_BRIGHT + msg + RESET; }
+    public static String red(String msg) {
+        return RED + msg + RESET;
+    }
 
-    public static String redB(String msg) { return RED_BOLD + msg + RESET; }
-    public static String greenB(String msg) { return GREEN_BOLD + msg + RESET; }
-    public static String blueB(String msg) { return BLUE_BOLD + msg + RESET; }
-    public static String yellowB(String msg) { return YELLOW_BOLD + msg + RESET; }
-    public static String blackB(String msg) { return BLACK_BOLD + msg + RESET; }
-    public static String whiteB(String msg) { return WHITE_BOLD + msg + RESET; }
+    public static String green(String msg) {
+        return GREEN + msg + RESET;
+    }
 
-    public static String yellowBB(String msg) { return YELLOW_BOLD_BRIGHT + msg + RESET; }
+    public static String blue(String msg) {
+        return BLUE + msg + RESET;
+    }
 
-    public static String bgWhite(String msg) { return WHITE_BACKGROUND + msg + RESET; }
-    public static String bgRed(String msg) { return RED_BACKGROUND + msg + RESET; }
-    public static String bgGreen(String msg) { return GREEN_BACKGROUND + msg + RESET; }
-    public static String bgBlack(String msg) { return BLACK_BACKGROUND + msg + RESET; }
-    public static String bgYellow(String msg) { return YELLOW_BACKGROUND + msg + RESET; }
-    public static String bgCyan(String msg) { return CYAN_BACKGROUND + msg + RESET; }
+    public static String yellow(String msg) {
+        return YELLOW + msg + RESET;
+    }
+
+    public static String black(String msg) {
+        return BLACK + msg + RESET;
+    }
+
+    public static String white(String msg) {
+        return WHITE_BRIGHT + msg + RESET;
+    }
+
+    public static String redB(String msg) {
+        return RED_BOLD + msg + RESET;
+    }
+
+    public static String greenB(String msg) {
+        return GREEN_BOLD + msg + RESET;
+    }
+
+    public static String blueB(String msg) {
+        return BLUE_BOLD + msg + RESET;
+    }
+
+    public static String yellowB(String msg) {
+        return YELLOW_BOLD + msg + RESET;
+    }
+
+    public static String blackB(String msg) {
+        return BLACK_BOLD + msg + RESET;
+    }
+
+    public static String whiteB(String msg) {
+        return WHITE_BOLD + msg + RESET;
+    }
+
+    public static String yellowBB(String msg) {
+        return YELLOW_BOLD_BRIGHT + msg + RESET;
+    }
+
+    public static String bgWhite(String msg) {
+        return WHITE_BACKGROUND + msg + RESET;
+    }
+
+    public static String bgRed(String msg) {
+        return RED_BACKGROUND + msg + RESET;
+    }
+
+    public static String bgGreen(String msg) {
+        return GREEN_BACKGROUND + msg + RESET;
+    }
+
+    public static String bgBlack(String msg) {
+        return BLACK_BACKGROUND + msg + RESET;
+    }
+
+    public static String bgYellow(String msg) {
+        return YELLOW_BACKGROUND + msg + RESET;
+    }
+
+    public static String bgCyan(String msg) {
+        return CYAN_BACKGROUND + msg + RESET;
+    }
 
     public static String notice(Object msg) {
         return bgWhite(blackB(String.valueOf(msg)));

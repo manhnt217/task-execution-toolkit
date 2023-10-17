@@ -5,20 +5,25 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.github.manhnt217.task.task_executor.activity.ActivityException;
-import io.github.manhnt217.task.task_executor.activity.impl.DefaultLogger;
-import io.github.manhnt217.task.task_executor.activity.impl.task.CompoundTask;
-import io.github.manhnt217.task.task_executor.activity.impl.task.Task;
-import io.github.manhnt217.task.task_executor.activity.impl.task.TemplateTask;
+import io.github.manhnt217.task.task_executor.activity.impl.DefaultActivityLogger;
+import io.github.manhnt217.task.task_executor.activity.impl.ExecutionLog;
+import io.github.manhnt217.task.task_executor.activity.impl.TaskBasedActivity;
+import io.github.manhnt217.task.task_executor.task.CompositeTask;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
+import static io.github.manhnt217.task.task_executor.context.ActivityContext.OBJECT_MAPPER;
 import static io.github.manhnt217.task.task_executor.common.CommonUtil.OM;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+/**
+ * @author manhnguyen
+ */
 public class ComplexTaskTest {
 
     public static final String SQL = "DECLARE " +
@@ -32,23 +37,22 @@ public class ComplexTaskTest {
 
     @Test
     public void testComplex1() throws ActivityException, JsonProcessingException {
-        DefaultLogger logHandler = new DefaultLogger();
+        DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
-        TemplateTask task1 = new TemplateTask("task1");
+        TaskBasedActivity task1 = new TaskBasedActivity("task1");
         task1.setInputMapping("._PROPS_");
-        task1.setTemplateName("CurlTemplate");
-        task1.setEndLog("\"Finish task 1\"");
+        task1.setTask(TestUtil.loadTask("CurlTask"));
 
-        TemplateTask task2 = new TemplateTask("task2");
-        task2.setTemplateName("LogTemplate");
+        TaskBasedActivity task2 = new TaskBasedActivity("task2");
+        task2.setTask(TestUtil.loadTask("LogTask"));
         task2.setInputMapping("{\"severity\": \"INFO\", \"message\": \"Status code is \" + .task1.statusCode}");
 
-        TemplateTask task3 = new TemplateTask("task3");
-        task3.setTemplateName("SqlTemplate");
+        TaskBasedActivity task3 = new TaskBasedActivity("task3");
+        task3.setTask(TestUtil.loadTask("SqlTask"));
         task3.setInputMapping("{\"sql\":\"" + SQL + "\"} + ._PROPS_");
 
-        CompoundTask compoundTask1 = new CompoundTask("c1", Lists.newArrayList(task1, task2, task3));
-        compoundTask1.setOutputMapping(CompoundTask.ALL_SUBTASKS_JSLT);
+        TaskBasedActivity complexTask = new TaskBasedActivity("complexTask");
+        complexTask.setTask(new CompositeTask("doesntMatterNow", Lists.newArrayList(task1, task2, task3)));
 
         Map<String, Object> input = ImmutableMap.of(
                 "url", "https://example.com",
@@ -59,16 +63,17 @@ public class ComplexTaskTest {
                     put("hibernate.dialect", "org.hibernate.dialect.Oracle12cDialect");
                     put("hibernate.hikari.connectionTimeout", "20000");
                     put("hibernate.hikari.idleTimeout", "30000");
-                    put("hibernate.connection.url", "jdbc:oracle:thin:@dbserver:1521/FORTNAWCS");
+                    put("hibernate.connection.url", "jdbc:oracle:thin:@vm:1521/FORTNAWCS");
                     put("hibernate.connection.username", "foo");
                     put("hibernate.connection.password", "foo");
                     put("hibernate.hikari.minimumIdle", "2");
                     put("hibernate.hikari.maximumPoolSize", "5");
                 }}
         );
-        JsonNode output = TestUtil.executeTask(compoundTask1, Task.OBJECT_MAPPER.valueToTree(input), logHandler, UUID.randomUUID().toString());
+        JsonNode output = TestUtil.executeActivity(complexTask, OBJECT_MAPPER.valueToTree(input), logHandler, UUID.randomUUID().toString());
         Map<String, Object> out = OM.treeToValue(output, Map.class);
-        assertThat(out.size(), is(3));
+        assertThat(out.size(), is(4));
+        assertThat(out, hasKey(CompositeTask.START_DEFAULT_NAME));
         assertThat(out, hasKey("task1"));
         assertThat(out, hasKey("task2"));
         assertThat(out, hasKey("task3"));
@@ -76,33 +81,31 @@ public class ComplexTaskTest {
         assertThat((Map<String, Object>) out.get("task1"), hasKey("statusCode"));
         assertThat(((Map) out.get("task2")).size(), is(0));
 
-        assertThat(logHandler.getLogs().size(), greaterThanOrEqualTo(2));
-        assertThat(logHandler.getLogs().get(0).getContent(), is("Finish task 1"));
-        assertThat(logHandler.getLogs().get(1).getContent(), is("Status code is 200"));
+        assertThat(logHandler.getLogs().size(), greaterThanOrEqualTo(1));
+        Optional<ExecutionLog> optionalExecutionLog = logHandler.getLogs().stream().filter(logLine -> "task2".equals(logLine.getActivityName())).findAny();
+        assertThat(optionalExecutionLog.isPresent(), is(true));
+        assertThat(optionalExecutionLog.get().getContent(), is("Status code is 200"));
     }
 
     @Test
     public void testComplex2_PassingInputFromParent() throws ActivityException, JsonProcessingException {
-        DefaultLogger logHandler = new DefaultLogger();
+        DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
-        TemplateTask task1 = new TemplateTask("task1");
-        task1.setInputMapping("{\"url\": ._START_.request, \"method\": \"GET\"}");
-        task1.setTemplateName("CurlTemplate");
-        task1.setEndLog("\"Finish task 1\"");
+        TaskBasedActivity task1 = new TaskBasedActivity("task1");
+        task1.setInputMapping("{\"url\": ." + CompositeTask.START_DEFAULT_NAME + ".request, \"method\": \"GET\"}");
+        task1.setTask(TestUtil.loadTask("CurlTask"));
 
-        CompoundTask compoundTask1 = new CompoundTask("c1", Lists.newArrayList(task1));
-        compoundTask1.setInputMapping("{\"request\": ._PROPS_.url}");
-        compoundTask1.setOutputMapping(CompoundTask.ALL_SUBTASKS_JSLT);
+        TaskBasedActivity complexTask = new TaskBasedActivity("complexTask");
+        complexTask.setTask(new CompositeTask("c1", Lists.newArrayList(task1)));
+        complexTask.setInputMapping("{\"request\": ._PROPS_.url}");
 
         Map<String, Object> input = ImmutableMap.of("url", "https://example.com");
-        JsonNode output = TestUtil.executeTask(compoundTask1, Task.OBJECT_MAPPER.valueToTree(input), logHandler, UUID.randomUUID().toString());
+        JsonNode output = TestUtil.executeActivity(complexTask, OBJECT_MAPPER.valueToTree(input), logHandler, UUID.randomUUID().toString());
         Map<String, Object> out = OM.treeToValue(output, Map.class);
-        assertThat(out.size(), is(1));
+        assertThat(out.size(), is(2));
+        assertThat(out, hasKey(CompositeTask.START_DEFAULT_NAME));
         assertThat(out, hasKey("task1"));
 
         assertThat((Map<String, Object>) out.get("task1"), hasKey("statusCode"));
-
-        assertThat(logHandler.getLogs().size(), is(1));
-        assertThat(logHandler.getLogs().get(0).getContent(), is("Finish task 1"));
     }
 }
