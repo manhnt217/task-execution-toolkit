@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.github.manhnt217.task.task_executor.context.ActivityContext.OBJECT_MAPPER;
+import static io.github.manhnt217.task.task_executor.common.CommonUtil.OM;
 
 /**
  * @author manhnguyen
@@ -81,7 +81,7 @@ public class CurlTask extends ClassBasedTask<CurlTask.Input, CurlTask.Output> {
                 ) {
                     params.put(key, v);
                 } else {
-                    params.put(key, OBJECT_MAPPER.writeValueAsString(v));
+                    params.put(key, OM.writeValueAsString(v));
                 }
             }
         }

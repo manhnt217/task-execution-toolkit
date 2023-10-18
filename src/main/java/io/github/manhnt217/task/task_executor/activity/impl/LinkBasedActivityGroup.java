@@ -68,12 +68,13 @@ public abstract class LinkBasedActivityGroup implements ActivityGroup<JsonNode, 
         else return -1;
     }
 
-    public LinkBasedActivityGroup(String startActivityName, String endActivityName) {
+    public LinkBasedActivityGroup(String startActivityName, String endActivityName, String outputMapping) {
         this.activities = new ArrayList<>();
         this.links = new HashMap<>();
 
         startActivity = new StartActivity(startActivityName);
         endActivity = new EndActivity(endActivityName);
+        endActivity.setInputMapping(outputMapping);
 
         this.addActivity(startActivity);
         this.addActivity(endActivity);
@@ -152,7 +153,7 @@ public abstract class LinkBasedActivityGroup implements ActivityGroup<JsonNode, 
                 return guardToActivityMap.get(guard);
             }
         }
-        throw new ExecutionException("Cannot fi nd the next activity because all links from current activity evaluate to FALSE");
+        throw new ExecutionException("Cannot find the next activity because all links from current activity evaluate to FALSE");
     }
 
     protected final Map<String, Activity> getConnectedLinks(Activity fromActivity) {

@@ -1,6 +1,9 @@
 package io.github.manhnt217.task.task_executor;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import io.github.manhnt217.task.task_executor.activity.Activity;
 import io.github.manhnt217.task.task_executor.activity.ActivityExecutionException;
 import io.github.manhnt217.task.task_executor.activity.OutboundMessage;
@@ -17,6 +20,13 @@ import java.lang.reflect.InvocationTargetException;
  * @author manhnguyen
  */
 public class TestUtil {
+
+    public static final ObjectMapper OM = new ObjectMapper();
+
+    static {
+        OM.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        OM.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+    }
 
     public static JsonNode executeActivity(Activity activity, JsonNode props, DefaultActivityLogger logger, String executionId) throws ActivityExecutionException {
 
