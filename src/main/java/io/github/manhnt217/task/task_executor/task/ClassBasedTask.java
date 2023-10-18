@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.task_executor.activity.ActivityLogger;
 import io.github.manhnt217.task.task_executor.context.ActivityContext;
 
-import static io.github.manhnt217.task.task_executor.context.ActivityContext.OBJECT_MAPPER;
-
 /**
  * @author manhnguyen
  */
@@ -23,7 +21,7 @@ public abstract class ClassBasedTask<P, R> implements Task {
     public final JsonNode run(JsonNode input, String activityName, ActivityLogger activityLogger, ActivityContext context) throws TaskExecutionException {
         P in;
         try {
-            in = OBJECT_MAPPER.treeToValue(input, getInputClass());
+            in = context.treeToValue(input, getInputClass());
         } catch (JsonProcessingException e) {
             throw new TaskExecutionException(getName(), input, "Cannot convert in to desired type", e);
         }
@@ -33,7 +31,7 @@ public abstract class ClassBasedTask<P, R> implements Task {
         } catch (Exception e) {
             throw new TaskExecutionException(getName(), input, "Exception while executing task", e);
         }
-        return OBJECT_MAPPER.valueToTree(rs);
+        return context.valueToTree(rs);
     }
 
     public String getName() {

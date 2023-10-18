@@ -4,7 +4,6 @@ import io.github.manhnt217.task.task_executor.TestUtil;
 import io.github.manhnt217.task.task_executor.activity.ActivityException;
 import io.github.manhnt217.task.task_executor.activity.ActivityExecutionException;
 import io.github.manhnt217.task.task_executor.activity.ConfigurationException;
-import io.github.manhnt217.task.task_executor.activity.ExecutionException;
 import io.github.manhnt217.task.task_executor.activity.impl.*;
 import io.github.manhnt217.task.task_executor.task.CompositeTask;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -52,10 +50,10 @@ public class GuardTest {
         compositeTask.linkToEnd(task1);
         compositeTask.linkToEnd(task2);
 
-        TaskBasedActivity complexTask = new TaskBasedActivity("complexTask");
-        complexTask.setTask(compositeTask);
+        TaskBasedActivity testActivity = new TaskBasedActivity("testActivity");
+        testActivity.setTask(compositeTask);
 
-        TestUtil.executeActivity(complexTask, null, logHandler, UUID.randomUUID().toString());
+        TestUtil.executeActivity(testActivity, null, logHandler, UUID.randomUUID().toString());
         List<ExecutionLog> logs = logHandler.getLogs();
 
         assertThat(logs.size(), is(1));
@@ -155,9 +153,9 @@ public class GuardTest {
         compositeTask.linkFromStart(task2, "10 / 7 == 1");
 
 
-        TaskBasedActivity complexTask = new TaskBasedActivity("complexTask", compositeTask);
+        TaskBasedActivity testActivity = new TaskBasedActivity("testActivity", compositeTask);
 
         assertThrows(ActivityExecutionException.class, () ->
-                TestUtil.executeActivity(complexTask, null, logHandler, UUID.randomUUID().toString()));
+                TestUtil.executeActivity(testActivity, null, logHandler, UUID.randomUUID().toString()));
     }
 }

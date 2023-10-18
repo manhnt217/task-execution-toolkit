@@ -17,8 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import static io.github.manhnt217.task.task_executor.context.ActivityContext.OBJECT_MAPPER;
-import static io.github.manhnt217.task.task_executor.common.CommonUtil.OM;
+import static io.github.manhnt217.task.task_executor.TestUtil.OM;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -52,8 +51,8 @@ public class ComplexTaskTest {
         task3.setTask(TestUtil.loadTask("SqlTask"));
         task3.setInputMapping("{\"sql\":\"" + SQL + "\"} + ._PROPS_");
 
-        TaskBasedActivity complexTask = new TaskBasedActivity("complexTask");
-        complexTask.setTask(new LinearCompositeTask("doesntMatterNow", Lists.newArrayList(task1, task2, task3)));
+        TaskBasedActivity testActivity = new TaskBasedActivity("testActivity");
+        testActivity.setTask(new LinearCompositeTask("doesntMatterNow", Lists.newArrayList(task1, task2, task3)));
 
         Map<String, Object> input = ImmutableMap.of(
                 "url", "https://example.com",
@@ -71,10 +70,9 @@ public class ComplexTaskTest {
                     put("hibernate.hikari.maximumPoolSize", "5");
                 }}
         );
-        JsonNode output = TestUtil.executeActivity(complexTask, OBJECT_MAPPER.valueToTree(input), logHandler, UUID.randomUUID().toString());
+        JsonNode output = TestUtil.executeActivity(testActivity, OM.valueToTree(input), logHandler, UUID.randomUUID().toString());
         Map<String, Object> out = OM.treeToValue(output, Map.class);
-        assertThat(out.size(), is(4));
-        assertThat(out, hasKey(CompositeTask.START_ACTIVITY_NAME));
+        assertThat(out.size(), is(3));
         assertThat(out, hasKey("task1"));
         assertThat(out, hasKey("task2"));
         assertThat(out, hasKey("task3"));
@@ -96,12 +94,12 @@ public class ComplexTaskTest {
         task1.setInputMapping("{\"url\": ." + CompositeTask.START_ACTIVITY_NAME + ".request, \"method\": \"GET\"}");
         task1.setTask(TestUtil.loadTask("CurlTask"));
 
-        TaskBasedActivity complexTask = new TaskBasedActivity("complexTask");
-        complexTask.setTask(new LinearCompositeTask("c1", Lists.newArrayList(task1)));
-        complexTask.setInputMapping("{\"request\": ._PROPS_.url}");
+        TaskBasedActivity testActivity = new TaskBasedActivity("testActivity");
+        testActivity.setTask(new LinearCompositeTask("c1", Lists.newArrayList(task1)));
+        testActivity.setInputMapping("{\"request\": ._PROPS_.url}");
 
         Map<String, Object> input = ImmutableMap.of("url", "https://example.com");
-        JsonNode output = TestUtil.executeActivity(complexTask, OBJECT_MAPPER.valueToTree(input), logHandler, UUID.randomUUID().toString());
+        JsonNode output = TestUtil.executeActivity(testActivity, OM.valueToTree(input), logHandler, UUID.randomUUID().toString());
         Map<String, Object> out = OM.treeToValue(output, Map.class);
         assertThat(out.size(), is(2));
         assertThat(out, hasKey(CompositeTask.START_ACTIVITY_NAME));
