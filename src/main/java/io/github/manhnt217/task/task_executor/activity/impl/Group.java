@@ -27,7 +27,11 @@ public class Group extends LinkBasedActivityGroup implements Activity {
 
     @Override
     public OutboundMessage process(InboundMessage in, ActivityLogger activityLogger, ActivityContext context) throws ActivityExecutionException {
-        JsonNode output = this.execute(in.getContent(), activityLogger, new GroupContext(context));
-        return SimpleOutboundMessage.of(output);
+        try {
+            JsonNode output = this.execute(in.getContent(), activityLogger, new GroupContext(context));
+            return SimpleOutboundMessage.of(output);
+        } catch (ExecutionException e) {
+            throw new ActivityExecutionException(this, "Group execution failed", e);
+        }
     }
 }

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import io.github.manhnt217.task.task_executor.activity.Activity;
+import io.github.manhnt217.task.task_executor.activity.ActivityContextException;
 import io.github.manhnt217.task.task_executor.activity.OutboundMessage;
 import org.apache.commons.lang3.StringUtils;
 
@@ -52,11 +53,11 @@ public class ActivityContext {
         this(executionId, null);
     }
 
-    public void saveOutput(Activity activity, OutboundMessage output) {
+    public void saveOutput(Activity activity, OutboundMessage output) throws ActivityContextException {
         if (activity.registerOutput() && !output.isEmpty()) {
 
             if (contextParams.get(activity.getName()) != null) {
-                throw new IllegalStateException("Output of activity '" + activity.getName() + "' has already existed in the context");
+                throw new ActivityContextException("Output of activity '" + activity.getName() + "' has already existed in the context");
             }
             contextParams.set(activity.getName(), output.getContent());
         }

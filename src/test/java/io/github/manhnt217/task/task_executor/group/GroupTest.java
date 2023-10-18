@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import io.github.manhnt217.task.task_executor.LinearCompositeTask;
 import io.github.manhnt217.task.task_executor.TestUtil;
-import io.github.manhnt217.task.task_executor.activity.ActivityExecutionException;
+import io.github.manhnt217.task.task_executor.activity.ActivityException;
+import io.github.manhnt217.task.task_executor.activity.ConfigurationException;
 import io.github.manhnt217.task.task_executor.activity.impl.DefaultActivityLogger;
 import io.github.manhnt217.task.task_executor.activity.impl.ExecutionLog;
 import io.github.manhnt217.task.task_executor.activity.impl.Group;
@@ -25,7 +26,7 @@ import static org.hamcrest.Matchers.is;
 public class GroupTest {
 
     @Test
-    public void testGroupSimple() throws ActivityExecutionException {
+    public void testGroupSimple() throws ActivityException, ConfigurationException {
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
         TaskBasedActivity task1 = new TaskBasedActivity("task1");
