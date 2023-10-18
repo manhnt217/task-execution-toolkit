@@ -26,7 +26,7 @@ public class TestUtil {
         try {
             inputAfterTransform = context.transformInput(activity);
         } catch (Exception e) {
-            throw new ActivityExecutionException("Exception while transform the input", activity, e);
+            throw new ActivityExecutionException(activity, "Exception while transform the input", e);
         }
 
         OutboundMessage output = activity.process(SimpleInboundMessage.of(inputAfterTransform), logger, context);

@@ -17,7 +17,7 @@ public class ActivityExecutionException extends ActivityException {
     }
 
 
-    public ActivityExecutionException(String message, Activity activity, Exception e) {
+    public ActivityExecutionException(Activity activity, String message, Exception e) {
         super("Activity '" + activity.getName() + "' cannot be executed because: " + message, e);
         this.activity = activity;
     }

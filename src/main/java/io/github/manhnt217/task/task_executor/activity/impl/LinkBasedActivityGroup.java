@@ -85,39 +85,48 @@ public abstract class LinkBasedActivityGroup implements ActivityGroup<JsonNode, 
     }
 
     @Override
-    public JsonNode execute(JsonNode input, ActivityLogger activityLogger, ActivityContext context) throws ActivityExecutionException {
+    public JsonNode execute(JsonNode input, ActivityLogger activityLogger, ActivityContext context) throws ExecutionException {
         startActivity.setOutput(input);
         Activity currentActivity = startActivity;
 
         while (true) {
-            OutboundMessage out = executeActivity(currentActivity, context, activityLogger);
-            context.saveOutput(currentActivity, out);
-            Activity nextActivity = getNextActivity(currentActivity, context);
-            if (nextActivity == null) {
-                // end the process execution
-                return out.getContent();
+            try {
+                OutboundMessage out = executeActivity(currentActivity, context, activityLogger);
+                context.saveOutput(currentActivity, out);
+                Activity nextActivity = getNextActivity(currentActivity, context);
+                if (nextActivity == null) {
+                    // end the process execution
+                    return out.getContent();
+                }
+                currentActivity = nextActivity;
+            } catch (ActivityExecutionException e) {
+                throw new ExecutionException(e);
+            } catch (ActivityContextException e) {
+                throw new ExecutionException(e);
             }
-            currentActivity = nextActivity;
         }
     }
 
-    public void linkActivities(Activity from, Activity to, String guardExp) {
-        if (!activities.contains(from) || !activities.contains(to)) {
-            throw new IllegalStateException("Both activity must be added before linking");
+    public void linkActivities(Activity from, Activity to, String guardExp) throws ConfigurationException {
+        if (!activities.contains(from)) {
+            addActivity(from);
+        }
+        if (!activities.contains(to)) {
+            addActivity(to);
         }
         String guard = StringUtils.defaultIfBlank(guardExp, BLANK_GUARD_EXP);
         Map<String, Activity> guardToActivityMap = links.computeIfAbsent(from, a -> new HashMap<>());
         if (guardToActivityMap.containsKey(guardExp)) {
-            throw new IllegalArgumentException("Guard '" + guard + "' already been added for activity '" + from.getName() + "'");
+            throw new ConfigurationException("Guard '" + guard + "' already been added for activity '" + from.getName() + "'");
         }
         guardToActivityMap.put(guard, to);
     }
 
-    public final void linkFromStart(Activity activity, String guard) {
+    public final void linkFromStart(Activity activity, String guard) throws ConfigurationException {
         linkActivities(startActivity, activity, guard);
     }
 
-    public final void linkToEnd(Activity activity) {
+    public final void linkToEnd(Activity activity) throws ConfigurationException {
         linkActivities(activity, endActivity, null);
     }
 
@@ -128,13 +137,13 @@ public abstract class LinkBasedActivityGroup implements ActivityGroup<JsonNode, 
         return activity.process(inboundMessage, activityLogger, context);
     }
 
-    protected final Activity getNextActivity(Activity activity, ActivityContext context) {
+    protected final Activity getNextActivity(Activity activity, ActivityContext context) throws ExecutionException {
         if (activity == endActivity) {
             return null;
         }
         Map<String, Activity> guardToActivityMap = getConnectedLinks(activity);
         if (guardToActivityMap == null) {
-            throw new IllegalStateException("Activity link to no where. Process stops");
+            throw new ExecutionException("Activity link to no where. Process stops");
         }
         List<String> guards = guardToActivityMap.keySet().stream()
                 .sorted(LinkBasedActivityGroup::compareGuard).collect(Collectors.toList());
@@ -143,7 +152,7 @@ public abstract class LinkBasedActivityGroup implements ActivityGroup<JsonNode, 
                 return guardToActivityMap.get(guard);
             }
         }
-        throw new IllegalStateException("Cannot find the next activity because all links from current activity evaluate to FALSE");
+        throw new ExecutionException("Cannot fi nd the next activity because all links from current activity evaluate to FALSE");
     }
 
     protected final Map<String, Activity> getConnectedLinks(Activity fromActivity) {
