@@ -6,11 +6,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.github.manhnt217.task.sample.plugin.LogTask;
 import io.github.manhnt217.task.task_engine.activity.Activity;
+import io.github.manhnt217.task.task_engine.context.SimpleActivityContext;
 import io.github.manhnt217.task.task_engine.exception.ActivityException;
 import io.github.manhnt217.task.task_engine.activity.OutboundMessage;
 import io.github.manhnt217.task.task_engine.activity.impl.DefaultActivityLogger;
 import io.github.manhnt217.task.task_engine.activity.impl.SimpleInboundMessage;
-import io.github.manhnt217.task.task_engine.context.BasicActivityContext;
+import io.github.manhnt217.task.task_engine.context.AbstractActivityContext;
 import io.github.manhnt217.task.task_engine.task.PluginTask;
 import io.github.manhnt217.task.task_engine.task.Task;
 
@@ -31,7 +32,7 @@ public class TestUtil {
 
     public static JsonNode executeActivity(Activity activity, JsonNode props, DefaultActivityLogger logger, String executionId) throws ActivityException {
 
-        BasicActivityContext context = new BasicActivityContext(executionId, props);
+        SimpleActivityContext context = new SimpleActivityContext(executionId, props);
 
         JsonNode inputAfterTransform;
         try {
