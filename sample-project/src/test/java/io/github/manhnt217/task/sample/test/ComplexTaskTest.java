@@ -6,7 +6,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.github.manhnt217.task.sample.LinearCompositeTask;
 import io.github.manhnt217.task.sample.TestUtil;
-import io.github.manhnt217.task.task_engine.exception.ActivityException;
+import io.github.manhnt217.task.task_engine.context.ActivityContext;
+import io.github.manhnt217.task.task_engine.exception.TaskException;
 import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.task_engine.activity.impl.DefaultActivityLogger;
 import io.github.manhnt217.task.task_engine.activity.impl.ExecutionLog;
@@ -37,11 +38,11 @@ public class ComplexTaskTest {
             "END;";
 
     @Test
-    public void testComplex1() throws ActivityException, JsonProcessingException, ConfigurationException {
+    public void testComplex1() throws JsonProcessingException, ConfigurationException, TaskException {
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
         TaskBasedActivity task1 = new TaskBasedActivity("task1");
-        task1.setInputMapping("._PROPS_");
+        task1.setInputMapping(ActivityContext.FROM_PROPS);
         task1.setTask(TestUtil.loadTask("CurlTask"));
 
         TaskBasedActivity task2 = new TaskBasedActivity("task2");
@@ -50,12 +51,11 @@ public class ComplexTaskTest {
 
         TaskBasedActivity task3 = new TaskBasedActivity("task3");
         task3.setTask(TestUtil.loadTask("SqlTask"));
-        task3.setInputMapping("{\"sql\":\"" + SQL + "\"} + ._PROPS_");
+        task3.setInputMapping("{\"sql\":\"" + SQL + "\"} + " + ActivityContext.FROM_PROPS);
 
-        TaskBasedActivity testActivity = new TaskBasedActivity("testActivity");
-        testActivity.setTask(new LinearCompositeTask("doesntMatterNow", Lists.newArrayList(task1, task2, task3)));
+        LinearCompositeTask task = new LinearCompositeTask("t1", Lists.newArrayList(task1, task2, task3));
 
-        Map<String, Object> input = ImmutableMap.of(
+        Map<String, Object> props = ImmutableMap.of(
                 "url", "https://example.com",
                 "method", "GET",
                 "dataSource", "foo",
@@ -71,7 +71,7 @@ public class ComplexTaskTest {
                     put("hibernate.hikari.maximumPoolSize", "5");
                 }}
         );
-        JsonNode output = TestUtil.executeActivity(testActivity, TestUtil.OM.valueToTree(input), logHandler, UUID.randomUUID().toString());
+        JsonNode output = TestUtil.executeTask(task, TestUtil.OM.valueToTree(props), null, logHandler, UUID.randomUUID().toString());
         Map<String, Object> out = TestUtil.OM.treeToValue(output, Map.class);
         assertThat(out.size(), is(3));
         assertThat(out, hasKey("task1"));
@@ -88,24 +88,22 @@ public class ComplexTaskTest {
     }
 
     @Test
-    public void testComplex2_PassingInputFromParent() throws ActivityException, JsonProcessingException, ConfigurationException {
+    public void testComplex2_PassingInputFromParent() throws JsonProcessingException, ConfigurationException, TaskException {
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
-        TaskBasedActivity task1 = new TaskBasedActivity("task1");
-        task1.setInputMapping("{\"url\": ." + CompositeTask.START_ACTIVITY_NAME + ".request, \"method\": \"GET\"}");
-        task1.setTask(TestUtil.loadTask("CurlTask"));
+        TaskBasedActivity act1 = new TaskBasedActivity("act1");
+        act1.setInputMapping("{\"url\": ." + CompositeTask.START_ACTIVITY_NAME + ".url, \"method\": \"GET\"}");
+        act1.setTask(TestUtil.loadTask("CurlTask"));
 
-        TaskBasedActivity testActivity = new TaskBasedActivity("testActivity");
-        testActivity.setTask(new LinearCompositeTask("c1", Lists.newArrayList(task1)));
-        testActivity.setInputMapping("{\"request\": ._PROPS_.url}");
+        LinearCompositeTask task = new LinearCompositeTask("c1", Lists.newArrayList(act1));
 
         Map<String, Object> input = ImmutableMap.of("url", "https://example.com");
-        JsonNode output = TestUtil.executeActivity(testActivity, TestUtil.OM.valueToTree(input), logHandler, UUID.randomUUID().toString());
+        JsonNode output = TestUtil.executeTask(task, null, TestUtil.OM.valueToTree(input), logHandler, UUID.randomUUID().toString());
         Map<String, Object> out = TestUtil.OM.treeToValue(output, Map.class);
         assertThat(out.size(), is(2));
         assertThat(out, hasKey(CompositeTask.START_ACTIVITY_NAME));
-        assertThat(out, hasKey("task1"));
+        assertThat(out, hasKey("act1"));
 
-        assertThat((Map<String, Object>) out.get("task1"), hasKey("statusCode"));
+        assertThat((Map<String, Object>) out.get("act1"), hasKey("statusCode"));
     }
 }
