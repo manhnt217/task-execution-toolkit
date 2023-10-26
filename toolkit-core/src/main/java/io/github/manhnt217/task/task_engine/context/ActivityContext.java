@@ -12,6 +12,7 @@ import java.util.Map;
  * @author manhnguyen
  */
 public interface ActivityContext {
+
     String KEY_PROPS = "_PROPS_";
     String ALL_SUBTASKS_JSLT = "{\""+KEY_PROPS+"\": null, * : . }";
 
@@ -26,4 +27,8 @@ public interface ActivityContext {
     String getExecutionId();
 
     ObjectRef createRef(Object object);
+
+    <T> T resolveRef(ObjectRef objectRef, Class<T> type);
+
+    void clearRef(ObjectRef objectRef);
 }
