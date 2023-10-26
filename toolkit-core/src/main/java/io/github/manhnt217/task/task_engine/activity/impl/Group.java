@@ -6,6 +6,7 @@ import io.github.manhnt217.task.task_engine.context.ActivityContext;
 import io.github.manhnt217.task.task_engine.exception.ActivityException;
 import io.github.manhnt217.task.task_engine.exception.GroupException;
 import io.github.manhnt217.task.task_engine.context.sub.GroupContext;
+import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,13 +19,14 @@ public class Group extends LinkBasedActivityGroup implements Activity {
 
     private final String name;
     private String inputMapping;
+    private ActivityGroup<?, ?> parent;
 
-    public Group(String name, String startActivityName, String endActivityName, String outputMapping) {
+    public Group(String name, String startActivityName, String endActivityName, String outputMapping) throws ConfigurationException {
         super(startActivityName, endActivityName, outputMapping);
         this.name = name;
     }
 
-    public Group(String name, String startActivityName, String endActivityName) {
+    public Group(String name, String startActivityName, String endActivityName) throws ConfigurationException {
         this(name, startActivityName, endActivityName, null);
     }
 

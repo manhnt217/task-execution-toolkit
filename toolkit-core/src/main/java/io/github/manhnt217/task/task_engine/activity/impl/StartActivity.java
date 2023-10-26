@@ -5,10 +5,7 @@
 package io.github.manhnt217.task.task_engine.activity.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.github.manhnt217.task.task_engine.activity.Activity;
-import io.github.manhnt217.task.task_engine.activity.ActivityLogger;
-import io.github.manhnt217.task.task_engine.activity.InboundMessage;
-import io.github.manhnt217.task.task_engine.activity.OutboundMessage;
+import io.github.manhnt217.task.task_engine.activity.*;
 import io.github.manhnt217.task.task_engine.context.ActivityContext;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,6 +19,7 @@ public class StartActivity implements Activity {
 
     private JsonNode output;
     private final String name;
+    private ActivityGroup<?, ?> parent;
 
     public StartActivity(String name) {
         this.name = name;

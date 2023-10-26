@@ -29,11 +29,21 @@ public abstract class AbstractActivityContext implements ActivityContext {
 
     @Override
     public void saveOutput(Activity activity, OutboundMessage output) throws ContextException {
+        validate(activity);
         if (activity.registerOutput() && output != null && !output.isEmpty()) {
             if (contextParams.get(activity.getName()) != null) {
                 throw new ContextException("Output of activity '" + activity.getName() + "' has already existed in the context");
             }
             contextParams.set(activity.getName(), output.getContent());
+        }
+    }
+
+    private static void validate(Activity activity) throws ContextException {
+        if (activity.getName().startsWith("_")) {
+            throw new ContextException("Activity's name cannot start with '_'");
+        }
+        if (activity.getName().contains(".")) {
+            throw new ContextException("Activity's name cannot container '.'");
         }
     }
 

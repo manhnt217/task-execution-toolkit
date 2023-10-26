@@ -18,6 +18,7 @@ public class EndActivity implements Activity {
 
     private final String name;
     private String inputMapping;
+    private ActivityGroup<?, ?> parent;
 
     public EndActivity(String name) {
         this.name = name;
