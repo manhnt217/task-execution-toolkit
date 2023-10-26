@@ -5,11 +5,12 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.manhnt217.task.task_engine.activity.*;
+import io.github.manhnt217.task.task_engine.context.ActivityContext;
+import io.github.manhnt217.task.task_engine.context.JSONUtil;
 import io.github.manhnt217.task.task_engine.exception.ActivityException;
 import io.github.manhnt217.task.task_engine.exception.GroupException;
 import io.github.manhnt217.task.task_engine.activity.impl.LinkBasedActivityGroup;
 import io.github.manhnt217.task.task_engine.activity.impl.SimpleOutboundMessage;
-import io.github.manhnt217.task.task_engine.context.ActivityContext;
 import io.github.manhnt217.task.task_engine.context.ForEachContext;
 import lombok.Getter;
 import lombok.Setter;
@@ -50,12 +51,12 @@ public class ForEachActivity extends LinkBasedActivityGroup implements Activity 
             throw new IllegalArgumentException("Input must be an array");
         }
         ArrayNode inputArr = (ArrayNode) input;
-        ArrayNode outputArr = context.createArrayNode();
+        ArrayNode outputArr = JSONUtil.createArrayNode();
 
         int index = 0;
         for (JsonNode item : inputArr) {
             ForEachContext loopContext = new ForEachContext(context);
-            ObjectNode loopInput = context.createObjectNode();
+            ObjectNode loopInput = JSONUtil.createObjectNode();
             loopInput.set(KEY_ITEM, item);
             loopInput.set(KEY_INDEX, new IntNode(index));
             try {
