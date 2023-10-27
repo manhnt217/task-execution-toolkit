@@ -1,6 +1,7 @@
 package io.github.manhnt217.task.task_engine.context;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.github.manhnt217.task.task_engine.exception.inner.ContextException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.UUID;
  */
 public class SimpleActivityContext extends AbstractActivityContext {
 
+    // TODO: Consider using @org.apache.commons.collections.bidimap.DualHashBidiMap
     private final Map<String, Object> objectSpace;
     private final String executionId;
 
@@ -23,25 +25,35 @@ public class SimpleActivityContext extends AbstractActivityContext {
     }
 
     @Override
-    public ObjectRef createRef(Object object) {
+    public String createRef(Object object) {
+
         for (String id : objectSpace.keySet()) {
             if (objectSpace.get(id) == object) {
-                return new ObjectRef(id);
+                return id;
             }
         }
         String refId = UUID.randomUUID().toString();
         objectSpace.put(refId, object);
-        return new ObjectRef(refId);
+        return refId;
+    }
+
+
+    @Override
+    public synchronized void clearRef(String refId) {
+        this.objectSpace.remove(refId);
     }
 
     @Override
-    public void clearRef(ObjectRef objectRef) {
-        this.objectSpace.remove(objectRef.getRefId());
-    }
-
-    @Override
-    public <T> T resolveRef(ObjectRef objectRef, Class<T> type) {
-        throw new UnsupportedOperationException("Not implemented yet!");
+    public synchronized ObjectRef resolveRef(String refId) throws ContextException {
+        Object o = this.objectSpace.get(refId);
+        if (o == null) {
+            throw new ContextException("Cannot resolve ObjectRef. Object not found");
+        }
+        try {
+            return new ObjectRef(o);
+        } catch (ClassCastException e) {
+            throw new ContextException("Cannot cast object of type '" + o.getClass().getName() + "' to desired type ");
+        }
     }
 
     @Override

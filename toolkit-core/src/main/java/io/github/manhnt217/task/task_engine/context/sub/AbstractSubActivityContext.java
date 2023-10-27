@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.manhnt217.task.task_engine.context.AbstractActivityContext;
 import io.github.manhnt217.task.task_engine.context.ActivityContext;
 import io.github.manhnt217.task.task_engine.context.ObjectRef;
+import io.github.manhnt217.task.task_engine.exception.inner.ContextException;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -38,22 +39,22 @@ public abstract class AbstractSubActivityContext extends AbstractActivityContext
     }
 
     @Override
+    public String createRef(Object object) {
+        return parent.createRef(object);
+    }
+
+    @Override
     public String getExecutionId() {
         return parent.getExecutionId();
     }
 
     @Override
-    public ObjectRef createRef(Object object) {
-        return parent.createRef(object);
+    public void clearRef(String refId) {
+        parent.clearRef(refId);
     }
 
     @Override
-    public void clearRef(ObjectRef objectRef) {
-        parent.clearRef(objectRef);
-    }
-
-    @Override
-    public <T> T resolveRef(ObjectRef objectRef, Class<T> type) {
-        return parent.resolveRef(objectRef, type);
+    public ObjectRef resolveRef(String refId) throws ContextException {
+        return parent.resolveRef(refId);
     }
 }
