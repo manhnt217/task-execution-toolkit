@@ -27,9 +27,9 @@ public interface ActivityContext {
 
     String getExecutionId();
 
-    ObjectRef createRef(Object object);
+    String createRef(Object object);
 
-    <T> T resolveRef(ObjectRef objectRef, Class<T> type);
+    ObjectRef resolveRef(String refId) throws ContextException;
 
-    void clearRef(ObjectRef objectRef);
+    void clearRef(String refId);
 }

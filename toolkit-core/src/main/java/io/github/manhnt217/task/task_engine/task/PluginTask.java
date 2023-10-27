@@ -22,7 +22,7 @@ public abstract class PluginTask<P, R> implements Task {
     public final JsonNode run(JsonNode input, String activityName, ActivityLogger activityLogger, ActivityContext context) throws PluginException {
         P in;
         try {
-            in = JSONUtil.treeToValue(input, getInputClass());
+            in = JSONUtil.treeToValue(input, getInputClass(), context);
         } catch (JsonProcessingException e) {
             throw new PluginException(getName(), input, "Cannot convert in to desired type", e);
         }
@@ -32,7 +32,7 @@ public abstract class PluginTask<P, R> implements Task {
         } catch (Exception e) {
             throw new PluginException(getName(), input, "Exception while executing task", e);
         }
-        return JSONUtil.valueToTree(rs);
+        return JSONUtil.valueToTree(rs, context);
     }
 
     public String getName() {
