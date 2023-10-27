@@ -12,6 +12,10 @@ public interface Activity {
 
     String getInputMapping();
 
+    ActivityGroup<?, ?> getParent();
+
+    void setParent(ActivityGroup<?, ?> parent);
+
     /**
      * Specify whether the output of this activity will be recorded for later use
      *
@@ -27,8 +31,4 @@ public interface Activity {
      * but hasn't returned any output yet due to some certain criteria are not met
      */
     OutboundMessage process(InboundMessage in, ActivityLogger activityLogger, ActivityContext context) throws ActivityException;
-
-    ActivityGroup<?, ?> getParent();
-
-    void setParent(ActivityGroup<?, ?> parent);
 }

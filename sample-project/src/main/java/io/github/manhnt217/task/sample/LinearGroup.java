@@ -1,7 +1,7 @@
 package io.github.manhnt217.task.sample;
 
 import io.github.manhnt217.task.task_engine.activity.Activity;
-import io.github.manhnt217.task.task_engine.activity.impl.Group;
+import io.github.manhnt217.task.task_engine.activity.impl.group.Group;
 import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
 import org.apache.commons.collections.CollectionUtils;
 
