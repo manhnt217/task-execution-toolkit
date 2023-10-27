@@ -1,7 +1,7 @@
 package io.github.manhnt217.task.task_engine.activity;
 
-import io.github.manhnt217.task.task_engine.exception.ActivityException;
 import io.github.manhnt217.task.task_engine.context.ActivityContext;
+import io.github.manhnt217.task.task_engine.exception.ActivityException;
 
 /**
  * @author manhnguyen
@@ -11,6 +11,10 @@ public interface Activity {
     String getName();
 
     String getInputMapping();
+
+    ActivityGroup<?, ?> getParent();
+
+    void setParent(ActivityGroup<?, ?> parent);
 
     /**
      * Specify whether the output of this activity will be recorded for later use
