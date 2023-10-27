@@ -1,7 +1,8 @@
-package io.github.manhnt217.task.task_engine.activity.impl;
+package io.github.manhnt217.task.task_engine.activity.impl.group;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.task_engine.activity.*;
+import io.github.manhnt217.task.task_engine.activity.impl.SimpleOutboundMessage;
 import io.github.manhnt217.task.task_engine.context.ActivityContext;
 import io.github.manhnt217.task.task_engine.exception.ActivityException;
 import io.github.manhnt217.task.task_engine.exception.GroupException;
@@ -15,24 +16,14 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class Group extends LinkBasedActivityGroup implements Activity {
-
-    private final String name;
-    private String inputMapping;
-    private ActivityGroup<?, ?> parent;
+public class Group extends AbstractGroup implements Activity {
 
     public Group(String name, String startActivityName, String endActivityName, String outputMapping) throws ConfigurationException {
-        super(startActivityName, endActivityName, outputMapping);
-        this.name = name;
+        super(name, startActivityName, endActivityName, outputMapping);
     }
 
     public Group(String name, String startActivityName, String endActivityName) throws ConfigurationException {
         this(name, startActivityName, endActivityName, null);
-    }
-
-    @Override
-    public boolean registerOutput() {
-        return true;
     }
 
     @Override

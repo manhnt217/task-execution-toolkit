@@ -1,4 +1,4 @@
-package io.github.manhnt217.task.task_engine.activity.impl;
+package io.github.manhnt217.task.task_engine.activity.impl.simple;
 
 import io.github.manhnt217.task.task_engine.activity.Activity;
 import io.github.manhnt217.task.task_engine.activity.ActivityGroup;
