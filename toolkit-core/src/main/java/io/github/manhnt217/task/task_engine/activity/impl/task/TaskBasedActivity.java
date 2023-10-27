@@ -1,10 +1,12 @@
-package io.github.manhnt217.task.task_engine.activity.impl;
+package io.github.manhnt217.task.task_engine.activity.impl.task;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.task_engine.activity.*;
-import io.github.manhnt217.task.task_engine.exception.ActivityException;
+import io.github.manhnt217.task.task_engine.activity.impl.SimpleOutboundMessage;
+import io.github.manhnt217.task.task_engine.activity.impl.simple.AbstractSimpleActivity;
 import io.github.manhnt217.task.task_engine.context.ActivityContext;
-import io.github.manhnt217.task.task_engine.context.SubprocessContext;
+import io.github.manhnt217.task.task_engine.exception.ActivityException;
+import io.github.manhnt217.task.task_engine.context.sub.TaskContext;
 import io.github.manhnt217.task.task_engine.task.Task;
 import io.github.manhnt217.task.task_engine.exception.TaskException;
 import lombok.Setter;
@@ -30,7 +32,7 @@ public class TaskBasedActivity extends AbstractSimpleActivity implements Activit
     public OutboundMessage process(InboundMessage in, ActivityLogger activityLogger, ActivityContext context) throws ActivityException {
         JsonNode input = in.getContent();
         try {
-            JsonNode output = task.run(input, this.getName(), activityLogger, new SubprocessContext(context));
+            JsonNode output = task.run(input, this.getName(), activityLogger, new TaskContext(context));
             return SimpleOutboundMessage.of(output);
         } catch (TaskException e) {
             throw new ActivityException(this, e);

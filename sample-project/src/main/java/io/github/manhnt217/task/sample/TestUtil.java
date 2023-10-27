@@ -5,12 +5,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.github.manhnt217.task.sample.plugin.LogTask;
-import io.github.manhnt217.task.task_engine.activity.Activity;
+import io.github.manhnt217.task.task_engine.context.SimpleActivityContext;
 import io.github.manhnt217.task.task_engine.exception.ActivityException;
 import io.github.manhnt217.task.task_engine.activity.OutboundMessage;
 import io.github.manhnt217.task.task_engine.activity.impl.DefaultActivityLogger;
 import io.github.manhnt217.task.task_engine.activity.impl.SimpleInboundMessage;
-import io.github.manhnt217.task.task_engine.context.ActivityContext;
+import io.github.manhnt217.task.task_engine.exception.TaskException;
 import io.github.manhnt217.task.task_engine.task.PluginTask;
 import io.github.manhnt217.task.task_engine.task.Task;
 
@@ -29,20 +29,9 @@ public class TestUtil {
         OM.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
     }
 
-    public static JsonNode executeActivity(Activity activity, JsonNode props, DefaultActivityLogger logger, String executionId) throws ActivityException {
-
-        ActivityContext context = new ActivityContext(executionId, props);
-
-        JsonNode inputAfterTransform;
-        try {
-            inputAfterTransform = context.transformInput(activity);
-        } catch (Exception e) {
-            throw new ActivityException(activity, "Exception while transform the input", e);
-        }
-
-        OutboundMessage output = activity.process(SimpleInboundMessage.of(inputAfterTransform), logger, context);
-
-        return output.getContent();
+    public static JsonNode executeTask(Task task, JsonNode props, JsonNode input, DefaultActivityLogger logger, String executionId) throws TaskException {
+        SimpleActivityContext context = new SimpleActivityContext(executionId, props);
+        return task.run(input, "doesntmatter", logger, context);
     }
 
     private static final String BUILTIN_TASK_PACKAGE = LogTask.class.getPackage().getName() + ".";
