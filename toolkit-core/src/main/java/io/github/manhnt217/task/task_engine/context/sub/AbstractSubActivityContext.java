@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.manhnt217.task.task_engine.context.AbstractActivityContext;
 import io.github.manhnt217.task.task_engine.context.ActivityContext;
-import io.github.manhnt217.task.task_engine.context.ObjectRef;
+import io.github.manhnt217.task.task_engine.type.ObjectRef;
 import io.github.manhnt217.task.task_engine.exception.inner.ContextException;
 
 import java.util.Iterator;

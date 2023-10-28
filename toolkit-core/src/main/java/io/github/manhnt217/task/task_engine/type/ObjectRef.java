@@ -1,4 +1,4 @@
-package io.github.manhnt217.task.task_engine.context;
+package io.github.manhnt217.task.task_engine.type;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -7,7 +7,7 @@ import lombok.Setter;
 /**
  * @author manhnguyen
  */
-public class ObjectRef {
+public class ObjectRef implements EngineType {
 
     @JsonIgnore
     private final Object value;
