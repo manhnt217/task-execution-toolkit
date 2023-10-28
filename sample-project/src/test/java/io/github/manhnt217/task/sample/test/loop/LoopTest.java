@@ -11,6 +11,8 @@ import io.github.manhnt217.task.task_engine.activity.impl.ExecutionLog;
 import io.github.manhnt217.task.task_engine.activity.impl.task.TaskBasedActivity;
 import io.github.manhnt217.task.task_engine.activity.impl.loop.ForEachActivity;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.util.*;
 
@@ -22,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author manhnguyen
  */
+@Execution(ExecutionMode.CONCURRENT)
 public class LoopTest {
 
 

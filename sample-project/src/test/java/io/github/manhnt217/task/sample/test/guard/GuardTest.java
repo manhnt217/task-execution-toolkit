@@ -9,6 +9,8 @@ import io.github.manhnt217.task.task_engine.activity.impl.LinkBasedActivityGroup
 import io.github.manhnt217.task.task_engine.activity.impl.task.TaskBasedActivity;
 import io.github.manhnt217.task.task_engine.task.CompositeTask;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author manhnguyen
  */
+@Execution(ExecutionMode.CONCURRENT)
 public class GuardTest {
 
     /**

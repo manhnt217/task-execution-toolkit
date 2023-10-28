@@ -10,6 +10,8 @@ import io.github.manhnt217.task.task_engine.activity.impl.DefaultActivityLogger;
 import io.github.manhnt217.task.task_engine.exception.TaskException;
 import io.github.manhnt217.task.task_engine.task.Task;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.util.UUID;
 
@@ -18,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author manhnguyen
  */
+@Execution(ExecutionMode.CONCURRENT)
 public class SimpleTaskTest {
 
     @Test

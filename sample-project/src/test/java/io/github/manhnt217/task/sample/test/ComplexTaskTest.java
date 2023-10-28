@@ -14,6 +14,8 @@ import io.github.manhnt217.task.task_engine.activity.impl.ExecutionLog;
 import io.github.manhnt217.task.task_engine.activity.impl.task.TaskBasedActivity;
 import io.github.manhnt217.task.task_engine.task.CompositeTask;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +28,7 @@ import static org.hamcrest.Matchers.*;
 /**
  * @author manhnguyen
  */
+@Execution(ExecutionMode.CONCURRENT)
 public class ComplexTaskTest {
 
     public static final String SQL = "DECLARE " +

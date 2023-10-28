@@ -5,7 +5,7 @@ import io.github.manhnt217.task.task_engine.activity.Activity;
 import io.github.manhnt217.task.task_engine.activity.OutboundMessage;
 import io.github.manhnt217.task.task_engine.exception.inner.ContextException;
 import io.github.manhnt217.task.task_engine.exception.inner.TransformException;
-import io.github.manhnt217.task.task_engine.type.ObjectRef;
+import io.github.manhnt217.task.task_engine.type.simple.ObjectRef;
 
 import java.util.Map;
 

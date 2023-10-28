@@ -14,6 +14,8 @@ import io.github.manhnt217.task.task_engine.activity.impl.group.Group;
 import io.github.manhnt217.task.task_engine.activity.impl.task.TaskBasedActivity;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * @author manhnguyen
  */
+@Execution(ExecutionMode.CONCURRENT)
 public class GroupTest {
 
     /**

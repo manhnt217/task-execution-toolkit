@@ -14,7 +14,7 @@ import com.schibsted.spt.data.jslt.Expression;
 import com.schibsted.spt.data.jslt.Parser;
 import io.github.manhnt217.task.task_engine.exception.inner.ContextException;
 import io.github.manhnt217.task.task_engine.exception.inner.TransformException;
-import io.github.manhnt217.task.task_engine.type.ObjectRef;
+import io.github.manhnt217.task.task_engine.type.simple.ObjectRef;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
