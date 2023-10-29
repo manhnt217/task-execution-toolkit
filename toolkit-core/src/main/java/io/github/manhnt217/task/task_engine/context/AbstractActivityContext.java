@@ -1,11 +1,13 @@
 package io.github.manhnt217.task.task_engine.context;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.manhnt217.task.task_engine.activity.Activity;
 import io.github.manhnt217.task.task_engine.exception.inner.ContextException;
 import io.github.manhnt217.task.task_engine.activity.OutboundMessage;
 import io.github.manhnt217.task.task_engine.exception.inner.TransformException;
+import io.github.manhnt217.task.task_engine.type.EngineType;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,13 +29,13 @@ public abstract class AbstractActivityContext implements ActivityContext {
     }
 
     @Override
-    public void saveOutput(Activity activity, OutboundMessage output) throws ContextException {
+    public <I extends EngineType, O extends EngineType> void saveOutput(Activity<I, O> activity, O output) throws ContextException {
         validate(activity);
-        if (activity.registerOutput() && output != null && !output.isEmpty()) {
+        if (activity.registerOutput() && output != null) {
             if (contextParams.get(activity.getName()) != null) {
                 throw new ContextException("Output of activity '" + activity.getName() + "' has already existed in the context");
             }
-            contextParams.set(activity.getName(), output.getContent());
+            contextParams.set(activity.getName(), JSONUtil.valueToTree(output, this));
         }
     }
 
@@ -58,8 +60,14 @@ public abstract class AbstractActivityContext implements ActivityContext {
     }
 
     @Override
-    public JsonNode transformInput(Activity activity) throws TransformException {
-        return JSONUtil.applyTransform(activity.getInputMapping(), contextParams);
+    public <I extends EngineType, O extends EngineType> I transformInput(Activity<I, O> activity) throws TransformException {
+        JsonNode jsonNode = JSONUtil.applyTransform(activity.getInputMapping(), contextParams);
+        try {
+            I input = JSONUtil.treeToValue(jsonNode, activity.getInputType(), this);
+            return input;
+        } catch (JsonProcessingException e) {
+            throw new TransformException(e);
+        }
     }
 
     @Override

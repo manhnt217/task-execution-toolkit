@@ -21,6 +21,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 
@@ -89,10 +90,12 @@ public class JSONUtil {
         return getObjectMapper().createObjectNode();
     }
 
-    public static <T> T treeToValue(TreeNode n, Class<T> valueType, ActivityContext activityContext) throws IllegalArgumentException, JsonProcessingException {
+    public static <T> T treeToValue(TreeNode n, Type valueType, ActivityContext activityContext) throws IllegalArgumentException, JsonProcessingException {
+
+        ObjectMapper objectMapper = getObjectMapper();
 
         setActivityContext(activityContext);
-        T value = getObjectMapper().treeToValue(n, valueType);
+        T value = objectMapper.treeToValue(n, objectMapper.constructType(valueType));
         clearActivityContext();
         return  value;
     }

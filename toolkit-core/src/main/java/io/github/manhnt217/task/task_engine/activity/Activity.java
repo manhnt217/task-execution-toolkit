@@ -2,11 +2,14 @@ package io.github.manhnt217.task.task_engine.activity;
 
 import io.github.manhnt217.task.task_engine.context.ActivityContext;
 import io.github.manhnt217.task.task_engine.exception.ActivityException;
+import io.github.manhnt217.task.task_engine.type.EngineType;
+
+import java.lang.reflect.Type;
 
 /**
  * @author manhnguyen
  */
-public interface Activity {
+public interface Activity<I extends EngineType, O extends EngineType> {
 
     String getName();
 
@@ -30,5 +33,7 @@ public interface Activity {
      * @return <code>null</code> means the activity has done processing the input,
      * but hasn't returned any output yet due to some certain criteria are not met
      */
-    OutboundMessage process(InboundMessage in, ActivityLogger activityLogger, ActivityContext context) throws ActivityException;
+    O process(I in, ActivityLogger activityLogger, ActivityContext context) throws ActivityException;
+
+    Type getInputType();
 }

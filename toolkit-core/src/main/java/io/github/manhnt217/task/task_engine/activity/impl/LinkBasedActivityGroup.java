@@ -10,6 +10,7 @@ import io.github.manhnt217.task.task_engine.exception.GroupException;
 import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.task_engine.exception.inner.ContextException;
 import io.github.manhnt217.task.task_engine.exception.inner.TransformException;
+import io.github.manhnt217.task.task_engine.type.EngineType;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
  *
  * @author manhnguyen
  */
-public abstract class LinkBasedActivityGroup implements ActivityGroup<JsonNode, JsonNode> {
+public abstract class LinkBasedActivityGroup implements ActivityGroup<JsonNode, EngineType> {
 
     public static final String BLANK_GUARD_EXP = "<blank>";
     public static final String OTHERWISE_GUARD_EXP = "<otherwise>";
@@ -57,7 +58,7 @@ public abstract class LinkBasedActivityGroup implements ActivityGroup<JsonNode, 
     protected final Map<Activity, Map<String, Activity>> links;
     protected StartActivity startActivity;
     protected EndActivity endActivity;
-    protected List<Activity> activities;
+    protected List<Activity<EngineType, EngineType>> activities;
 
     public LinkBasedActivityGroup(String startActivityName, String endActivityName, String outputMapping) throws ConfigurationException {
         this.activities = new ArrayList<>();
@@ -85,7 +86,7 @@ public abstract class LinkBasedActivityGroup implements ActivityGroup<JsonNode, 
         else return -1;
     }
 
-    private static void saveOutput(ActivityContext context, Activity currentActivity, OutboundMessage out) throws GroupException {
+    private static <O extends EngineType> void saveOutput(ActivityContext context, Activity currentActivity, O out) throws GroupException {
         try {
             context.saveOutput(currentActivity, out);
         } catch (ContextException e) {
@@ -113,17 +114,17 @@ public abstract class LinkBasedActivityGroup implements ActivityGroup<JsonNode, 
     }
 
     @Override
-    public JsonNode execute(JsonNode input, ActivityLogger activityLogger, ActivityContext context) throws GroupException, ActivityException {
+    public EngineType execute(JsonNode input, ActivityLogger activityLogger, ActivityContext context) throws GroupException, ActivityException {
         startActivity.setOutput(input);
         Activity currentActivity = startActivity;
 
         while (true) {
-            OutboundMessage out = executeActivity(currentActivity, context, activityLogger);
+            EngineType out = executeActivity(currentActivity, context, activityLogger);
             saveOutput(context, currentActivity, out);
             Activity nextActivity = getNextActivity(currentActivity, context);
             if (nextActivity == null) {
                 // end the process execution
-                return out.getContent();
+                return out;
             }
             currentActivity = nextActivity;
         }
@@ -152,16 +153,14 @@ public abstract class LinkBasedActivityGroup implements ActivityGroup<JsonNode, 
         linkActivities(activity, endActivity, null);
     }
 
-    protected final OutboundMessage executeActivity(Activity activity, ActivityContext context, ActivityLogger activityLogger) throws ActivityException {
-        InboundMessage inboundMessage;
-        JsonNode taskInput;
+    protected final <I extends EngineType, O extends EngineType> EngineType executeActivity(Activity<I, O> activity, ActivityContext context, ActivityLogger activityLogger) throws ActivityException {
+        I taskInput;
         try {
             taskInput = context.transformInput(activity);
         } catch (TransformException e) {
             throw new ActivityException(activity, "Cannot transform the input for activity", e);
         }
-        inboundMessage = SimpleInboundMessage.of(taskInput);
-        return activity.process(inboundMessage, activityLogger, context);
+        return activity.process(taskInput, activityLogger, context);
     }
 
     protected final Activity getNextActivity(Activity activity, ActivityContext context) throws GroupException {

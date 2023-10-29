@@ -2,9 +2,9 @@ package io.github.manhnt217.task.task_engine.context;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.task_engine.activity.Activity;
-import io.github.manhnt217.task.task_engine.activity.OutboundMessage;
 import io.github.manhnt217.task.task_engine.exception.inner.ContextException;
 import io.github.manhnt217.task.task_engine.exception.inner.TransformException;
+import io.github.manhnt217.task.task_engine.type.EngineType;
 import io.github.manhnt217.task.task_engine.type.simple.ObjectRef;
 
 import java.util.Map;
@@ -18,11 +18,11 @@ public interface ActivityContext {
     String ALL_SUBTASKS_JSLT = "{\""+KEY_PROPS+"\": null, * : . }";
     String FROM_PROPS = "." + KEY_PROPS;
 
-    void saveOutput(Activity activity, OutboundMessage output) throws ContextException;
+    <I extends EngineType, O extends EngineType> void saveOutput(Activity<I, O> activity, O output) throws ContextException;
 
     Map<String, JsonNode> toMap();
 
-    JsonNode transformInput(Activity activity) throws TransformException;
+    <I extends EngineType, O extends EngineType> I transformInput(Activity<I, O> activity) throws TransformException;
 
     boolean evaluate(String jslt) throws TransformException;
 
