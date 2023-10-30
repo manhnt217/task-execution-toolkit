@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import io.github.manhnt217.task.sample.TestUtil;
 import io.github.manhnt217.task.sample.Util;
 import io.github.manhnt217.task.sample.plugin.CurlTask;
-import io.github.manhnt217.task.task_engine.activity.impl.DefaultActivityLogger;
+import io.github.manhnt217.task.task_engine.activity.DefaultActivityLogger;
 import io.github.manhnt217.task.task_engine.exception.TaskException;
 import io.github.manhnt217.task.task_engine.task.Task;
 import org.junit.jupiter.api.Test;

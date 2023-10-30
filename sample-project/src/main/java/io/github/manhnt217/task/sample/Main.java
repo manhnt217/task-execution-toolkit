@@ -3,9 +3,9 @@ package io.github.manhnt217.task.sample;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import io.github.manhnt217.task.task_engine.activity.impl.DefaultActivityLogger;
-import io.github.manhnt217.task.task_engine.activity.impl.ExecutionLog;
-import io.github.manhnt217.task.task_engine.activity.impl.task.TaskBasedActivity;
+import io.github.manhnt217.task.task_engine.activity.DefaultActivityLogger;
+import io.github.manhnt217.task.task_engine.activity.ExecutionLog;
+import io.github.manhnt217.task.task_engine.activity.task.TaskBasedActivity;
 import io.github.manhnt217.task.task_engine.exception.TaskException;
 import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
 
