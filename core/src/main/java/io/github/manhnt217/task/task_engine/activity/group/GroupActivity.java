@@ -6,7 +6,7 @@ import io.github.manhnt217.task.task_engine.activity.ActivityLogger;
 import io.github.manhnt217.task.task_engine.activity.InboundMessage;
 import io.github.manhnt217.task.task_engine.activity.OutboundMessage;
 import io.github.manhnt217.task.task_engine.activity.SimpleOutboundMessage;
-import io.github.manhnt217.task.task_engine.activity.simple.AbstractSimpleActivity;
+import io.github.manhnt217.task.task_engine.activity.AbstractActivity;
 import io.github.manhnt217.task.task_engine.context.ActivityContext;
 import io.github.manhnt217.task.task_engine.context.sub.GroupContext;
 import io.github.manhnt217.task.task_engine.exception.ActivityException;
@@ -15,7 +15,7 @@ import io.github.manhnt217.task.task_engine.exception.GroupException;
 /**
  * @author manhnguyen
  */
-public class GroupActivity extends AbstractSimpleActivity implements Activity {
+public class GroupActivity extends AbstractActivity implements Activity {
 
     private final Group activityGroup;
     public GroupActivity(String name, Group activityGroup) {

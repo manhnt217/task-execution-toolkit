@@ -3,11 +3,16 @@ package io.github.manhnt217.task.sample;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import io.github.manhnt217.task.sample.plugin.CurlTask;
+import io.github.manhnt217.task.sample.plugin.LogTask;
+import io.github.manhnt217.task.sample.plugin.SqlTask;
 import io.github.manhnt217.task.task_engine.activity.DefaultActivityLogger;
 import io.github.manhnt217.task.task_engine.activity.ExecutionLog;
 import io.github.manhnt217.task.task_engine.activity.task.TaskBasedActivity;
+import io.github.manhnt217.task.task_engine.context.ActivityContext;
 import io.github.manhnt217.task.task_engine.exception.TaskException;
 import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
+import io.github.manhnt217.task.task_engine.persistence.builder.ActivityBuilder;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,17 +36,21 @@ public class Main {
     public static void main(String[] args) throws JsonProcessingException, ConfigurationException {
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
-        TaskBasedActivity task1 = new TaskBasedActivity("task1");
-        task1.setInputMapping("._PROPS_");
-        task1.setTask(TestUtil.loadTask("CurlTask"));
+        TaskBasedActivity task1 = ActivityBuilder
+                .task("task1", ActivityBuilder.plugin(CurlTask.class.getName()).build())
+                .inputMapping(ActivityContext.FROM_PROPS)
+                .build();
 
-        TaskBasedActivity task2 = new TaskBasedActivity("task2");
-        task2.setTask(TestUtil.loadTask("LogTask"));
-        task2.setInputMapping("{\"severity\": \"INFO\", \"message\": \"Status code is \" + .task1.statusCode}");
+        TaskBasedActivity task2 = ActivityBuilder
+                .task("task2", ActivityBuilder.plugin(LogTask.class.getName()).build())
+                .inputMapping("{\"severity\": \"INFO\", \"message\": \"Status code is \" + .task1.statusCode}")
+                .build();
 
-        TaskBasedActivity task3 = new TaskBasedActivity("task3");
-        task3.setTask(TestUtil.loadTask("SqlTask"));
-        task3.setInputMapping("{\"sql\":\"" + SQL + "\"} + ._PROPS_");
+        TaskBasedActivity task3 = ActivityBuilder
+                .task("task3", ActivityBuilder.plugin(SqlTask.class.getName()).build())
+                .inputMapping("{\"sql\":\"" + SQL + "\"} + " + ActivityContext.FROM_PROPS)
+                .build();
+
 
         LinearCompositeTask task = new LinearCompositeTask("doesntMatterNow", Lists.newArrayList(task1, task2, task3));
 

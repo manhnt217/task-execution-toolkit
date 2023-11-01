@@ -30,24 +30,4 @@ public class TestUtil {
         SimpleActivityContext context = new SimpleActivityContext(executionId, props);
         return task.run(input, "doesntmatter", logger, context);
     }
-
-    private static final String BUILTIN_TASK_PACKAGE = LogTask.class.getPackage().getName() + ".";
-
-    public static Task loadTask(String taskClass)  {
-        try {
-            String className = BUILTIN_TASK_PACKAGE + taskClass;
-            Class<?> clazz = Class.forName(className);
-            if (!PluginTask.class.isAssignableFrom(clazz)) {
-                throw new RuntimeException("Task class does not extend " + PluginTask.class.getName());
-            }
-            Constructor<?> constructor = clazz.getConstructor(String.class);
-            return (PluginTask) constructor.newInstance(taskClass);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Could not find any task with name '" + taskClass + "'");
-        } catch (NoSuchMethodException | SecurityException e) {
-            throw new RuntimeException("Cannot find suitable constructor for task '" + taskClass + "'");
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException("Exception while instantiate task '" + taskClass + "'");
-        }
-    }
 }
