@@ -5,16 +5,16 @@ import com.google.common.collect.ImmutableMap;
 import io.github.manhnt217.task.sample.LinearCompositeTask;
 import io.github.manhnt217.task.sample.LinearGroupActivity;
 import io.github.manhnt217.task.sample.TestUtil;
+import io.github.manhnt217.task.sample.plugin.CurlTask;
+import io.github.manhnt217.task.sample.plugin.LogTask;
 import io.github.manhnt217.task.task_engine.activity.DefaultActivityLogger;
 import io.github.manhnt217.task.task_engine.activity.ExecutionLog;
-import io.github.manhnt217.task.task_engine.activity.group.Group;
 import io.github.manhnt217.task.task_engine.activity.group.GroupActivity;
-import io.github.manhnt217.task.task_engine.activity.simple.EndActivity;
-import io.github.manhnt217.task.task_engine.activity.simple.StartActivity;
 import io.github.manhnt217.task.task_engine.activity.task.TaskBasedActivity;
 import io.github.manhnt217.task.task_engine.context.ActivityContext;
 import io.github.manhnt217.task.task_engine.exception.TaskException;
 import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
+import io.github.manhnt217.task.task_engine.persistence.builder.ActivityBuilder;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -41,26 +41,26 @@ public class GroupActivityTest {
     public void testGroupSimple() throws ConfigurationException, TaskException {
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
-        TaskBasedActivity task1 = new TaskBasedActivity("task1");
-        task1.setInputMapping("{\"severity\": \"INFO\",\"message\": .START.task1Log}");
-        task1.setTask(TestUtil.loadTask("LogTask"));
+        TaskBasedActivity task1 = ActivityBuilder
+                .task("task1", ActivityBuilder.plugin(LogTask.class.getName()).build())
+                .inputMapping("{\"severity\": \"INFO\",\"message\": .START.task1Log}")
+                .build();
 
-        TaskBasedActivity task2 = new TaskBasedActivity("task2");
-        task2.setInputMapping("{\"severity\": \"INFO\",\"message\": .g1Start.START.task2Log}");
-        task2.setTask(TestUtil.loadTask("LogTask"));
+        TaskBasedActivity task2 = ActivityBuilder
+                .task("task2", ActivityBuilder.plugin(LogTask.class.getName()).build())
+                .inputMapping("{\"severity\": \"INFO\",\"message\": .g1Start.START.task2Log}")
+                .build();
 
-        Group group = new Group();
-        group.addActivity(new StartActivity("g1Start"));
-        group.addActivity(new EndActivity("g1End"));
-        group.addActivity(task1);
-        group.addActivity(task2);
-
-        group.linkFromStart(task1, null);
-        group.linkActivities(task1, task2, null);
-        group.linkToEnd(task2, null);
-
-        GroupActivity group1 = new GroupActivity("g1", group);
-        group1.setInputMapping(ActivityContext.ALL_SUBTASKS_JSLT);
+        GroupActivity group1 = ActivityBuilder
+                .group()
+                .name("g1")
+                .inputMapping(ActivityContext.ALL_SUBTASKS_JSLT)
+                .start("g1Start")
+                .end("g1End")
+                .linkFromStart(task1)
+                .link(task1, task2)
+                .linkToEnd(task2)
+                .build();
 
         JsonNode input = TestUtil.OM.valueToTree(ImmutableMap.of(
                 "task1Log", "log for task number 1",
@@ -80,9 +80,11 @@ public class GroupActivityTest {
 
     @Test
     public void testAddActivityToTwoGroups() {
-        TaskBasedActivity task1 = new TaskBasedActivity("taskA");
-        task1.setInputMapping("{\"method\": \"GET\",\"url\": \"example.com\"}");
-        task1.setTask(TestUtil.loadTask("CurlTask"));
+
+        TaskBasedActivity task1 = ActivityBuilder
+                .task("taskA", ActivityBuilder.plugin(CurlTask.class.getName()).build())
+                .inputMapping("{\"method\": \"GET\",\"url\": \"example.com\"}")
+                .build();
 
         assertDoesNotThrow(() -> new LinearGroupActivity("g1",
                 "g1Start", "g1End",
@@ -101,13 +103,16 @@ public class GroupActivityTest {
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
         final String TASK_NAME = "taskA";
-        TaskBasedActivity task1 = new TaskBasedActivity(TASK_NAME);
-        task1.setInputMapping("{\"method\": \"GET\",\"url\": \"https://example.com\"}");
-        task1.setTask(TestUtil.loadTask("CurlTask"));
 
-        TaskBasedActivity task2 = new TaskBasedActivity(TASK_NAME);
-        task2.setInputMapping("{\"method\": \"GET\",\"url\": \"https://example.com\"}");
-        task2.setTask(TestUtil.loadTask("CurlTask"));
+        TaskBasedActivity task1 = ActivityBuilder
+                .task(TASK_NAME, ActivityBuilder.plugin(CurlTask.class.getName()).build())
+                .inputMapping("{\"method\": \"GET\",\"url\": \"https://example.com\"}")
+                .build();
+
+        TaskBasedActivity task2 = ActivityBuilder
+                .task(TASK_NAME, ActivityBuilder.plugin(CurlTask.class.getName()).build())
+                .inputMapping("{\"method\": \"GET\",\"url\": \"https://example.com\"}")
+                .build();
 
         GroupActivity group2 = new LinearGroupActivity("g2",
                 "g2Start", "g2End",

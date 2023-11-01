@@ -3,7 +3,7 @@ package io.github.manhnt217.task.task_engine.activity.task;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.task_engine.activity.*;
 import io.github.manhnt217.task.task_engine.activity.SimpleOutboundMessage;
-import io.github.manhnt217.task.task_engine.activity.simple.AbstractSimpleActivity;
+import io.github.manhnt217.task.task_engine.activity.AbstractActivity;
 import io.github.manhnt217.task.task_engine.context.ActivityContext;
 import io.github.manhnt217.task.task_engine.exception.ActivityException;
 import io.github.manhnt217.task.task_engine.context.sub.TaskContext;
@@ -15,7 +15,7 @@ import lombok.Setter;
  * @author manhnguyen
  */
 @Setter
-public class TaskBasedActivity extends AbstractSimpleActivity implements Activity {
+public class TaskBasedActivity extends AbstractActivity implements Activity {
 
     private Task task;
 
