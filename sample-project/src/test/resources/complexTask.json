@@ -1,0 +1,47 @@
+{
+  "name": "c1",
+  "type": "COMPOSITE",
+  "outputMapping": ".Add",
+  "group": {
+    "activities": [
+      {
+        "name": "Add",
+        "type": "TASK",
+        "inputMapping": ".START",
+        "task": {
+          "name": "io.github.manhnt217.task.sample.plugin.AddTwoNumberTask",
+          "type": "PLUGIN"
+        }
+      },
+      {
+        "name": "Log",
+        "type": "TASK",
+        "inputMapping": "{\"message\":\"The result of Add task is: \" + .Add, \"severity\": \"INFO\"}",
+        "task": {
+          "name": "io.github.manhnt217.task.sample.plugin.LogTask",
+          "type": "PLUGIN"
+        }
+      }
+    ],
+    "links": [
+      {
+        "from": "START",
+        "to": "Add"
+      },
+      {
+        "from": "Add",
+        "to": "Log",
+        "guard": ".Add < 100"
+      },
+      {
+        "from": "Add",
+        "to": "END",
+        "guard": "<otherwise>"
+      },
+      {
+        "from": "Log",
+        "to": "END"
+      }
+    ]
+  }
+}

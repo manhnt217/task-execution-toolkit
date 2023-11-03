@@ -14,58 +14,64 @@ import java.util.List;
 /**
  * @author manhnguyen
  */
-public class GroupBuilder {
+class GroupBuilder {
     protected String startName;
     protected String endName;
     protected List<ImmutablePair<Activity, String>> startLinks;
     protected List<ImmutablePair<Activity, String>> endLinks;
+    protected List<String> startToEndLinks;
     protected List<ImmutablePair<Activity, ImmutablePair<Activity, String>>> links;
     protected String outputMapping;
 
     protected StartActivity startActivity;
     protected EndActivity endActivity;
 
-    public GroupBuilder() {
+    GroupBuilder() {
 
         this.startLinks = new ArrayList<>();
         this.endLinks = new ArrayList<>();
+        this.startToEndLinks = new ArrayList<>();
         this.links = new ArrayList<>();
     }
 
 
-    public void start(String name) {
+    void start(String name) {
         this.startName = name;
     }
 
-    public void end(String name) {
+    void end(String name) {
         this.endName = name;
     }
 
-    public void linkFromStart(Activity a, String guard) {
+    void linkFromStart(Activity a, String guard) {
         startLinks.add(ImmutablePair.of(a, guard));
     }
 
-    public void linkFromStart(Activity a) {
+    void linkFromStart(Activity a) {
         this.linkFromStart(a, null);
     }
 
-    public void linkToEnd(Activity a, String guard) {
+    void linkToEnd(Activity a, String guard) {
         endLinks.add(ImmutablePair.of(a, guard));
     }
 
-    public void linkToEnd(Activity a) {
+    void linkToEnd(Activity a) {
         this.linkToEnd(a, null);
     }
 
-    public void link(Activity a, Activity b, String guard) {
+    void linkStartToEnd(String guard) {
+        this.startToEndLinks.add(guard);
+    }
+
+    void link(Activity a, Activity b, String guard) {
         links.add(ImmutablePair.of(a, ImmutablePair.of(b, guard)));
     }
 
-    public void link(Activity a, Activity b) {
+    void link(Activity a, Activity b) {
         this.link(a, b, null);
     }
 
-    public void outputMapping(String outputMapping) {
+    void outputMapping(String outputMapping) {
         this.outputMapping = outputMapping;
     }
 
@@ -88,6 +94,10 @@ public class GroupBuilder {
 
         for (ImmutablePair<Activity, ImmutablePair<Activity, String>> link : links) {
             group.linkActivities(link.getLeft(), link.getRight().getLeft(), link.getRight().getRight());
+        }
+
+        for (String guard : startToEndLinks) {
+            group.linkStartToEnd(guard);
         }
 
         return group;

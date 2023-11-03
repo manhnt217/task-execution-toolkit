@@ -6,7 +6,7 @@ import io.github.manhnt217.task.task_engine.task.Task;
 /**
  * @author manhnguyen
  */
-public abstract class AbstractTaskBuilder<T extends Task, B extends AbstractTaskBuilder<T, B>> {
+public abstract class AbstractTaskBuilder<T extends Task> {
 
     protected String name;
 

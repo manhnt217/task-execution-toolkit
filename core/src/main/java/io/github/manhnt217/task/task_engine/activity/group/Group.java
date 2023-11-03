@@ -79,12 +79,24 @@ public class Group implements LinkedActivityGroup<JsonNode, JsonNode> {
 
     @Override
     public boolean containsActivity(Activity activity) {
+        if (activity instanceof StartActivity) {
+            return this.activities.values().stream().anyMatch(a -> a instanceof StartActivity);
+        }
+        if (activity instanceof EndActivity) {
+            return this.activities.values().stream().anyMatch(a -> a instanceof EndActivity);
+        }
         return this.activities.containsKey(activity.getName());
     }
 
     @Override
     public void addActivity(Activity activity) throws ConfigurationException {
         if (containsActivity(activity)) {
+            if (activity instanceof StartActivity) {
+                throw new ConfigurationException("StartActivity has already been added. Allow only one StartActivity");
+            }
+            if (activity instanceof EndActivity) {
+                throw new ConfigurationException("EndActivity has already been added. Allow only one EndActivity");
+            }
             throw new ConfigurationException("Activity '" + activity.getName() + "' has already been added");
         }
         if (activity instanceof StartActivity) {
@@ -148,6 +160,10 @@ public class Group implements LinkedActivityGroup<JsonNode, JsonNode> {
 
     public final void linkToEnd(Activity activity, String guard) throws ConfigurationException {
         linkActivities(activity, endActivity, guard);
+    }
+
+    public final void linkStartToEnd(String guard) throws ConfigurationException {
+        linkActivities(startActivity, endActivity, guard);
     }
 
     protected final OutboundMessage executeActivity(Activity activity, ActivityContext context, ActivityLogger activityLogger) throws ActivityException {
