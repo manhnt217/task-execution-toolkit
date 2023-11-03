@@ -14,8 +14,6 @@ public class TaskDto {
 
     private Type type;
 
-    private String pluginName;
-
     private String outputMapping;
 
     private ActivityGroupDto group;

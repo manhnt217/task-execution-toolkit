@@ -8,10 +8,9 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * @author manhnguyen
  */
-public class PluginTaskBuilder extends AbstractTaskBuilder<PluginTask, PluginTaskBuilder> {
+public class PluginTaskBuilder extends AbstractTaskBuilder<PluginTask> {
 
-
-    public PluginTaskBuilder(String name) {
+    PluginTaskBuilder(String name) {
         this.name = name;
     }
 
