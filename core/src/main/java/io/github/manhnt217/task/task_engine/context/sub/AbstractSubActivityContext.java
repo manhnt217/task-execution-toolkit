@@ -6,6 +6,7 @@ import io.github.manhnt217.task.task_engine.context.AbstractActivityContext;
 import io.github.manhnt217.task.task_engine.context.ActivityContext;
 import io.github.manhnt217.task.task_engine.context.ObjectRef;
 import io.github.manhnt217.task.task_engine.exception.inner.ContextException;
+import io.github.manhnt217.task.task_engine.task.Task;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -36,6 +37,11 @@ public abstract class AbstractSubActivityContext extends AbstractActivityContext
         } else {
             to.set(KEY_PROPS, from.get(KEY_PROPS));
         }
+    }
+
+    @Override
+    public Task resolveTask(String name) {
+        return parent.resolveTask(name);
     }
 
     @Override

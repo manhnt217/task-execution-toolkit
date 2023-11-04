@@ -1,0 +1,26 @@
+[
+  {
+    "name": "io.github.manhnt217.task.sample.plugin.AddTwoNumberTask",
+    "type": "PLUGIN"
+  },
+  {
+    "name": "io.github.manhnt217.task.sample.plugin.CurlTask",
+    "type": "PLUGIN"
+  },
+  {
+    "name": "io.github.manhnt217.task.sample.plugin.SqlTask",
+    "type": "PLUGIN"
+  },
+  {
+    "name": "io.github.manhnt217.task.sample.plugin.LogTask",
+    "type": "PLUGIN"
+  },
+  {
+    "name": "io.github.manhnt217.task.sample.plugin.ObjectRefConsumerTask",
+    "type": "PLUGIN"
+  },
+  {
+    "name": "io.github.manhnt217.task.sample.plugin.ObjectRefProducerTask",
+    "type": "PLUGIN"
+  }
+]

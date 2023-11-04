@@ -10,7 +10,20 @@ import io.github.manhnt217.task.task_engine.task.Task;
  * @author manhnguyen
  */
 public class TaskService {
-    public static Task buildTask(TaskDto taskDto) throws ConfigurationException {
+
+    private static final TaskService INSTANCE = new TaskService();
+
+    private final ActivityService activityService = ActivityService.instance();
+
+    private TaskService() {
+
+    }
+
+    public static TaskService instance() {
+        return INSTANCE;
+    }
+
+    public Task buildTask(TaskDto taskDto) throws ConfigurationException {
         switch (taskDto.getType()) {
             case PLUGIN:
                 return buildPluginTask(taskDto);
@@ -21,18 +34,18 @@ public class TaskService {
         }
     }
 
-    private static Task buildPluginTask(TaskDto taskDto) {
+    private Task buildPluginTask(TaskDto taskDto) {
         return ActivityBuilder
                 .plugin(taskDto.getName())
                 .build();
     }
 
-    private static Task buildCompositeTask(TaskDto taskDto) throws ConfigurationException {
+    private Task buildCompositeTask(TaskDto taskDto) throws ConfigurationException {
         CompositeTaskBuilder compositeTaskBuilder = ActivityBuilder
                 .composite(taskDto.getName())
                 .outputMapping(taskDto.getOutputMapping());
 
-        ActivityService.buildGroup(compositeTaskBuilder, taskDto.getGroup());
+        activityService.buildGroup(compositeTaskBuilder, taskDto.getGroup());
 
         return compositeTaskBuilder.build();
     }

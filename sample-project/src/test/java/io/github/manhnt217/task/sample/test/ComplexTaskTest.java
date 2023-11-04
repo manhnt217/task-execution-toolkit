@@ -1,6 +1,5 @@
 package io.github.manhnt217.task.sample.test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -9,16 +8,17 @@ import io.github.manhnt217.task.sample.TestUtil;
 import io.github.manhnt217.task.sample.plugin.CurlTask;
 import io.github.manhnt217.task.sample.plugin.LogTask;
 import io.github.manhnt217.task.sample.plugin.SqlTask;
-import io.github.manhnt217.task.task_engine.context.ActivityContext;
-import io.github.manhnt217.task.task_engine.exception.TaskException;
-import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.task_engine.activity.DefaultActivityLogger;
 import io.github.manhnt217.task.task_engine.activity.ExecutionLog;
 import io.github.manhnt217.task.task_engine.activity.task.TaskBasedActivity;
+import io.github.manhnt217.task.task_engine.context.ActivityContext;
+import io.github.manhnt217.task.task_engine.exception.TaskException;
+import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.task_engine.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.task_engine.task.CompositeTask;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -42,21 +42,24 @@ public class ComplexTaskTest {
             "END;";
 
     @Test
-    public void testComplex1() throws JsonProcessingException, ConfigurationException, TaskException {
+    public void testComplex1() throws IOException, ConfigurationException, TaskException {
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
         TaskBasedActivity task1 = ActivityBuilder
-                .task("task1", ActivityBuilder.plugin(CurlTask.class.getName()).build())
+                .task("task1")
+                .taskName(CurlTask.class.getName())
                 .inputMapping(ActivityContext.FROM_PROPS)
                 .build();
 
         TaskBasedActivity task2 = ActivityBuilder
-                .task("task2", ActivityBuilder.plugin(LogTask.class.getName()).build())
+                .task("task2")
+                .taskName(LogTask.class.getName())
                 .inputMapping("{\"severity\": \"INFO\", \"message\": \"Status code is \" + .task1.statusCode}")
                 .build();
 
         TaskBasedActivity task3 = ActivityBuilder
-                .task("task3", ActivityBuilder.plugin(SqlTask.class.getName()).build())
+                .task("task3")
+                .taskName(SqlTask.class.getName())
                 .inputMapping("{\"sql\":\"" + SQL + "\"} + " + ActivityContext.FROM_PROPS)
                 .build();
 
@@ -95,11 +98,12 @@ public class ComplexTaskTest {
     }
 
     @Test
-    public void testComplex2_PassingInputFromParent() throws JsonProcessingException, ConfigurationException, TaskException {
+    public void testComplex2_PassingInputFromParent() throws IOException, ConfigurationException, TaskException {
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
         TaskBasedActivity act1 = ActivityBuilder
-                .task("act1", ActivityBuilder.plugin(CurlTask.class.getName()).build())
+                .task("act1")
+                .taskName(CurlTask.class.getName())
                 .inputMapping("{\"url\": ." + CompositeTask.START_ACTIVITY_NAME + ".url, \"method\": \"GET\"}")
                 .build();
 

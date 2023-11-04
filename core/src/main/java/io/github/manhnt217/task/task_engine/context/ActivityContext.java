@@ -5,6 +5,7 @@ import io.github.manhnt217.task.task_engine.activity.Activity;
 import io.github.manhnt217.task.task_engine.activity.OutboundMessage;
 import io.github.manhnt217.task.task_engine.exception.inner.ContextException;
 import io.github.manhnt217.task.task_engine.exception.inner.TransformException;
+import io.github.manhnt217.task.task_engine.task.Task;
 
 import java.util.Map;
 
@@ -26,6 +27,8 @@ public interface ActivityContext {
     boolean evaluate(String jslt) throws TransformException;
 
     String getExecutionId();
+
+    Task resolveTask(String name);
 
     String createRef(Object object);
 
