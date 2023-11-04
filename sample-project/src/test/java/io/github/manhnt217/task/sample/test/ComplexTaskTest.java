@@ -1,20 +1,25 @@
 package io.github.manhnt217.task.sample.test;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import io.github.manhnt217.task.sample.JsonBasedTaskResolver;
 import io.github.manhnt217.task.sample.LinearCompositeTask;
+import io.github.manhnt217.task.sample.SimpleTaskResolver;
 import io.github.manhnt217.task.sample.TestUtil;
 import io.github.manhnt217.task.sample.plugin.CurlTask;
 import io.github.manhnt217.task.sample.plugin.LogTask;
 import io.github.manhnt217.task.sample.plugin.SqlTask;
 import io.github.manhnt217.task.task_engine.activity.DefaultActivityLogger;
 import io.github.manhnt217.task.task_engine.activity.ExecutionLog;
+import io.github.manhnt217.task.task_engine.activity.group.Group;
 import io.github.manhnt217.task.task_engine.activity.task.TaskBasedActivity;
 import io.github.manhnt217.task.task_engine.context.ActivityContext;
 import io.github.manhnt217.task.task_engine.exception.TaskException;
 import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.task_engine.persistence.builder.ActivityBuilder;
+import io.github.manhnt217.task.task_engine.persistence.builder.TaskBasedActivityBuilder;
 import io.github.manhnt217.task.task_engine.task.CompositeTask;
 import org.junit.jupiter.api.Test;
 
@@ -117,5 +122,52 @@ public class ComplexTaskTest {
         assertThat(out, hasKey("act1"));
 
         assertThat((Map<String, Object>) out.get("act1"), hasKey("statusCode"));
+    }
+
+    @Test
+    public void testRecursive() throws ConfigurationException, TaskException, JsonProcessingException {
+        // Calculate the factorial
+        String taskName = "r1";
+        TaskBasedActivity callr1Activity = ActivityBuilder
+                .task("callr1")
+                .taskName(taskName)
+                .inputMapping(".START | {\"n\": .n - 1, \"acc\": .acc * .n}")
+                .build();
+        CompositeTask r1 = ActivityBuilder
+                .composite(taskName)
+                .linkStartToEnd(".START.n == 1")
+                .linkFromStart(callr1Activity, Group.OTHERWISE_GUARD_EXP)
+                .linkToEnd(callr1Activity)
+                .outputMapping("if (.callr1) .callr1 else .START.acc")
+                .build();
+
+        SimpleTaskResolver simpleTaskResolver = new SimpleTaskResolver();
+        simpleTaskResolver.register(r1);
+
+        int n = 7;
+
+        Map<String, Object> input = ImmutableMap.of(
+                "n", n,
+                "acc", 1);
+
+        JsonNode output = TestUtil.executeTask(
+                taskName,
+                null,
+                TestUtil.OM.valueToTree(input),
+                new DefaultActivityLogger(),
+                UUID.randomUUID().toString(),
+                simpleTaskResolver);
+
+        Long result = TestUtil.OM.treeToValue(output, Long.class);
+        assertThat(result, is(factorial(n)));
+
+    }
+
+    private long factorial(int n) {
+        long f = 1;
+        for (int i = 1; i <= n; i++) {
+            f = f * i;
+        }
+        return f;
     }
 }
