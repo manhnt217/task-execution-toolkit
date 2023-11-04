@@ -1,6 +1,5 @@
 package io.github.manhnt217.task.sample;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.github.manhnt217.task.sample.plugin.CurlTask;
@@ -14,6 +13,7 @@ import io.github.manhnt217.task.task_engine.exception.TaskException;
 import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.task_engine.persistence.builder.ActivityBuilder;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,21 +33,24 @@ public class Main {
             "    DBMS_OUTPUT.PUT_LINE('Got a result: ================ ' || p ); " +
             "END;";
 
-    public static void main(String[] args) throws JsonProcessingException, ConfigurationException {
+    public static void main(String[] args) throws IOException, ConfigurationException {
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
         TaskBasedActivity task1 = ActivityBuilder
-                .task("task1", ActivityBuilder.plugin(CurlTask.class.getName()).build())
+                .task("task1")
+.taskName(CurlTask.class.getName())
                 .inputMapping(ActivityContext.FROM_PROPS)
                 .build();
 
         TaskBasedActivity task2 = ActivityBuilder
-                .task("task2", ActivityBuilder.plugin(LogTask.class.getName()).build())
+                .task("task2")
+.taskName(LogTask.class.getName())
                 .inputMapping("{\"severity\": \"INFO\", \"message\": \"Status code is \" + .task1.statusCode}")
                 .build();
 
         TaskBasedActivity task3 = ActivityBuilder
-                .task("task3", ActivityBuilder.plugin(SqlTask.class.getName()).build())
+                .task("task3")
+.taskName(SqlTask.class.getName())
                 .inputMapping("{\"sql\":\"" + SQL + "\"} + " + ActivityContext.FROM_PROPS)
                 .build();
 

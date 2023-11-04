@@ -15,7 +15,7 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import java.util.Arrays;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author manhnguyen
@@ -27,16 +27,14 @@ class ObjectRefTest {
     public void testSimpleObjectRef() throws ConfigurationException {
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
-        TaskBasedActivity objectRefProducerTask1 = ActivityBuilder.task(
-                        "objectRefProducerTask1", ActivityBuilder.plugin(ObjectRefProducerTask.class.getName())
-                                .build()
-                )
+        TaskBasedActivity objectRefProducerTask1 = ActivityBuilder
+                .task("objectRefProducerTask1")
+                .taskName(ObjectRefProducerTask.class.getName())
                 .build();
 
-        TaskBasedActivity objectRefConsumerTask1 = ActivityBuilder.task(
-                        "objectRefConsumerTask1", ActivityBuilder.plugin(ObjectRefConsumerTask.class.getName())
-                                .build()
-                )
+        TaskBasedActivity objectRefConsumerTask1 = ActivityBuilder
+                .task("objectRefConsumerTask1")
+                .taskName(ObjectRefConsumerTask.class.getName())
                 .inputMapping(".objectRefProducerTask1")
                 .build();
 

@@ -1,7 +1,5 @@
 package io.github.manhnt217.task.task_engine.persistence.builder;
 
-import io.github.manhnt217.task.task_engine.task.Task;
-
 /**
  * @author manhnguyen
  */
@@ -15,8 +13,8 @@ public class ActivityBuilder {
         return new GroupActivityBuilder();
     }
 
-    public static TaskBasedActivityBuilder task(String name, Task task) {
-        return new TaskBasedActivityBuilder(name, task);
+    public static TaskBasedActivityBuilder task(String name) {
+        return new TaskBasedActivityBuilder(name);
     }
 
     public static PluginTaskBuilder plugin(String name) {

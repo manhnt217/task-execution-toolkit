@@ -21,7 +21,18 @@ import static io.github.manhnt217.task.task_engine.task.CompositeTask.*;
  * @author manhnguyen
  */
 public class ActivityService {
-    public static Activity buildActivity(ActivityDto activityDto) throws ConfigurationException {
+
+    private static final ActivityService INSTANCE = new ActivityService();
+
+    private ActivityService() {
+
+    }
+
+    public static ActivityService instance() {
+        return INSTANCE;
+    }
+
+    public Activity buildActivity(ActivityDto activityDto) throws ConfigurationException {
         switch (activityDto.getType()) {
             case FOREACH:
                 return forEachActivity(activityDto);
@@ -34,14 +45,15 @@ public class ActivityService {
         }
     }
 
-    private static Activity buildTaskActivity(ActivityDto activityDto) throws ConfigurationException {
+    private Activity buildTaskActivity(ActivityDto activityDto) {
         return ActivityBuilder
-                .task(activityDto.getName(), TaskService.buildTask(activityDto.getTask()))
+                .task(activityDto.getName())
+                .taskName(activityDto.getTask())
                 .inputMapping(activityDto.getInputMapping())
                 .build();
     }
 
-    private static ForEachActivity forEachActivity(ActivityDto activityDto) throws ConfigurationException {
+    private ForEachActivity forEachActivity(ActivityDto activityDto) throws ConfigurationException {
         ForEachActivityBuilder forEachActivityBuilder = ActivityBuilder
                 .forEach()
                 .name(activityDto.getName())
@@ -53,7 +65,7 @@ public class ActivityService {
         return forEachActivityBuilder.build();
     }
 
-    private static GroupActivity buildGroupActivity(ActivityDto activityDto) throws ConfigurationException {
+    private GroupActivity buildGroupActivity(ActivityDto activityDto) throws ConfigurationException {
         GroupActivityBuilder groupActivityBuilder = ActivityBuilder
                 .group()
                 .name(activityDto.getName())
@@ -65,7 +77,7 @@ public class ActivityService {
         return groupActivityBuilder.build();
     }
 
-    public static void buildGroup(LinkedActivityGroupBuilder compositeTaskBuilder, ActivityGroupDto groupDto) throws ConfigurationException {
+    public void buildGroup(LinkedActivityGroupBuilder compositeTaskBuilder, ActivityGroupDto groupDto) throws ConfigurationException {
 
         Map<String, Activity> activityMap = new HashMap<>();
         for (ActivityDto activityDto : groupDto.getActivities()) {
@@ -78,7 +90,7 @@ public class ActivityService {
         }
     }
 
-    private static void link(LinkedActivityGroupBuilder groupBuilder, ActivityLinkDto link, Map<String, Activity> activityMap) {
+    private void link(LinkedActivityGroupBuilder groupBuilder, ActivityLinkDto link, Map<String, Activity> activityMap) {
         String from = link.getFrom();
         String to = link.getTo();
         String guard = link.getGuard();

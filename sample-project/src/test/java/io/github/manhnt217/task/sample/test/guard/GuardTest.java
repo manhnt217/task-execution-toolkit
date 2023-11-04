@@ -5,8 +5,6 @@ import io.github.manhnt217.task.sample.plugin.LogTask;
 import io.github.manhnt217.task.task_engine.activity.DefaultActivityLogger;
 import io.github.manhnt217.task.task_engine.activity.ExecutionLog;
 import io.github.manhnt217.task.task_engine.activity.group.Group;
-import io.github.manhnt217.task.task_engine.activity.simple.EndActivity;
-import io.github.manhnt217.task.task_engine.activity.simple.StartActivity;
 import io.github.manhnt217.task.task_engine.activity.task.TaskBasedActivity;
 import io.github.manhnt217.task.task_engine.exception.TaskException;
 import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
@@ -14,6 +12,7 @@ import io.github.manhnt217.task.task_engine.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.task_engine.task.CompositeTask;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,16 +30,18 @@ public class GuardTest {
      * <img src="{@docRoot}/doc-files/images/testSimpleGuard.png">
      */
     @Test
-    public void testSimpleGuard() throws ConfigurationException, TaskException {
+    public void testSimpleGuard() throws ConfigurationException, TaskException, IOException {
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
         TaskBasedActivity task1 = ActivityBuilder
-                .task("task1", ActivityBuilder.plugin(LogTask.class.getName()).build())
+                .task("task1")
+                .taskName(LogTask.class.getName())
                 .inputMapping("{\"severity\": \"INFO\",\"message\": \"task1\"}")
                 .build();
 
         TaskBasedActivity task2 = ActivityBuilder
-                .task("task2", ActivityBuilder.plugin(LogTask.class.getName()).build())
+                .task("task2")
+                .taskName(LogTask.class.getName())
                 .inputMapping("{\"severity\": \"INFO\",\"message\": \"task2\"}")
                 .build();
 
@@ -63,21 +64,24 @@ public class GuardTest {
      * <img src="{@docRoot}/doc-files/images/testOtherwise.png">
      */
     @Test
-    public void testOtherwise() throws ConfigurationException, TaskException {
+    public void testOtherwise() throws ConfigurationException, TaskException, IOException {
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
         TaskBasedActivity task1 = ActivityBuilder
-                .task("task1", ActivityBuilder.plugin(LogTask.class.getName()).build())
+                .task("task1")
+                .taskName(LogTask.class.getName())
                 .inputMapping("{\"severity\": \"INFO\",\"message\": \"task1\"}")
                 .build();
 
         TaskBasedActivity task2 = ActivityBuilder
-                .task("task2", ActivityBuilder.plugin(LogTask.class.getName()).build())
+                .task("task2")
+                .taskName(LogTask.class.getName())
                 .inputMapping("{\"severity\": \"INFO\",\"message\": \"task2\"}")
                 .build();
 
         TaskBasedActivity task3 = ActivityBuilder
-                .task("task3", ActivityBuilder.plugin(LogTask.class.getName()).build())
+                .task("task3")
+                .taskName(LogTask.class.getName())
                 .inputMapping("{\"severity\": \"INFO\",\"message\": \"task3\"}")
                 .build();
 
@@ -99,26 +103,28 @@ public class GuardTest {
     }
 
     @Test
-    public void testConflictedGuards() throws ConfigurationException {
+    public void testConflictedGuards() {
 
         TaskBasedActivity task1 = ActivityBuilder
-                .task("task1", ActivityBuilder.plugin(LogTask.class.getName()).build())
+                .task("task1")
+                .taskName(LogTask.class.getName())
                 .inputMapping("{\"severity\": \"INFO\",\"message\": \"task1\"}")
                 .build();
 
         TaskBasedActivity task2 = ActivityBuilder
-                .task("task2", ActivityBuilder.plugin(LogTask.class.getName()).build())
+                .task("task2")
+                .taskName(LogTask.class.getName())
                 .inputMapping("{\"severity\": \"INFO\",\"message\": \"task2\"}")
                 .build();
 
         ConfigurationException ex = assertThrows(ConfigurationException.class,
                 () -> ActivityBuilder
-                            .composite("c1")
-                            .linkFromStart(task1, "3 > 5")
-                            .linkFromStart(task2, "3 > 5")
-                            .linkToEnd(task1, null)
-                            .linkToEnd(task2, null)
-                            .build()
+                        .composite("c1")
+                        .linkFromStart(task1, "3 > 5")
+                        .linkFromStart(task2, "3 > 5")
+                        .linkToEnd(task1, null)
+                        .linkToEnd(task2, null)
+                        .build()
         );
         assertThat(ex.getMessage(), is("Configuration failed. Message = Guard '3 > 5' already been added for activity '" + START_ACTIVITY_NAME + "'"));
     }
@@ -128,12 +134,14 @@ public class GuardTest {
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
         TaskBasedActivity task1 = ActivityBuilder
-                .task("task1", ActivityBuilder.plugin(LogTask.class.getName()).build())
+                .task("task1")
+                .taskName(LogTask.class.getName())
                 .inputMapping("{\"severity\": \"INFO\",\"message\": \"task1\"}")
                 .build();
 
         TaskBasedActivity task2 = ActivityBuilder
-                .task("task2", ActivityBuilder.plugin(LogTask.class.getName()).build())
+                .task("task2")
+                .taskName(LogTask.class.getName())
                 .inputMapping("{\"severity\": \"INFO\",\"message\": \"task2\"}")
                 .build();
 

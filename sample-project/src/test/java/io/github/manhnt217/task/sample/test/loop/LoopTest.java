@@ -1,26 +1,28 @@
 package io.github.manhnt217.task.sample.test.loop;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.sample.LinearCompositeTask;
 import io.github.manhnt217.task.sample.TestUtil;
-import io.github.manhnt217.task.sample.plugin.CurlTask;
 import io.github.manhnt217.task.sample.plugin.LogTask;
-import io.github.manhnt217.task.task_engine.exception.TaskException;
-import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.task_engine.activity.DefaultActivityLogger;
 import io.github.manhnt217.task.task_engine.activity.ExecutionLog;
-import io.github.manhnt217.task.task_engine.activity.task.TaskBasedActivity;
 import io.github.manhnt217.task.task_engine.activity.loop.ForEachActivity;
+import io.github.manhnt217.task.task_engine.activity.task.TaskBasedActivity;
+import io.github.manhnt217.task.task_engine.exception.TaskException;
+import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.task_engine.persistence.builder.ActivityBuilder;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author manhnguyen
@@ -30,16 +32,18 @@ public class LoopTest {
 
     /**
      * <img src="{@docRoot}/doc-files/images/testForEachSimple.png">
+     *
      * @throws ConfigurationException
      */
     @Test
-    public void testForEachSimple() throws ConfigurationException, JsonProcessingException, TaskException {
+    public void testForEachSimple() throws ConfigurationException, IOException, TaskException {
         final String FOR_EACH_1 = "forEach1";
 
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
         TaskBasedActivity task1 = ActivityBuilder
-                .task("task1", ActivityBuilder.plugin(LogTask.class.getName()).build())
+                .task("task1")
+                .taskName(LogTask.class.getName())
                 .inputMapping("{\"severity\": \"INFO\",\"message\": \"Item \" + .f1Start.item}")
                 .build();
 
