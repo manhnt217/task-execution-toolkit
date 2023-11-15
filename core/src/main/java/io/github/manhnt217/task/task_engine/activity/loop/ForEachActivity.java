@@ -4,13 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.github.manhnt217.task.task_engine.activity.Activity;
+import io.github.manhnt217.task.task_engine.activity.AbstractGroupActivity;
 import io.github.manhnt217.task.task_engine.activity.ActivityLogger;
 import io.github.manhnt217.task.task_engine.activity.InboundMessage;
 import io.github.manhnt217.task.task_engine.activity.OutboundMessage;
 import io.github.manhnt217.task.task_engine.activity.SimpleOutboundMessage;
 import io.github.manhnt217.task.task_engine.activity.group.Group;
-import io.github.manhnt217.task.task_engine.activity.AbstractActivity;
 import io.github.manhnt217.task.task_engine.context.ActivityContext;
 import io.github.manhnt217.task.task_engine.context.JSONUtil;
 import io.github.manhnt217.task.task_engine.context.sub.ForEachContext;
@@ -20,16 +19,13 @@ import io.github.manhnt217.task.task_engine.exception.GroupException;
 /**
  * @author manhnguyen
  */
-public class ForEachActivity extends AbstractActivity implements Activity {
+public class ForEachActivity extends AbstractGroupActivity {
 
     public static final String KEY_ITEM = "item";
     public static final String KEY_INDEX = "index";
 
-    private final Group activityGroup;
-
     public ForEachActivity(String name, Group activityGroup) {
-        super(name);
-        this.activityGroup = activityGroup;
+        super(name, activityGroup);
     }
 
     @Override

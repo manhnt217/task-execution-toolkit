@@ -17,24 +17,17 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class StartActivity implements Activity {
+public class StartActivity extends AbstractActivity {
 
     private JsonNode output;
-    private final String name;
-    private ActivityGroup<?, ?> parent;
 
     public StartActivity(String name) {
-        this.name = name;
+        super(name);
     }
 
     @Override
     public String getInputMapping() {
         return null;
-    }
-
-    @Override
-    public boolean registerOutput() {
-        return true;
     }
 
     @Override

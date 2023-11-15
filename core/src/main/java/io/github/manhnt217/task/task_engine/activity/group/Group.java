@@ -14,10 +14,12 @@ import io.github.manhnt217.task.task_engine.exception.GroupException;
 import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.task_engine.exception.inner.ContextException;
 import io.github.manhnt217.task.task_engine.exception.inner.TransformException;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -77,28 +79,32 @@ public class Group implements LinkedActivityGroup<JsonNode, JsonNode> {
         }
     }
 
+    private void validateBeforeAdding(Activity activity) throws ConfigurationException {
+        if (activity instanceof StartActivity && startActivity != null) {
+            throw new ConfigurationException("StartActivity has already been added. Allow only one StartActivity");
+        }
+        if (activity instanceof EndActivity && endActivity != null) {
+            throw new ConfigurationException("EndActivity has already been added. Allow only one EndActivity");
+        }
+        Collection commonNames = CollectionUtils.intersection(this.getContainedActivityNames(), activity.getContainedActivityNames());
+        if (!commonNames.isEmpty()) {
+            throw new ConfigurationException("There are some names appearing in both current group and the incoming activity." +
+                    " Names = [" + commonNames.stream().collect(Collectors.joining(",")) + "]");
+        }
+    }
+
     @Override
-    public boolean containsActivity(Activity activity) {
-        if (activity instanceof StartActivity) {
-            return this.activities.values().stream().anyMatch(a -> a instanceof StartActivity);
+    public Set<String> getContainedActivityNames() {
+        HashSet<String> activityNames = new HashSet<>();
+        for (Activity childActivity : activities.values()) {
+            activityNames.addAll(childActivity.getContainedActivityNames());
         }
-        if (activity instanceof EndActivity) {
-            return this.activities.values().stream().anyMatch(a -> a instanceof EndActivity);
-        }
-        return this.activities.containsKey(activity.getName());
+        return activityNames;
     }
 
     @Override
     public void addActivity(Activity activity) throws ConfigurationException {
-        if (containsActivity(activity)) {
-            if (activity instanceof StartActivity) {
-                throw new ConfigurationException("StartActivity has already been added. Allow only one StartActivity");
-            }
-            if (activity instanceof EndActivity) {
-                throw new ConfigurationException("EndActivity has already been added. Allow only one EndActivity");
-            }
-            throw new ConfigurationException("Activity '" + activity.getName() + "' has already been added");
-        }
+        validateBeforeAdding(activity);
         if (activity instanceof StartActivity) {
             this.startActivity = (StartActivity) activity;
         } else if (activity instanceof EndActivity) {
@@ -140,10 +146,10 @@ public class Group implements LinkedActivityGroup<JsonNode, JsonNode> {
 
     @Override
     public void linkActivities(Activity from, Activity to, String guardExp) throws ConfigurationException {
-        if (!containsActivity(from)) {
+        if (!this.activities.containsKey(from.getName())) {
             addActivity(from);
         }
-        if (!containsActivity(to)) {
+        if (!this.activities.containsKey(to.getName())) {
             addActivity(to);
         }
         String guard = StringUtils.defaultIfBlank(guardExp, BLANK_GUARD_EXP);
