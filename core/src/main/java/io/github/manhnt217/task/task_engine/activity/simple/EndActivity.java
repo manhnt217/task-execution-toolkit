@@ -16,14 +16,10 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class EndActivity implements Activity {
-
-    private final String name;
-    private String inputMapping;
-    private ActivityGroup<?, ?> parent;
+public class EndActivity extends AbstractActivity {
 
     public EndActivity(String name) {
-        this.name = name;
+        super(name);
     }
 
     @Override

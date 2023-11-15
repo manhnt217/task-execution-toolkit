@@ -4,6 +4,9 @@ import io.github.manhnt217.task.task_engine.activity.group.ActivityGroup;
 import io.github.manhnt217.task.task_engine.context.ActivityContext;
 import io.github.manhnt217.task.task_engine.exception.ActivityException;
 
+import java.util.Collections;
+import java.util.Set;
+
 /**
  * @author manhnguyen
  */
@@ -11,18 +14,19 @@ public interface Activity {
 
     String getName();
 
+    default Set<String> getContainedActivityNames() {
+        return Collections.singleton(getName());
+    }
+
     String getInputMapping();
 
     ActivityGroup<?, ?> getParent();
 
     void setParent(ActivityGroup<?, ?> parent);
 
-    /**
-     * Specify whether the output of this activity will be recorded for later use
-     *
-     * @return
-     */
-    boolean registerOutput();
+    default boolean registerOutput() {
+        return true;
+    }
 
     /**
      * @param in

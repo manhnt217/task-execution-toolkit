@@ -18,7 +18,7 @@ import lombok.Setter;
  * @author manhnguyen
  */
 @Setter
-public class TaskBasedActivity extends AbstractActivity implements Activity {
+public class TaskBasedActivity extends AbstractActivity {
 
     private final String taskName;
 

@@ -1,10 +1,12 @@
 package io.github.manhnt217.task.sample.test.group;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import io.github.manhnt217.task.sample.LinearCompositeTask;
 import io.github.manhnt217.task.sample.LinearGroupActivity;
 import io.github.manhnt217.task.sample.TestUtil;
+import io.github.manhnt217.task.sample.plugin.AddTwoNumberTask;
 import io.github.manhnt217.task.sample.plugin.CurlTask;
 import io.github.manhnt217.task.sample.plugin.LogTask;
 import io.github.manhnt217.task.task_engine.activity.DefaultActivityLogger;
@@ -24,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import static io.github.manhnt217.task.sample.TestUtil.*;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -65,7 +68,7 @@ public class GroupActivityTest {
                 .linkToEnd(task2)
                 .build();
 
-        JsonNode input = TestUtil.OM.valueToTree(ImmutableMap.of(
+        JsonNode input = OM.valueToTree(ImmutableMap.of(
                 "task1Log", "log for task number 1",
                 "task2Log", "log for task number 2"
         ));
@@ -101,23 +104,25 @@ public class GroupActivityTest {
                 Arrays.asList(task1)));
     }
 
-    @Disabled("Will be fixed later")
+    /**
+     * <img src="{@docRoot}/doc-files/images/testNameConflict.png">
+     *
+     * @throws ConfigurationException
+     */
     @Test
-    public void testNameConflictInsideAndOutsideGroup() throws ConfigurationException {
-        DefaultActivityLogger logHandler = new DefaultActivityLogger();
-
+    public void testNameConflictInsideAndOutsideGroup() throws ConfigurationException, JsonProcessingException {
         final String TASK_NAME = "taskA";
 
         TaskBasedActivity task1 = ActivityBuilder
                 .task(TASK_NAME)
-                .taskName(CurlTask.class.getName())
-                .inputMapping("{\"method\": \"GET\",\"url\": \"https://example.com\"}")
+                .taskName(AddTwoNumberTask.class.getName())
+                .inputMapping(OM.writeValueAsString(ImmutableMap.of("a", 1, "b", 2)))
                 .build();
 
         TaskBasedActivity task2 = ActivityBuilder
                 .task(TASK_NAME)
-                .taskName(CurlTask.class.getName())
-                .inputMapping("{\"method\": \"GET\",\"url\": \"https://example.com\"}")
+                .taskName(AddTwoNumberTask.class.getName())
+                .inputMapping(OM.writeValueAsString(ImmutableMap.of("a", 1, "b", 2)))
                 .build();
 
         GroupActivity group2 = new LinearGroupActivity("g2",
@@ -125,9 +130,7 @@ public class GroupActivityTest {
                 ActivityContext.ALL_SUBTASKS_JSLT,
                 Arrays.asList(task2));
 
-        LinearCompositeTask task = new LinearCompositeTask("c1", Arrays.asList(task1, group2));
-
-        assertDoesNotThrow(() ->
-                TestUtil.executeTask(task, null, null, logHandler, UUID.randomUUID().toString()));
+        assertThrows(ConfigurationException.class, () ->
+                new LinearCompositeTask("c1", Arrays.asList(task1, group2)));
     }
 }
