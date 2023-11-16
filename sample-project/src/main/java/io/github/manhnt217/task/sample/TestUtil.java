@@ -4,12 +4,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import io.github.manhnt217.task.task_engine.activity.DefaultActivityLogger;
-import io.github.manhnt217.task.task_engine.context.SimpleActivityContext;
-import io.github.manhnt217.task.task_engine.exception.TaskException;
-import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
-import io.github.manhnt217.task.task_engine.task.Task;
-import io.github.manhnt217.task.task_engine.task.TaskResolver;
+import io.github.manhnt217.task.core.activity.DefaultActivityLogger;
+import io.github.manhnt217.task.core.context.SimpleActivityContext;
+import io.github.manhnt217.task.core.exception.TaskException;
+import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
+import io.github.manhnt217.task.core.task.Task;
+import io.github.manhnt217.task.core.task.TaskResolver;
 
 import java.io.IOException;
 

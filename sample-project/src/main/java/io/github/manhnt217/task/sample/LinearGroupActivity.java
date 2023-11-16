@@ -1,11 +1,11 @@
 package io.github.manhnt217.task.sample;
 
-import io.github.manhnt217.task.task_engine.activity.Activity;
-import io.github.manhnt217.task.task_engine.activity.group.GroupActivity;
-import io.github.manhnt217.task.task_engine.activity.group.Group;
-import io.github.manhnt217.task.task_engine.activity.simple.EndActivity;
-import io.github.manhnt217.task.task_engine.activity.simple.StartActivity;
-import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
+import io.github.manhnt217.task.core.activity.Activity;
+import io.github.manhnt217.task.core.activity.group.GroupActivity;
+import io.github.manhnt217.task.core.activity.group.Group;
+import io.github.manhnt217.task.core.activity.simple.EndActivity;
+import io.github.manhnt217.task.core.activity.simple.StartActivity;
+import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;

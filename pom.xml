@@ -11,7 +11,8 @@
 
     <modules>
         <module>core</module>
-        <module>sample-project</module>
+        <module>starter</module>
         <module>persistence</module>
+        <module>sample-project</module>
     </modules>
 </project>
