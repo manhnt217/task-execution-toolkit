@@ -1,7 +1,7 @@
 package io.github.manhnt217.task.sample;
 
-import io.github.manhnt217.task.task_engine.task.Task;
-import io.github.manhnt217.task.task_engine.task.TaskResolver;
+import io.github.manhnt217.task.core.task.Task;
+import io.github.manhnt217.task.core.task.TaskResolver;
 
 import java.util.HashMap;
 import java.util.Map;

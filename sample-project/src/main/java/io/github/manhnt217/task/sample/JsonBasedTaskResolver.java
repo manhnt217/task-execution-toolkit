@@ -1,9 +1,9 @@
 package io.github.manhnt217.task.sample;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
-import io.github.manhnt217.task.task_engine.persistence.model.TaskDto;
-import io.github.manhnt217.task.task_engine.persistence.service.TaskService;
+import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
+import io.github.manhnt217.task.persistence.model.TaskDto;
+import io.github.manhnt217.task.persistence.service.TaskService;
 
 import java.io.IOException;
 import java.io.InputStream;

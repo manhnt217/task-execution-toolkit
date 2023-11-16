@@ -1,7 +1,7 @@
 package io.github.manhnt217.task.sample.plugin;
 
-import io.github.manhnt217.task.task_engine.task.PluginTask;
-import io.github.manhnt217.task.task_engine.task.TaskLogger;
+import io.github.manhnt217.task.core.task.PluginTask;
+import io.github.manhnt217.task.core.task.TaskLogger;
 import lombok.Getter;
 import lombok.Setter;
 

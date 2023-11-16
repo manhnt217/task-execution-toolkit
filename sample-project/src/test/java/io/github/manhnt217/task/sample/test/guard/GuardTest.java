@@ -2,21 +2,21 @@ package io.github.manhnt217.task.sample.test.guard;
 
 import io.github.manhnt217.task.sample.TestUtil;
 import io.github.manhnt217.task.sample.plugin.LogTask;
-import io.github.manhnt217.task.task_engine.activity.DefaultActivityLogger;
-import io.github.manhnt217.task.task_engine.activity.ExecutionLog;
-import io.github.manhnt217.task.task_engine.activity.group.Group;
-import io.github.manhnt217.task.task_engine.activity.task.TaskBasedActivity;
-import io.github.manhnt217.task.task_engine.exception.TaskException;
-import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
-import io.github.manhnt217.task.task_engine.persistence.builder.ActivityBuilder;
-import io.github.manhnt217.task.task_engine.task.CompositeTask;
+import io.github.manhnt217.task.core.activity.DefaultActivityLogger;
+import io.github.manhnt217.task.core.activity.ExecutionLog;
+import io.github.manhnt217.task.core.activity.group.Group;
+import io.github.manhnt217.task.core.activity.task.TaskBasedActivity;
+import io.github.manhnt217.task.core.exception.TaskException;
+import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
+import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
+import io.github.manhnt217.task.core.task.CompositeTask;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-import static io.github.manhnt217.task.task_engine.task.CompositeTask.*;
+import static io.github.manhnt217.task.core.task.CompositeTask.*;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
