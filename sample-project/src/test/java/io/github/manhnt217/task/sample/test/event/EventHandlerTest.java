@@ -30,6 +30,7 @@ import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("ALL")
 @Slf4j
 @ExtendWith(MockitoExtension.class)
 public class EventHandlerTest {
