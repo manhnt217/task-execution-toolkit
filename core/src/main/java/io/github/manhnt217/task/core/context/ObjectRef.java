@@ -3,7 +3,7 @@ package io.github.manhnt217.task.core.context;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public class ObjectRef {
 

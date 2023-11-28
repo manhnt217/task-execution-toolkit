@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public abstract class AbstractGroupActivity extends AbstractActivity {
 
