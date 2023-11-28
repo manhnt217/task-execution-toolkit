@@ -8,7 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import java.text.SimpleDateFormat;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public class Util {
     public static final ObjectMapper OM = new ObjectMapper();

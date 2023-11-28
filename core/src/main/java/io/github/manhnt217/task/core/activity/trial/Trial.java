@@ -1,7 +1,7 @@
 package io.github.manhnt217.task.core.activity.trial;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public class Trial {
 }

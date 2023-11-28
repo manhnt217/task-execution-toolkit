@@ -1,7 +1,7 @@
 package io.github.manhnt217.task.persistence.builder;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public class ActivityBuilder {
 
@@ -13,15 +13,23 @@ public class ActivityBuilder {
         return new GroupActivityBuilder();
     }
 
-    public static TaskBasedActivityBuilder task(String name) {
-        return new TaskBasedActivityBuilder(name);
+    public static FunctionCallActivityBuilder funcCall(String name) {
+        return new FunctionCallActivityBuilder(name);
     }
 
-    public static PluginTaskBuilder plugin(String name) {
-        return new PluginTaskBuilder(name);
+    public static PluginBuilder plugin(String name, String pluginName) {
+        return new PluginBuilder(name, pluginName);
     }
 
-    public static CompositeTaskBuilder composite(String name) {
-        return new CompositeTaskBuilder(name);
+    public static FromSourceBuilder fromSource(String name, String sourceName) {
+        return new FromSourceBuilder(name, sourceName);
+    }
+
+    public static FunctionBuilder function(String name) {
+        return new FunctionBuilder(name);
+    }
+
+    public static HandlerBuilder handler(String name) {
+        return new HandlerBuilder(name);
     }
 }

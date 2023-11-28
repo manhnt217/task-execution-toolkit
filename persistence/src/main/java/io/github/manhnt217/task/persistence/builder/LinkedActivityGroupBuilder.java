@@ -3,10 +3,18 @@ package io.github.manhnt217.task.persistence.builder;
 import io.github.manhnt217.task.core.activity.Activity;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public interface LinkedActivityGroupBuilder<B> {
     GroupBuilder getGroupBuilder();
+
+    default String getStartName() {
+        return getGroupBuilder().startName;
+    }
+
+    default String getEndName() {
+        return getGroupBuilder().endName;
+    }
 
     default B linkFromStart(Activity a, String guard) {
         this.getGroupBuilder().linkFromStart(a, guard);
