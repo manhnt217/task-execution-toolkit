@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 @Getter
 @Setter

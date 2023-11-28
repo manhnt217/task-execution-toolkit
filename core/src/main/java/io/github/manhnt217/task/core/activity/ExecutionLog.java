@@ -11,12 +11,13 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 @Getter
 public class ExecutionLog {
 
     private final String executionId;
+    private final String taskName;
     private final String activityName;
     private final OffsetDateTime logTime;
     private final String content;
@@ -25,8 +26,9 @@ public class ExecutionLog {
     @Getter(AccessLevel.NONE)
     private final Throwable error;
 
-    public ExecutionLog(String executionId, String activityName, Severity severity, String content, Throwable error) {
+    public ExecutionLog(String executionId, String taskName, String activityName, Severity severity, String content, Throwable error) {
         this.executionId = executionId;
+        this.taskName = taskName;
         this.activityName = activityName;
         this.error = error;
         this.logTime = OffsetDateTime.now(ZoneId.systemDefault());

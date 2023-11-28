@@ -1,0 +1,48 @@
+{
+  "plugins": [
+    {
+      "name": "AddTwoNumber",
+      "className": "io.github.manhnt217.task.sample.plugin.AddTwoNumber"
+    }
+  ],
+  "sources": [
+    {
+      "name": "Timer",
+      "pluginClassName": "io.github.manhnt217.task.sample.event.TimerEventSource",
+      "propsJSLT": ".timerInterval",
+      "autoStart": true,
+      "async": true
+    }
+  ],
+  "handlers": [
+    {
+      "name": "h1",
+      "outputMapping": "\"Hello world\"",
+      "fromSourceActivity": {
+        "name": "FromTimer",
+        "type": "SOURCE",
+        "sourceName": "Timer"
+      },
+      "group": {
+        "activities": [
+          {
+            "name": "Add",
+            "type": "PLUGIN",
+            "inputMapping": "{\"a\": .FromTimer, \"b\": 10}",
+            "pluginName": "AddTwoNumber"
+          }
+        ],
+        "links": [
+          {
+            "from": "FromTimer",
+            "to": "Add"
+          },
+          {
+            "from": "Add",
+            "to": "END"
+          }
+        ]
+      }
+    }
+  ]
+}

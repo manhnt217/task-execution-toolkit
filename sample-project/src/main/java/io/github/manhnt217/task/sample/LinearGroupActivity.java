@@ -11,7 +11,7 @@ import org.apache.commons.collections.CollectionUtils;
 import java.util.List;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public class LinearGroupActivity extends GroupActivity {
     public LinearGroupActivity(String name, String startActivityName, String endActivityName, String outputMapping, List<Activity> childActivities) throws ConfigurationException {

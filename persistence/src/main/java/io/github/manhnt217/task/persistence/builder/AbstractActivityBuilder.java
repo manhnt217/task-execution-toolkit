@@ -5,7 +5,7 @@ import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public abstract class AbstractActivityBuilder<A extends Activity, B extends AbstractActivityBuilder<A, B>> {
 

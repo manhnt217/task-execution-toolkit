@@ -5,6 +5,7 @@ import io.github.manhnt217.task.core.activity.group.Group;
 import io.github.manhnt217.task.core.activity.simple.EndActivity;
 import io.github.manhnt217.task.core.activity.simple.StartActivity;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 class GroupBuilder {
     protected String startName;
@@ -27,7 +28,6 @@ class GroupBuilder {
     protected EndActivity endActivity;
 
     GroupBuilder() {
-
         this.startLinks = new ArrayList<>();
         this.endLinks = new ArrayList<>();
         this.startToEndLinks = new ArrayList<>();
@@ -36,11 +36,37 @@ class GroupBuilder {
 
 
     void start(String name) {
+        if (startActivity != null) {
+            throw new IllegalStateException("StartActivity has already been set. " +
+                    "Should only call one of the two methods #start(String) and #start(StartActivity)");
+        }
         this.startName = name;
     }
 
+    void start(StartActivity startActivity) {
+        if (startName != null) {
+            throw new IllegalStateException("StartActivity's name has already been set. " +
+                    "Should only call one of the two methods #start(String) and #start(StartActivity)");
+        }
+        this.startActivity = startActivity;
+        this.startName = this.startActivity.getName();
+    }
+
     void end(String name) {
+        if (endActivity != null) {
+            throw new IllegalStateException("EndActivity has already been set. " +
+                    "Should only call one of the two methods #end(String) and #end(EndActivity)");
+        }
         this.endName = name;
+    }
+
+    void end(EndActivity endActivity) {
+        if (endName != null) {
+            throw new IllegalStateException("EndActivity's name has already been set. " +
+                    "Should only call one of the two methods #end(String) and #end(EndActivity)");
+        }
+        this.endActivity = endActivity;
+        this.endName = this.endActivity.getName();
     }
 
     void linkFromStart(Activity a, String guard) {
@@ -76,8 +102,8 @@ class GroupBuilder {
     }
 
     Group buildGroup() throws ConfigurationException {
-        this.startActivity = new StartActivity(startName);
-        this.endActivity = new EndActivity(endName);
+        if (this.startActivity == null){ this.startActivity = new StartActivity(startName);}
+        if (this.endActivity == null){ this.endActivity = new EndActivity(endName);}
         endActivity.setInputMapping(outputMapping);
 
         Group group = new Group();
@@ -104,8 +130,11 @@ class GroupBuilder {
     }
 
     void validate() {
-        if (StringUtils.isBlank(startName)) {
-            throw new IllegalArgumentException("Activity's start name should not be empty");
+        if (this.startActivity == null && StringUtils.isBlank(startName)) {
+            throw new IllegalArgumentException("A StartActivity (or its name) should be given");
+        }
+        if (this.endActivity == null && StringUtils.isBlank(endName)) {
+            throw new IllegalArgumentException("A EndActivity (or its name) should be given");
         }
         // TODO: implement other validations
     }

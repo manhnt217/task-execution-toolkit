@@ -3,7 +3,7 @@ package io.github.manhnt217.task.core.activity;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public class SimpleOutboundMessage implements OutboundMessage {
 

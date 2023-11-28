@@ -2,7 +2,6 @@ package io.github.manhnt217.task.core.activity.group;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.core.activity.Activity;
-import io.github.manhnt217.task.core.activity.ActivityLogger;
 import io.github.manhnt217.task.core.activity.InboundMessage;
 import io.github.manhnt217.task.core.activity.OutboundMessage;
 import io.github.manhnt217.task.core.activity.SimpleInboundMessage;
@@ -14,6 +13,7 @@ import io.github.manhnt217.task.core.exception.GroupException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.exception.inner.ContextException;
 import io.github.manhnt217.task.core.exception.inner.TransformException;
+import lombok.Getter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * The input of the activity group will be the output of the StartActivity <br>
  * The input of the EndActivity be the output of the activity group <br>
  *
- * @author manhnguyen
+ * @author manh nguyen
  */
 public class Group implements LinkedActivityGroup<JsonNode, JsonNode> {
 
@@ -62,6 +62,7 @@ public class Group implements LinkedActivityGroup<JsonNode, JsonNode> {
      * </table>
      */
     protected final Map<Activity, Map<String, Activity>> links;
+    @Getter
     protected StartActivity startActivity;
     protected EndActivity endActivity;
     protected Map<String, Activity> activities;
@@ -86,10 +87,11 @@ public class Group implements LinkedActivityGroup<JsonNode, JsonNode> {
         if (activity instanceof EndActivity && endActivity != null) {
             throw new ConfigurationException("EndActivity has already been added. Allow only one EndActivity");
         }
-        Collection commonNames = CollectionUtils.intersection(this.getContainedActivityNames(), activity.getContainedActivityNames());
+        @SuppressWarnings("unchecked")
+        Collection<String> commonNames = CollectionUtils.intersection(this.getContainedActivityNames(), activity.getContainedActivityNames());
         if (!commonNames.isEmpty()) {
             throw new ConfigurationException("There are some names appearing in both current group and the incoming activity." +
-                    " Names = [" + commonNames.stream().collect(Collectors.joining(",")) + "]");
+                    " Names = [" + String.join(",", commonNames) + "]");
         }
     }
 
@@ -128,12 +130,12 @@ public class Group implements LinkedActivityGroup<JsonNode, JsonNode> {
     }
 
     @Override
-    public JsonNode execute(JsonNode input, ActivityLogger activityLogger, ActivityContext context) throws GroupException, ActivityException {
+    public JsonNode execute(JsonNode input, ActivityContext context) throws GroupException, ActivityException {
         startActivity.setOutput(input);
         Activity currentActivity = startActivity;
 
         while (true) {
-            OutboundMessage out = executeActivity(currentActivity, context, activityLogger);
+            OutboundMessage out = executeActivity(currentActivity, context);
             saveOutput(context, currentActivity, out);
             Activity nextActivity = getNextActivity(currentActivity, context);
             if (nextActivity == null) {
@@ -172,7 +174,7 @@ public class Group implements LinkedActivityGroup<JsonNode, JsonNode> {
         linkActivities(startActivity, endActivity, guard);
     }
 
-    protected final OutboundMessage executeActivity(Activity activity, ActivityContext context, ActivityLogger activityLogger) throws ActivityException {
+    protected final OutboundMessage executeActivity(Activity activity, ActivityContext context) throws ActivityException {
         InboundMessage inboundMessage;
         JsonNode taskInput;
         try {
@@ -181,7 +183,7 @@ public class Group implements LinkedActivityGroup<JsonNode, JsonNode> {
             throw new ActivityException(activity, "Cannot transform the input for activity", e);
         }
         inboundMessage = SimpleInboundMessage.of(taskInput);
-        return activity.process(inboundMessage, activityLogger, context);
+        return activity.process(inboundMessage, context);
     }
 
     protected final Activity getNextActivity(Activity activity, ActivityContext context) throws GroupException {
@@ -213,8 +215,6 @@ public class Group implements LinkedActivityGroup<JsonNode, JsonNode> {
     /**
      * {@link #BLANK_GUARD_EXP} should always be checked first
      * {@link #OTHERWISE_GUARD_EXP} should always be checked last
-     *
-     * @return
      */
     private static int compareGuard(String g1, String g2) {
         if (g1.equals(BLANK_GUARD_EXP)) return -1;

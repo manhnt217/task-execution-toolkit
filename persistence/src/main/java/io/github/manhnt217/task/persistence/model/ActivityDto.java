@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 @Getter
 @Setter
@@ -16,11 +16,13 @@ public class ActivityDto {
     private String inputMapping;
     private String outputMapping;
     private String task;
+    private String pluginName;
+    private String sourceName;
     private Type type;
 
     private ActivityGroupDto group;
 
     public enum Type {
-        GROUP, FOREACH, TRY, TASK
+        GROUP, FOREACH, TRY, FUNC, PLUGIN, SOURCE
     }
 }

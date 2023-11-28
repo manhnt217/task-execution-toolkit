@@ -15,10 +15,8 @@ import io.github.manhnt217.task.persistence.model.ActivityLinkDto;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.github.manhnt217.task.core.task.CompositeTask.*;
-
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public class ActivityService {
 
@@ -38,17 +36,34 @@ public class ActivityService {
                 return forEachActivity(activityDto);
             case GROUP:
                 return buildGroupActivity(activityDto);
-            case TASK:
-                return buildTaskActivity(activityDto);
+            case PLUGIN:
+                return buildPluginActivity(activityDto);
+            case FUNC:
+                return buildFuncCallActivity(activityDto);
+            case SOURCE:
+                return buildFromSourceActivity(activityDto);
             default:
                 throw new IllegalArgumentException("Invalid activity type: " + activityDto.getType());
         }
     }
 
-    private Activity buildTaskActivity(ActivityDto activityDto) {
+    private Activity buildFromSourceActivity(ActivityDto activityDto) {
         return ActivityBuilder
-                .task(activityDto.getName())
-                .taskName(activityDto.getTask())
+                .fromSource(activityDto.getName(), activityDto.getSourceName())
+                .build();
+    }
+
+    private Activity buildPluginActivity(ActivityDto activityDto) {
+        return ActivityBuilder
+                .plugin(activityDto.getName(), activityDto.getPluginName())
+                .inputMapping(activityDto.getInputMapping())
+                .build();
+    }
+
+    private Activity buildFuncCallActivity(ActivityDto activityDto) {
+        return ActivityBuilder
+                .funcCall(activityDto.getName())
+                .funcName(activityDto.getTask())
                 .inputMapping(activityDto.getInputMapping())
                 .build();
     }
@@ -61,7 +76,7 @@ public class ActivityService {
                 .outputMapping(activityDto.getOutputMapping())
                 .start(activityDto.getStartName())
                 .end(activityDto.getEndName());
-        buildGroup(forEachActivityBuilder, activityDto.getGroup());
+        buildGroupBuilder(forEachActivityBuilder, activityDto.getGroup());
         return forEachActivityBuilder.build();
     }
 
@@ -73,11 +88,11 @@ public class ActivityService {
                 .outputMapping(activityDto.getOutputMapping())
                 .start(activityDto.getStartName())
                 .end(activityDto.getEndName());
-        buildGroup(groupActivityBuilder, activityDto.getGroup());
+        buildGroupBuilder(groupActivityBuilder, activityDto.getGroup());
         return groupActivityBuilder.build();
     }
 
-    public void buildGroup(LinkedActivityGroupBuilder compositeTaskBuilder, ActivityGroupDto groupDto) throws ConfigurationException {
+    void buildGroupBuilder(LinkedActivityGroupBuilder<?> linkedActivityGroupBuilder, ActivityGroupDto groupDto) throws ConfigurationException {
 
         Map<String, Activity> activityMap = new HashMap<>();
         for (ActivityDto activityDto : groupDto.getActivities()) {
@@ -86,7 +101,7 @@ public class ActivityService {
             }
         }
         for (ActivityLinkDto link : groupDto.getLinks()) {
-            link(compositeTaskBuilder, link, activityMap);
+            link(linkedActivityGroupBuilder, link, activityMap);
         }
     }
 
@@ -95,19 +110,19 @@ public class ActivityService {
         String to = link.getTo();
         String guard = link.getGuard();
 
-        if (END_ACTIVITY_NAME.equals(from) || START_ACTIVITY_NAME.equals(to)) {
+        if (groupBuilder.getEndName().equals(from) || groupBuilder.getStartName().equals(to)) {
             throw new IllegalArgumentException("Cannot link from EndActivity or to StartActivity");
         }
 
-        if (START_ACTIVITY_NAME.equals(from) && END_ACTIVITY_NAME.equals(to)) {
+        if (groupBuilder.getStartName().equals(from) && groupBuilder.getEndName().equals(to)) {
             groupBuilder.linkStartToEnd(guard);
-        } else if (START_ACTIVITY_NAME.equals(from)) {
+        } else if (groupBuilder.getStartName().equals(from)) {
             Activity activity = activityMap.get(to);
             if (activity == null) {
                 throw new IllegalArgumentException("Activity '" + to + "' is not found");
             }
             groupBuilder.linkFromStart(activity, guard);
-        } else if (END_ACTIVITY_NAME.equals(to)) {
+        } else if (groupBuilder.getEndName().equals(to)) {
             Activity activity = activityMap.get(from);
             if (activity == null) {
                 throw new IllegalArgumentException("Activity '" + to + "' is not found");

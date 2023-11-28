@@ -3,14 +3,15 @@ package io.github.manhnt217.task.core.context;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.core.activity.Activity;
 import io.github.manhnt217.task.core.activity.OutboundMessage;
+import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.exception.inner.ContextException;
 import io.github.manhnt217.task.core.exception.inner.TransformException;
-import io.github.manhnt217.task.core.task.Task;
+import io.github.manhnt217.task.core.repo.EngineRepository;
 
 import java.util.Map;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public interface ActivityContext {
 
@@ -28,11 +29,15 @@ public interface ActivityContext {
 
     String getExecutionId();
 
-    Task resolveTask(String name);
+    EngineRepository getRepo();
 
     String createRef(Object object);
 
     ObjectRef resolveRef(String refId) throws ContextException;
 
     void clearRef(String refId);
+
+    TaskLogger getLogger();
+
+    String getCurrentTaskName();
 }

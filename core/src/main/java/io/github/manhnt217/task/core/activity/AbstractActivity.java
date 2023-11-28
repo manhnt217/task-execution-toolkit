@@ -3,6 +3,7 @@ package io.github.manhnt217.task.core.activity;
 import io.github.manhnt217.task.core.activity.group.ActivityGroup;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author manh nguyen
@@ -16,6 +17,9 @@ public abstract class AbstractActivity implements Activity {
     protected ActivityGroup<?, ?> parent;
 
     public AbstractActivity(String name) {
+        if (StringUtils.isBlank(name)) {
+            throw new IllegalArgumentException("Activity's name cannot be empty");
+        }
         this.name = name;
     }
 }

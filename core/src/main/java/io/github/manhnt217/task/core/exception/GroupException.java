@@ -1,7 +1,7 @@
 package io.github.manhnt217.task.core.exception;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public class GroupException extends EngineException {
     public GroupException(String message) {

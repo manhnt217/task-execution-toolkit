@@ -1,0 +1,13 @@
+package io.github.manhnt217.task.core.exception;
+
+import io.github.manhnt217.task.core.event.source.EventSource;
+
+/**
+ * @author manhnguyen
+ */
+public class NoHandlerException extends EngineException {
+
+    public NoHandlerException(EventSource source) {
+        super("There is no handler for event source '" + source.getName() + "'");
+    }
+}
