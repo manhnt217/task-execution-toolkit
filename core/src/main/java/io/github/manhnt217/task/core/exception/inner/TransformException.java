@@ -1,7 +1,7 @@
 package io.github.manhnt217.task.core.exception.inner;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public class TransformException extends Exception {
     public TransformException(Throwable e) {

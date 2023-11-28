@@ -1,16 +1,16 @@
 package io.github.manhnt217.task.sample.test.loop;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.github.manhnt217.task.sample.LinearCompositeTask;
-import io.github.manhnt217.task.sample.TestUtil;
-import io.github.manhnt217.task.sample.plugin.LogTask;
-import io.github.manhnt217.task.core.activity.DefaultActivityLogger;
+import io.github.manhnt217.task.core.activity.DefaultTaskLogger;
 import io.github.manhnt217.task.core.activity.ExecutionLog;
 import io.github.manhnt217.task.core.activity.loop.ForEachActivity;
-import io.github.manhnt217.task.core.activity.task.TaskBasedActivity;
+import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
 import io.github.manhnt217.task.core.exception.TaskException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
+import io.github.manhnt217.task.sample.LinearFunction;
+import io.github.manhnt217.task.sample.TestUtil;
+import io.github.manhnt217.task.sample.plugin.Log;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public class LoopTest {
 
@@ -39,11 +39,10 @@ public class LoopTest {
     public void testForEachSimple() throws ConfigurationException, IOException, TaskException {
         final String FOR_EACH_1 = "forEach1";
 
-        DefaultActivityLogger logHandler = new DefaultActivityLogger();
+        DefaultTaskLogger logHandler = new DefaultTaskLogger();
 
-        TaskBasedActivity task1 = ActivityBuilder
-                .task("task1")
-                .taskName(LogTask.class.getName())
+        PluginActivity p1 = ActivityBuilder
+                .plugin("p1", Log.class.getSimpleName())
                 .inputMapping("{\"severity\": \"INFO\",\"message\": \"Item \" + .f1Start.item}")
                 .build();
 
@@ -54,14 +53,14 @@ public class LoopTest {
                 .name(FOR_EACH_1)
                 .start("f1Start")
                 .end("f1End")
-                .linkFromStart(task1)
-                .linkToEnd(task1)
+                .linkFromStart(p1)
+                .linkToEnd(p1)
                 .inputMapping(TestUtil.OM.writeValueAsString(loopInput))
                 .outputMapping(".f1Start.item + .f1Start.index")
                 .build();
 
-        LinearCompositeTask task = new LinearCompositeTask("c1", Collections.singletonList(loop1));
-        JsonNode output = TestUtil.executeTask(task, null, null, logHandler, UUID.randomUUID().toString());
+        LinearFunction func = new LinearFunction("c1", Collections.singletonList(loop1));
+        JsonNode output = TestUtil.executeFunc(func, null, null, logHandler, UUID.randomUUID().toString());
         Map<String, Object> out = TestUtil.OM.treeToValue(output, Map.class);
 
         List<ExecutionLog> logs = logHandler.getLogs();

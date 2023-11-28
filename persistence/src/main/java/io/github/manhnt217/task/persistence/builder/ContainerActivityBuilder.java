@@ -3,7 +3,7 @@ package io.github.manhnt217.task.persistence.builder;
 import io.github.manhnt217.task.core.activity.Activity;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public abstract class ContainerActivityBuilder<A extends Activity, B extends ContainerActivityBuilder<A, B>> extends AbstractActivityBuilder<A, B> implements LinkedActivityGroupBuilder<B> {
 
