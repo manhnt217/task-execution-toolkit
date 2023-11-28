@@ -25,18 +25,13 @@ public class EventSourceConfig {
     @Setter(AccessLevel.NONE)
     private Class<? extends EventSource> pluginClass;
 
-    public EventSource createEventSource(EventDispatcher dispatcher, JsonNode pluginProps) {
-        try {
-            EventSource eventSource = ClassUtil.newPluginInstance(pluginClass);
-            eventSource.setName(name);
-            eventSource.setAsync(async);
-            eventSource.setDispatcher(dispatcher);
-            eventSource.setProps(pluginProps);
-            return eventSource;
-        } catch (Exception e) {
-            // TODO: Handle exception
-            throw new RuntimeException(e);
-        }
+    public EventSource createEventSource(EventDispatcher dispatcher, JsonNode pluginProps) throws Exception {
+        EventSource eventSource = ClassUtil.newPluginInstance(pluginClass);
+        eventSource.setName(name);
+        eventSource.setAsync(async);
+        eventSource.setDispatcher(dispatcher);
+        eventSource.setProps(pluginProps);
+        return eventSource;
     }
 
     public void loadClass() {

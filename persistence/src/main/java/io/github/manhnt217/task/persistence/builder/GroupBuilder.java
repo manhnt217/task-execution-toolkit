@@ -134,7 +134,7 @@ class GroupBuilder {
             throw new IllegalArgumentException("A StartActivity (or its name) should be given");
         }
         if (this.endActivity == null && StringUtils.isBlank(endName)) {
-            throw new IllegalArgumentException("A EndActivity (or its name) should be given");
+            throw new IllegalArgumentException("An EndActivity (or its name) should be given");
         }
         // TODO: implement other validations
     }
