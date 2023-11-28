@@ -92,7 +92,7 @@ public class JSONUtil {
                 return NullNode.getInstance();
             }
 
-            // TODO: Cache the result of compilation if it is time-consuming process (need to monitor)
+            // TODO: Cache the result of compilation if it is time-consuming process (need a benchmark)
             Expression jslt = Parser.compileString(jsltExp);
             return jslt.apply(input);
         } catch (Exception e) {

@@ -2,6 +2,7 @@ package io.github.manhnt217.task.core.event.source;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.core.context.JSONUtil;
+import io.github.manhnt217.task.core.exception.ContainerException;
 import io.github.manhnt217.task.core.exception.MultipleHandlersException;
 import io.github.manhnt217.task.core.exception.NoHandlerException;
 import io.github.manhnt217.task.core.exception.TaskException;
@@ -51,11 +52,12 @@ public abstract class EventSource<P, R> {
     }
 
     /**
-     *
-     * @param e
-     * @return <code>null</code> only when there is no handler
+     * This method should only be called after {@link #startInternal(Object)} has successfully returned.
+     * That means it should not be called inside starting process of the source.
+     * @param e the event object
+     * @return <code>null</code> only when async = true
      */
-    protected final R dispatch(Object e) throws NoHandlerException, MultipleHandlersException, TaskException {
+    protected final R dispatch(Object e) throws ContainerException, TaskException {
         return dispatcher.dispatch(this, e, getDispatcherReturnType());
     }
 

@@ -7,121 +7,172 @@ import io.github.manhnt217.task.core.activity.DefaultTaskLogger;
 import io.github.manhnt217.task.core.context.JSONUtil;
 import io.github.manhnt217.task.core.event.source.EventDispatcher;
 import io.github.manhnt217.task.core.event.source.EventSource;
-import io.github.manhnt217.task.core.exception.MultipleHandlersException;
-import io.github.manhnt217.task.core.exception.NoHandlerException;
-import io.github.manhnt217.task.core.exception.TaskException;
+import io.github.manhnt217.task.core.exception.*;
 import io.github.manhnt217.task.core.exception.inner.TransformException;
 import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.event.EventSourceConfig;
 import io.github.manhnt217.task.core.task.handler.Handler;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static io.github.manhnt217.task.core.container.SyncHelper.doSync;
+import static io.github.manhnt217.task.core.container.TaskContainer.EventSourceStatus.*;
+
+@Slf4j
 public class TaskContainer implements EventDispatcher, EventSourceController {
 
     private final ObjectNode globalProps;
     private final EngineRepository repo;
-    private final Map<String, EventSource<?, ?>> eventSources;
+    private final ConcurrentMap<String, EventSourceRef> eventSources;
     private final ExecutorService executorService;
 
     public TaskContainer(ObjectNode globalProps, EngineRepository repo) {
         this.globalProps = globalProps;
         this.repo = repo;
-        eventSources = new HashMap<>();
+        eventSources = new ConcurrentHashMap<>();
         executorService = Executors.newFixedThreadPool(100);
     }
 
     public void start() {
-        setUpEventSources();
+        deployAllEventSources();
     }
 
-    private void setUpEventSources() {
+    public void shutdown() {
+        shutdownAllEventSources();
+    }
+
+    private void deployAllEventSources() {
         List<EventSourceConfig> eventSourceConfigs = repo.findAllEventSources();
         for (EventSourceConfig eventSourceConfig : eventSourceConfigs) {
-            deploy(eventSourceConfig);
+            try {
+                deploy(eventSourceConfig);
+            } catch (ContainerException e) {
+                log.error("Exception while deploying event source '" + eventSourceConfig.getName() + "'", e);
+            }
+        }
+    }
+
+    private void shutdownAllEventSources() {
+        for (EventSourceRef ref : eventSources.values()) {
+            try {
+                ref.getEventSource().shutdown();
+            } catch (Exception e) {
+                log.error("Exception while shutting down event source '" + ref.getEventSource().getName() + "'");
+            } finally {
+                ref.setStatus(STOPPED);
+            }
         }
     }
 
     @Override
-    public void deploy(EventSourceConfig eventSourceConfig) {
-        if (eventSources.containsKey(eventSourceConfig.getName())) {
-            throw new IllegalStateException("EventSource '" + eventSourceConfig.getName() + "' has already been deployed. Undeploy first");
-        }
+    public void deploy(EventSourceConfig eventSourceConfig) throws ContainerException {
+        String sourceName = eventSourceConfig.getName();
+        doSync(sourceName, () -> {
+            if (eventSources.containsKey(sourceName)) {
+                throw new IllegalStateException("EventSource '" + sourceName + "' has already been deployed. Undeploy first");
+            }
+            EventSource<?, ?> eventSource = createEventSourceInstance(eventSourceConfig);
+            eventSources.put(sourceName, new EventSourceRef(eventSource, STOPPED));
+
+            if (eventSourceConfig.isAutoStart()) {
+                startEventSource(sourceName, false);
+            }
+        });
+    }
+
+    private EventSource<?, ?> createEventSourceInstance(EventSourceConfig eventSourceConfig) throws ContainerException {
         String propsJSLT = eventSourceConfig.getPropsJSLT();
         JsonNode pluginProps;
         try {
             pluginProps = JSONUtil.applyTransform(propsJSLT, globalProps);
         } catch (TransformException e) {
-            // TODO: Handle exception
-            throw new RuntimeException(e);
+            throw new ContainerException("Error while transfrom input for eventsource. " +
+                    "EventSource = '" + eventSourceConfig.getName() + "'. InputMapping = '" + propsJSLT + "'");
         }
-        EventSource<?, ?> eventSource = eventSourceConfig.createEventSource(this, pluginProps);
-        eventSources.put(eventSourceConfig.getName(), eventSource);
-
-        if (eventSourceConfig.isAutoStart()) {
-            startEventSource(eventSourceConfig.getName());
-        }
-    }
-
-    @Override
-    public void undeploy(String eventSourceName) throws Exception {
-        EventSource<?, ?> ev = eventSources.get(eventSourceName);
-        if (ev == null) {
-            throw new IllegalStateException("EventSource '" + eventSourceName + "' has not been deployed");
-        }
-        ev.shutdown();
-        eventSources.remove(eventSourceName);
-    }
-
-    @Override
-    public void startEventSource(String name) {
-        EventSource<?, ?> eventSource = eventSources.get(name);
-        if (eventSource == null) {
-            throw new IllegalArgumentException("Cannot find event source '" + name + "'");
-        }
-
         try {
-            eventSource.start();
+            return (EventSource<?, ?>) eventSourceConfig.createEventSource(this, pluginProps);
         } catch (Exception e) {
-            // TODO: Handle exception
-            throw new RuntimeException(e);
+            throw new ContainerException("Exception while createing new event source instance. " +
+                    "EventSource = '" + eventSourceConfig.getName() + "'", e);
         }
     }
 
     @Override
-    public void stopEventSource(String name) {
-        EventSource<?, ?> eventSource = eventSources.get(name);
-        if (eventSource == null) {
-            throw new IllegalArgumentException("Cannot find event source '" + name + "'");
-        }
-
-        try {
-            eventSource.shutdown();
-        } catch (Exception e) {
-            // TODO: Handle exception
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void shutdown() {
-        try {
-            for (EventSource<?, ?> eventSource : eventSources.values()) {
-                eventSource.shutdown();
+    public void undeploy(String name, boolean forceUndeploy) throws ContainerException {
+        doSync(name, () -> {
+            try {
+                EventSourceRef ref = findEventSource(name);
+                if (ref.getStatus() == STARTED) {
+                    stopEventSource(name, false);
+                }
+                eventSources.remove(name);
+            } catch (ContainerException e) {
+                throw new RuntimeException(e);
+            } finally {
+                if (forceUndeploy) eventSources.remove(name);
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        });
     }
 
     @Override
-    public <E, R> R dispatch(EventSource<?, R> source, E event, Class<? extends R> returnType) throws NoHandlerException, MultipleHandlersException, TaskException {
-        List<Handler> handlers = repo.findHandlerBySourceName(source.getName());
+    public void startEventSource(String name, boolean forceStart) throws ContainerException {
+        doSync(name, () -> {
+            EventSourceRef ref = findEventSource(name);
+            if (ref.getStatus() == STARTED && !forceStart) {
+                throw new ContainerException("Event source '" + name + "' has already started");
+            }
+            try {
+                ref.getEventSource().start();
+                ref.setStatus(STARTED);
+            } catch (Exception e) {
+                throw new ContainerException("Exception while starting event source '" + name + "'", e);
+            }
+        });
+    }
+
+    @Override
+    public void stopEventSource(String name, boolean forceStop) throws ContainerException {
+        doSync(name, () -> {
+            EventSourceRef ref = findEventSource(name);
+            if (ref.getStatus() == STOPPED && !forceStop) {
+                throw new ContainerException("Event source '" + name + "' has already stopped");
+            }
+            try {
+                ref.getEventSource().shutdown();
+                ref.setStatus(STOPPED);
+            } catch (Exception e) {
+                throw new ContainerException("Exception while stopping event source '" + name + "'", e);
+            }
+        });
+    }
+
+    private EventSourceRef findEventSource(String name) throws ContainerException {
+        EventSourceRef ref = eventSources.get(name);
+        if (ref == null) {
+            throw new ContainerException("Event source '" + name + "' has not been deployed yet");
+        }
+        return ref;
+    }
+
+    @Override
+    public <E, R> R dispatch(EventSource<?, R> source, E event, Class<? extends R> returnType) throws ContainerException, TaskException {
+        String sourceName = source.getName();
+        String message = checkEventSourceBeforeDispatching(sourceName);
+        if (StringUtils.isNotBlank(message)) {
+            log.warn(message);
+            throw new EventSourceNotReadyException(message);
+        }
+        List<Handler> handlers = repo.findHandlerBySourceName(sourceName);
         if (handlers == null || handlers.isEmpty()) {
             throw new NoHandlerException(source);
         }
@@ -137,6 +188,18 @@ public class TaskContainer implements EventDispatcher, EventSourceController {
         }
     }
 
+    private String checkEventSourceBeforeDispatching(String sourceName) {
+        return doSync(sourceName, () -> {
+            EventSourceRef ref = eventSources.get(sourceName);
+            if (ref == null) {
+                return "EventSource '" + sourceName + "' has not been deployed yet";
+            } else if (ref.getStatus() != STARTED) {
+                return "EventSource '" + sourceName + "' has not been started yet";
+            }
+            return null;
+        });
+    }
+
     private <E, R> R handle(Handler handler, E event, Class<? extends R> returnType) throws TaskException {
         TaskContext context = new TaskContext(UUID.randomUUID().toString(), globalProps, repo, new DefaultTaskLogger());
         JsonNode input = JSONUtil.valueToTree(event, context);
@@ -145,6 +208,24 @@ public class TaskContainer implements EventDispatcher, EventSourceController {
             return JSONUtil.treeToValue(output, returnType, context);
         } catch (JsonProcessingException e) {
             throw new TaskException(handler.getName(), "Exception while deserialize output");
+        }
+    }
+
+    enum EventSourceStatus {
+        STARTED,
+        STOPPED,
+    }
+
+    private static class EventSourceRef {
+        @Getter
+        private final EventSource<?, ?> eventSource;
+        @Getter
+        @Setter
+        private EventSourceStatus status;
+
+        EventSourceRef(EventSource<?, ?> eventSource, EventSourceStatus status) {
+            this.eventSource = eventSource;
+            this.status = status;
         }
     }
 }
