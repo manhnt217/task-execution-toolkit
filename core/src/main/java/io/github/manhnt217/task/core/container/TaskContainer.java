@@ -7,7 +7,11 @@ import io.github.manhnt217.task.core.activity.DefaultTaskLogger;
 import io.github.manhnt217.task.core.context.JSONUtil;
 import io.github.manhnt217.task.core.event.source.EventDispatcher;
 import io.github.manhnt217.task.core.event.source.EventSource;
-import io.github.manhnt217.task.core.exception.*;
+import io.github.manhnt217.task.core.exception.ContainerException;
+import io.github.manhnt217.task.core.exception.EventSourceNotReadyException;
+import io.github.manhnt217.task.core.exception.MultipleHandlersException;
+import io.github.manhnt217.task.core.exception.NoHandlerException;
+import io.github.manhnt217.task.core.exception.TaskException;
 import io.github.manhnt217.task.core.exception.inner.TransformException;
 import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.task.TaskContext;
@@ -25,7 +29,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static io.github.manhnt217.task.core.container.SyncHelper.doSync;
 import static io.github.manhnt217.task.core.container.TaskContainer.EventSourceStatus.*;
 
 @Slf4j
@@ -35,12 +38,14 @@ public class TaskContainer implements EventDispatcher, EventSourceController {
     private final EngineRepository repo;
     private final ConcurrentMap<String, EventSourceRef> eventSources;
     private final ExecutorService executorService;
+    private final SyncHelper syncHelper;
 
     public TaskContainer(ObjectNode globalProps, EngineRepository repo) {
         this.globalProps = globalProps;
         this.repo = repo;
         eventSources = new ConcurrentHashMap<>();
         executorService = Executors.newFixedThreadPool(100);
+        syncHelper = new SyncHelper();
     }
 
     public void start() {
@@ -77,7 +82,7 @@ public class TaskContainer implements EventDispatcher, EventSourceController {
     @Override
     public void deploy(EventSourceConfig eventSourceConfig) throws ContainerException {
         String sourceName = eventSourceConfig.getName();
-        doSync(sourceName, () -> {
+        syncHelper.doSync(sourceName, () -> {
             if (eventSources.containsKey(sourceName)) {
                 throw new IllegalStateException("EventSource '" + sourceName + "' has already been deployed. Undeploy first");
             }
@@ -109,7 +114,7 @@ public class TaskContainer implements EventDispatcher, EventSourceController {
 
     @Override
     public void undeploy(String name, boolean forceUndeploy) throws ContainerException {
-        doSync(name, () -> {
+        syncHelper.doSync(name, () -> {
             try {
                 EventSourceRef ref = findEventSource(name);
                 if (ref.getStatus() == STARTED) {
@@ -126,7 +131,7 @@ public class TaskContainer implements EventDispatcher, EventSourceController {
 
     @Override
     public void startEventSource(String name, boolean forceStart) throws ContainerException {
-        doSync(name, () -> {
+        syncHelper.doSync(name, () -> {
             EventSourceRef ref = findEventSource(name);
             if (ref.getStatus() == STARTED && !forceStart) {
                 throw new ContainerException("Event source '" + name + "' has already started");
@@ -142,7 +147,7 @@ public class TaskContainer implements EventDispatcher, EventSourceController {
 
     @Override
     public void stopEventSource(String name, boolean forceStop) throws ContainerException {
-        doSync(name, () -> {
+        syncHelper.doSync(name, () -> {
             EventSourceRef ref = findEventSource(name);
             if (ref.getStatus() == STOPPED && !forceStop) {
                 throw new ContainerException("Event source '" + name + "' has already stopped");
@@ -189,7 +194,7 @@ public class TaskContainer implements EventDispatcher, EventSourceController {
     }
 
     private String checkEventSourceBeforeDispatching(String sourceName) {
-        return doSync(sourceName, () -> {
+        return syncHelper.doSync(sourceName, () -> {
             EventSourceRef ref = eventSources.get(sourceName);
             if (ref == null) {
                 return "EventSource '" + sourceName + "' has not been deployed yet";
