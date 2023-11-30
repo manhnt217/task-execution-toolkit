@@ -18,6 +18,8 @@ public class Function implements Task {
 
     public static final String START_ACTIVITY_NAME = "START";
     public static final String END_ACTIVITY_NAME = "END";
+
+    public static final String START_IM = "." + START_ACTIVITY_NAME;
     private final String name;
 
     private final Group activityGroup;

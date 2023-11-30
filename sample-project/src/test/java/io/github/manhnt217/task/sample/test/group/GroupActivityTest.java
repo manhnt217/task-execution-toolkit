@@ -55,7 +55,7 @@ public class GroupActivityTest {
                 .build();
 
         GroupActivity group1 = ActivityBuilder
-                .group()
+                .group(false)
                 .name("g1")
                 .inputMapping(ActivityContext.ALL_SUBTASKS_JSLT)
                 .start("g1Start")
