@@ -24,15 +24,4 @@ public class TestUtil {
         OM.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         OM.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
     }
-
-    public static JsonNode executeFunc(Function function, JsonNode props, JsonNode input, DefaultTaskLogger logger, String executionId) throws TaskException, ConfigurationException, IOException {
-        TaskContext ctx = new TaskContext(executionId, props, new JsonBasedEngineRepository("builtinTaskRepo.json"), logger);
-        return function.call(input, ctx);
-    }
-
-    public static JsonNode executeFunc(String taskName, JsonNode props, JsonNode input, DefaultTaskLogger logger, String executionId, EngineRepository repo) throws TaskException {
-        Function function = repo.getFunction(taskName);
-        TaskContext ctx = new TaskContext(executionId, props, repo, logger);
-        return function.call(input, ctx);
-    }
 }

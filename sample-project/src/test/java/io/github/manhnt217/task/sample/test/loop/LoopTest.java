@@ -3,15 +3,21 @@ package io.github.manhnt217.task.sample.test.loop;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.core.activity.DefaultTaskLogger;
 import io.github.manhnt217.task.core.activity.ExecutionLog;
+import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.activity.loop.ForEachActivity;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
 import io.github.manhnt217.task.core.exception.TaskException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
+import io.github.manhnt217.task.core.repo.EngineRepository;
+import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.sample.LinearFunction;
 import io.github.manhnt217.task.sample.TestUtil;
 import io.github.manhnt217.task.sample.plugin.Log;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -20,13 +26,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static io.github.manhnt217.task.sample.test.ComplexFunctionTest.mockBuiltInRepo;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+
+import static org.mockito.Mockito.*;
+
 /**
  * @author manh nguyen
  */
+@ExtendWith(MockitoExtension.class)
 public class LoopTest {
 
 
@@ -36,10 +47,9 @@ public class LoopTest {
      * @throws ConfigurationException
      */
     @Test
-    public void testForEachSimple() throws ConfigurationException, IOException, TaskException {
+    public void testForEachSimple(@Mock EngineRepository repo, @Mock TaskLogger logger) throws ConfigurationException, IOException, TaskException {
+        mockBuiltInRepo(repo);
         final String FOR_EACH_1 = "forEach1";
-
-        DefaultTaskLogger logHandler = new DefaultTaskLogger();
 
         PluginActivity p1 = ActivityBuilder
                 .plugin("p1", Log.class.getSimpleName())
@@ -59,15 +69,12 @@ public class LoopTest {
                 .outputMapping(".f1Start.item + .f1Start.index")
                 .build();
 
-        LinearFunction func = new LinearFunction("c1", Collections.singletonList(loop1));
-        JsonNode output = TestUtil.executeFunc(func, null, null, logHandler, UUID.randomUUID().toString());
-        Map<String, Object> out = TestUtil.OM.treeToValue(output, Map.class);
+        LinearFunction<Object, Map> func = new LinearFunction<>("c1", Collections.singletonList(loop1), Object.class, Map.class);
+        TaskContext context = new TaskContext(null, repo, logger);
+        Map<String, Object> out = func.exec(null, context);
 
-        List<ExecutionLog> logs = logHandler.getLogs();
-
-        assertThat(logs.size(), is(3));
         for (int i = 0; i < 3; i++) {
-            assertThat(logs.get(i).getContent(), is("Item " + loopInput.get(i)));
+            verify(logger).info(any(), any(), any(), eq("Item " + loopInput.get(i)));
         }
 
         assertThat(out.size(), is(1));

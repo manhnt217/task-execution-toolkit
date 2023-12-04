@@ -7,8 +7,6 @@ import io.github.manhnt217.task.core.activity.InboundMessage;
 import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
 import io.github.manhnt217.task.core.context.ActivityContext;
-import io.github.manhnt217.task.core.context.JSONUtil;
-import io.github.manhnt217.task.core.context.ObjectRef;
 import io.github.manhnt217.task.core.exception.ActivityException;
 import io.github.manhnt217.task.core.exception.TaskException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
@@ -16,12 +14,12 @@ import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
+import io.github.manhnt217.task.sample.TestUtil;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
@@ -32,7 +30,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.github.manhnt217.task.core.task.function.Function.START_IM;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -65,7 +62,6 @@ public class SyncGroupTest {
         Activity syncGroup = ActivityBuilder
                 .group(synced)
                 .name("syncGroup")
-                .inputMapping(START_IM)
                 .start("syncStart")
                 .end("syncEnd")
                 .linkFromStart(pluginCall)
@@ -73,7 +69,7 @@ public class SyncGroupTest {
                 .build();
 
         Function testSyncGroup = ActivityBuilder
-                .function("testSyncGroup")
+                .routine("testSyncGroup")
                 .linkFromStart(syncGroup)
                 .linkToEnd(syncGroup)
                 .build();
@@ -94,9 +90,9 @@ public class SyncGroupTest {
 
         Runnable task = () -> {
             TaskContext syncContext = new TaskContext(UUID.randomUUID().toString(), null, mock(EngineRepository.class), mock(TaskLogger.class));
-            JsonNode input = JSONUtil.valueToTree(new ObjectRef(inputSync), syncContext);
+            JsonNode input = TestUtil.OM.createObjectNode();
             try {
-                testSyncGroup.call(input, syncContext);
+                testSyncGroup.exec(input, syncContext);
             } catch (TaskException e) {
                 throw new RuntimeException(e);
             }
