@@ -1,8 +1,5 @@
 package io.github.manhnt217.task.sample.test.loop;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import io.github.manhnt217.task.core.activity.DefaultTaskLogger;
-import io.github.manhnt217.task.core.activity.ExecutionLog;
 import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.activity.loop.ForEachActivity;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
@@ -24,14 +21,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static io.github.manhnt217.task.sample.test.ComplexFunctionTest.mockBuiltInRepo;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
-
-
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**
