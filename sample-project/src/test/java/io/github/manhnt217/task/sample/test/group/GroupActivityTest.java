@@ -2,13 +2,11 @@ package io.github.manhnt217.task.sample.test.group;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableMap;
-import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.activity.group.GroupActivity;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
 import io.github.manhnt217.task.core.context.ActivityContext;
 import io.github.manhnt217.task.core.exception.TaskException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
-import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.sample.LinearFunction;
@@ -16,16 +14,15 @@ import io.github.manhnt217.task.sample.LinearGroupActivity;
 import io.github.manhnt217.task.sample.plugin.AddTwoNumber;
 import io.github.manhnt217.task.sample.plugin.Curl;
 import io.github.manhnt217.task.sample.plugin.Log;
+import io.github.manhnt217.task.sample.test.AbstractEngineTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.Collections;
 
 import static io.github.manhnt217.task.sample.TestUtil.OM;
-import static io.github.manhnt217.task.sample.test.ComplexFunctionTest.mockBuiltInRepo;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -34,7 +31,7 @@ import static org.mockito.Mockito.*;
  * @author manh nguyen
  */
 @ExtendWith(MockitoExtension.class)
-public class GroupActivityTest {
+public class GroupActivityTest extends AbstractEngineTest {
 
     /**
      * <img src="{@docRoot}/doc-files/images/testGroup.png">
@@ -42,8 +39,7 @@ public class GroupActivityTest {
      * @throws ConfigurationException
      */
     @Test
-    public void testGroupSimple(@Mock EngineRepository repo, @Mock TaskLogger logger) throws ConfigurationException, TaskException {
-        mockBuiltInRepo(repo);
+    public void testGroupSimple() throws ConfigurationException, TaskException {
 
         PluginActivity p1 = ActivityBuilder
                 .plugin("p1", Log.class.getSimpleName())

@@ -1,19 +1,17 @@
 package io.github.manhnt217.task.sample.test.loop;
 
-import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.activity.loop.ForEachActivity;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
 import io.github.manhnt217.task.core.exception.TaskException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
-import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.sample.LinearFunction;
 import io.github.manhnt217.task.sample.TestUtil;
 import io.github.manhnt217.task.sample.plugin.Log;
+import io.github.manhnt217.task.sample.test.AbstractEngineTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
@@ -22,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static io.github.manhnt217.task.sample.test.ComplexFunctionTest.mockBuiltInRepo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
@@ -33,7 +30,7 @@ import static org.mockito.Mockito.*;
  * @author manh nguyen
  */
 @ExtendWith(MockitoExtension.class)
-public class LoopTest {
+public class LoopTest extends AbstractEngineTest {
 
 
     /**
@@ -42,8 +39,7 @@ public class LoopTest {
      * @throws ConfigurationException
      */
     @Test
-    public void testForEachSimple(@Mock EngineRepository repo, @Mock TaskLogger logger) throws ConfigurationException, IOException, TaskException {
-        mockBuiltInRepo(repo);
+    public void testForEachSimple() throws ConfigurationException, IOException, TaskException {
         final String FOR_EACH_1 = "forEach1";
 
         PluginActivity p1 = ActivityBuilder
