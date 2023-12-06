@@ -5,7 +5,6 @@ import io.github.manhnt217.task.core.activity.group.Group;
 import io.github.manhnt217.task.core.activity.simple.EndActivity;
 import io.github.manhnt217.task.core.activity.simple.StartActivity;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
-import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 

@@ -1,8 +1,8 @@
 package io.github.manhnt217.task.sample;
 
 import io.github.manhnt217.task.core.activity.Activity;
-import io.github.manhnt217.task.core.activity.group.GroupActivity;
 import io.github.manhnt217.task.core.activity.group.Group;
+import io.github.manhnt217.task.core.activity.group.GroupActivity;
 import io.github.manhnt217.task.core.activity.simple.EndActivity;
 import io.github.manhnt217.task.core.activity.simple.StartActivity;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;

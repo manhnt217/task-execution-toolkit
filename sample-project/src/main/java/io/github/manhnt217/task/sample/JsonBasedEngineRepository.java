@@ -2,10 +2,10 @@ package io.github.manhnt217.task.sample;
 
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.task.event.EventSourceConfig;
+import io.github.manhnt217.task.persistence.model.FunctionDto;
 import io.github.manhnt217.task.persistence.model.HandlerDto;
 import io.github.manhnt217.task.persistence.model.PluginDto;
 import io.github.manhnt217.task.persistence.model.RepoDto;
-import io.github.manhnt217.task.persistence.model.FunctionDto;
 import io.github.manhnt217.task.persistence.service.TaskService;
 
 import java.io.IOException;

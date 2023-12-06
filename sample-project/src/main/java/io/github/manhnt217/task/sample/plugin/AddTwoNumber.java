@@ -11,12 +11,12 @@ import lombok.Setter;
 public class AddTwoNumber extends Plugin<AddTwoNumber.Input, Integer> {
 
     @Override
-    protected Class<? extends Input> getInputType() {
+    public Class<? extends Input> getInputType() {
         return Input.class;
     }
 
     @Override
-    public Integer exec(AddTwoNumber.Input input, PluginLogger logger) {
+    public Integer exec(Input input, PluginLogger logger) {
         return input.a + input.b;
     }
 

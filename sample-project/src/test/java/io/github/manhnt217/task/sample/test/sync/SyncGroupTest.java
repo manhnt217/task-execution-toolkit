@@ -7,8 +7,6 @@ import io.github.manhnt217.task.core.activity.InboundMessage;
 import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
 import io.github.manhnt217.task.core.context.ActivityContext;
-import io.github.manhnt217.task.core.context.JSONUtil;
-import io.github.manhnt217.task.core.context.ObjectRef;
 import io.github.manhnt217.task.core.exception.ActivityException;
 import io.github.manhnt217.task.core.exception.TaskException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
@@ -16,12 +14,12 @@ import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
+import io.github.manhnt217.task.sample.test.AbstractEngineTest;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
@@ -32,20 +30,20 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.github.manhnt217.task.core.task.function.Function.START_IM;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class SyncGroupTest {
+public class SyncGroupTest extends AbstractEngineTest {
 
     @Order(1)
     @Test
-    public void testSyncGroup() throws InterruptedException, ConfigurationException, InstantiationException, IllegalAccessException, ActivityException {
+    public void testSyncGroup() throws InterruptedException, ConfigurationException, ActivityException {
         ConcurrentLinkedQueue<Integer> result = setUp(true);
         assertThat(result, hasSize(2));
         assertThat(result, contains(1, 2));
@@ -53,7 +51,7 @@ public class SyncGroupTest {
 
     @Order(2)
     @Test
-    public void testAsyncGroup() throws InterruptedException, ConfigurationException, InstantiationException, IllegalAccessException, ActivityException {
+    public void testAsyncGroup() throws InterruptedException, ConfigurationException, ActivityException {
         ConcurrentLinkedQueue<Integer> result = setUp(false);
         assertThat(result, hasSize(2));
         assertThat(result, contains(2, 2));
@@ -65,15 +63,14 @@ public class SyncGroupTest {
         Activity syncGroup = ActivityBuilder
                 .group(synced)
                 .name("syncGroup")
-                .inputMapping(START_IM)
                 .start("syncStart")
                 .end("syncEnd")
                 .linkFromStart(pluginCall)
                 .linkToEnd(pluginCall)
                 .build();
 
-        Function testSyncGroup = ActivityBuilder
-                .function("testSyncGroup")
+        Function<Void, Void> testSyncGroup = ActivityBuilder
+                .routine("testSyncGroup")
                 .linkFromStart(syncGroup)
                 .linkToEnd(syncGroup)
                 .build();
@@ -94,9 +91,8 @@ public class SyncGroupTest {
 
         Runnable task = () -> {
             TaskContext syncContext = new TaskContext(UUID.randomUUID().toString(), null, mock(EngineRepository.class), mock(TaskLogger.class));
-            JsonNode input = JSONUtil.valueToTree(new ObjectRef(inputSync), syncContext);
             try {
-                testSyncGroup.call(input, syncContext);
+                testSyncGroup.exec(null, syncContext);
             } catch (TaskException e) {
                 throw new RuntimeException(e);
             }

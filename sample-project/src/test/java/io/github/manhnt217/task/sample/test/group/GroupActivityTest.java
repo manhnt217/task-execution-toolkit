@@ -1,39 +1,37 @@
 package io.github.manhnt217.task.sample.test.group;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
-import io.github.manhnt217.task.core.activity.DefaultTaskLogger;
-import io.github.manhnt217.task.core.activity.ExecutionLog;
 import io.github.manhnt217.task.core.activity.group.GroupActivity;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
 import io.github.manhnt217.task.core.context.ActivityContext;
 import io.github.manhnt217.task.core.exception.TaskException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
+import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.sample.LinearFunction;
 import io.github.manhnt217.task.sample.LinearGroupActivity;
-import io.github.manhnt217.task.sample.TestUtil;
 import io.github.manhnt217.task.sample.plugin.AddTwoNumber;
 import io.github.manhnt217.task.sample.plugin.Curl;
 import io.github.manhnt217.task.sample.plugin.Log;
+import io.github.manhnt217.task.sample.test.AbstractEngineTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
 
-import static io.github.manhnt217.task.sample.TestUtil.*;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static io.github.manhnt217.task.sample.TestUtil.OM;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 /**
  * @author manh nguyen
  */
-public class GroupActivityTest {
+@ExtendWith(MockitoExtension.class)
+public class GroupActivityTest extends AbstractEngineTest {
 
     /**
      * <img src="{@docRoot}/doc-files/images/testGroup.png">
@@ -41,8 +39,7 @@ public class GroupActivityTest {
      * @throws ConfigurationException
      */
     @Test
-    public void testGroupSimple() throws ConfigurationException, TaskException, IOException {
-        DefaultTaskLogger logHandler = new DefaultTaskLogger();
+    public void testGroupSimple() throws ConfigurationException, TaskException {
 
         PluginActivity p1 = ActivityBuilder
                 .plugin("p1", Log.class.getSimpleName())
@@ -65,20 +62,16 @@ public class GroupActivityTest {
                 .linkToEnd(p2)
                 .build();
 
-        JsonNode input = OM.valueToTree(ImmutableMap.of(
+        LinearFunction<Object, Object> func = new LinearFunction<>("c1", Collections.singletonList(group1), Object.class, Object.class);
+
+        TaskContext context = new TaskContext(func.getName(), null, repo, logger);
+        func.exec(ImmutableMap.of(
                 "p1Log", "log for plugin number 1",
                 "p2Log", "log for plugin number 2"
-        ));
+        ), context);
 
-        LinearFunction func = new LinearFunction("c1", Collections.singletonList(group1));
-
-        TestUtil.executeFunc(func, null, input, logHandler, UUID.randomUUID().toString());
-
-        List<ExecutionLog> logs = logHandler.getLogs();
-
-        assertThat(logs.size(), is(2));
-        assertThat(logs.get(0).getContent(), is("log for plugin number 1"));
-        assertThat(logs.get(1).getContent(), is("log for plugin number 2"));
+        verify(logger).info(any(), any(), any(), eq("log for plugin number 1"));
+        verify(logger).info(any(), any(), any(), eq("log for plugin number 2"));
     }
 
     @Test
@@ -125,6 +118,6 @@ public class GroupActivityTest {
                 Arrays.asList(p2));
 
         assertThrows(ConfigurationException.class, () ->
-                new LinearFunction("c1", Arrays.asList(p1, group2)));
+                new LinearFunction("c1", Arrays.asList(p1, group2), Object.class, Object.class));
     }
 }

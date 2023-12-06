@@ -10,7 +10,6 @@ import io.github.manhnt217.task.core.activity.InboundMessage;
 import io.github.manhnt217.task.core.activity.OutboundMessage;
 import io.github.manhnt217.task.core.activity.SimpleOutboundMessage;
 import io.github.manhnt217.task.core.context.ActivityContext;
-import lombok.Getter;
 import lombok.Setter;
 
 /**

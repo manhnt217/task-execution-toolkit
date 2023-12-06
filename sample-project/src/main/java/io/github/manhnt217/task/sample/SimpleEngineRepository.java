@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  */
 public class SimpleEngineRepository implements EngineRepository {
 
-    protected final Map<String, Function> functions;
+    protected final Map<String, Function<?, ?>> functions;
     protected final Map<String, Handler> handlers;
     protected final Map<String, Class<? extends Plugin>> pluginClasses;
     protected final Map<String, EventSourceConfig> eventSources;
