@@ -1,6 +1,7 @@
 package io.github.manhnt217.task.core.context;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.manhnt217.task.core.activity.Activity;
 import io.github.manhnt217.task.core.activity.OutboundMessage;
@@ -22,12 +23,19 @@ public abstract class AbstractActivityContext implements ActivityContext {
      */
     protected final ObjectNode contextParams; // root object to evaluate JSLT expression
 
-    protected AbstractActivityContext() {
+    protected final ObjectNode props;
+
+    protected AbstractActivityContext(ObjectNode props) {
+        this.props = props;
         this.contextParams = JSONUtil.createObjectNode();
+        if (props != null) {
+            this.contextParams.set(KEY_PROPS, props);
+        }
     }
 
-    protected AbstractActivityContext(ObjectNode contextParams) {
-        this.contextParams = contextParams;
+    @Override
+    public ObjectNode getProps() {
+        return props;
     }
 
     @Override
@@ -51,14 +59,8 @@ public abstract class AbstractActivityContext implements ActivityContext {
     }
 
     @Override
-    public Map<String, JsonNode> toMap() {
-        HashMap<String, JsonNode> result = new HashMap<>();
-        Iterator<Map.Entry<String, JsonNode>> fields = contextParams.fields();
-        while (fields.hasNext()) {
-            Map.Entry<String, JsonNode> entry = fields.next();
-            result.put(entry.getKey(), entry.getValue());
-        }
-        return result;
+    public Iterator<Map.Entry<String, JsonNode>> iterator() {
+        return contextParams.fields();
     }
 
     @Override

@@ -61,7 +61,7 @@ public class LoopTest extends AbstractEngineTest {
                 .build();
 
         LinearFunction<Object, Map> func = new LinearFunction<>("c1", Collections.singletonList(loop1), Object.class, Map.class);
-        TaskContext context = new TaskContext(null, repo, logger);
+        TaskContext context = new TaskContext(func.getName(), null, repo, logger);
         Map<String, Object> out = func.exec(null, context);
 
         for (int i = 0; i < 3; i++) {

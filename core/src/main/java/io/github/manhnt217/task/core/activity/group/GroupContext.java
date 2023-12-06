@@ -8,6 +8,6 @@ import io.github.manhnt217.task.core.context.ActivityContext;
  */
 class GroupContext extends AbstractSubActivityContext {
     public GroupContext(ActivityContext context) {
-        super(context, true);
+        super(context);
     }
 }

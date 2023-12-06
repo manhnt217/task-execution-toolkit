@@ -82,11 +82,11 @@ public class ComplexFunctionTest extends AbstractEngineTest {
                 .inputMapping("{\"url\": ." + Function.START_ACTIVITY_NAME + ".url, \"method\": \"GET\"}")
                 .build();
 
-        LinearFunction<Map, Map> func = new LinearFunction("c1", Lists.newArrayList(act1), Map.class, Map.class);
+        LinearFunction<Map, Map> func = new LinearFunction<>("c1", Lists.newArrayList(act1), Map.class, Map.class);
 
-        Map<String, Object> input = ImmutableMap.of("url", "https://example.com");
-        TaskContext taskContext = new TaskContext("uuid", null, repo, logger);
-        Map<String, ?> out = func.exec(input, taskContext);
+        Map<String, ?> out = func.exec(
+                ImmutableMap.of("url", "https://example.com"),
+                new TaskContext("uuid", null, repo, logger));
         assertThat(out.size(), is(2));
         assertThat(out, hasKey(Function.START_ACTIVITY_NAME));
         assertThat(out, hasKey("act1"));
@@ -115,7 +115,7 @@ public class ComplexFunctionTest extends AbstractEngineTest {
         int n = 7;
         given(repo.getFunction(taskName)).willReturn(r1);
 
-        TaskContext context = new TaskContext(null, repo, logger);
+        TaskContext context = new TaskContext(r1.getName(), null, repo, logger);
         Integer result = r1.exec(new RecursiveInput(n, 1), context);
         assertThat(result, is(factorial(n)));
     }

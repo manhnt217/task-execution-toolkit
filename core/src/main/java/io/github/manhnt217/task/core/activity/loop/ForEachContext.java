@@ -8,6 +8,6 @@ import io.github.manhnt217.task.core.context.ActivityContext;
  */
 class ForEachContext extends AbstractSubActivityContext {
     public ForEachContext(ActivityContext context) {
-        super(context, true);
+        super(context);
     }
 }

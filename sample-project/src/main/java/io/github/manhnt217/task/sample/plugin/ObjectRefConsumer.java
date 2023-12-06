@@ -10,7 +10,7 @@ import io.github.manhnt217.task.core.task.plugin.PluginLogger;
 public class ObjectRefConsumer extends Plugin<ObjectRef, Object> {
 
     @Override
-    protected Class<? extends ObjectRef> getInputType() {
+    public Class<? extends ObjectRef> getInputType() {
         return ObjectRef.class;
     }
 

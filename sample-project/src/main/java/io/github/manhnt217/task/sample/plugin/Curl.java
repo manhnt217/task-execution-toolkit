@@ -29,7 +29,7 @@ public class Curl extends Plugin<Curl.Input, Curl.Output> {
     //	}
 
     @Override
-    protected Class<? extends Input> getInputType() {
+    public Class<? extends Input> getInputType() {
         return Input.class;
     }
 

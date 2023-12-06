@@ -45,7 +45,7 @@ public class Function<P, R> implements io.github.manhnt217.task.core.task.Task {
     //   - All the Object Refs in the parent context will be available in the child context.
     public R exec(P in, TaskContext context) throws TaskException {
         JsonNode input = inputType == null ? null : JSONUtil.valueToTree(in, context);
-        context.setTaskName(this.name);
+        context.setTaskName(name);
         JsonNode groupOutput;
         try {
             groupOutput = activityGroup.execute(input, context);
