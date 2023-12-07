@@ -2,7 +2,6 @@ package io.github.manhnt217.task.sample.test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.activity.func.FunctionCallActivity;
 import io.github.manhnt217.task.core.activity.group.Group;
@@ -14,9 +13,8 @@ import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
-import io.github.manhnt217.task.sample.LinearFunction;
 import io.github.manhnt217.task.sample.TestUtil;
-import io.github.manhnt217.task.sample.plugin.Curl;
+import io.github.manhnt217.task.sample.example_plugin.Curl;
 import io.github.manhnt217.task.sample.plugin.Log;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,6 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
 import java.util.Map;
 
+import static io.github.manhnt217.task.core.context.ActivityContext.ALL_SUBTASKS_JSLT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
@@ -55,7 +54,7 @@ public class ComplexFunctionTest extends AbstractEngineTest {
                 .inputMapping("{\"severity\": \"INFO\", \"message\": \"Status code is \" + .p1.statusCode}")
                 .build();
 
-        LinearFunction<Object, Map> func = new LinearFunction("t1", Lists.newArrayList(p1, p2), Object.class, Map.class);
+        Function<Object, Map> func = buildLinearFunc("t1", Object.class, Map.class, ALL_SUBTASKS_JSLT, p1, p2);
 
         Map<String, Object> props = ImmutableMap.of(
                 "url", "https://example.com",
@@ -82,7 +81,7 @@ public class ComplexFunctionTest extends AbstractEngineTest {
                 .inputMapping("{\"url\": ." + Function.START_ACTIVITY_NAME + ".url, \"method\": \"GET\"}")
                 .build();
 
-        LinearFunction<Map, Map> func = new LinearFunction<>("c1", Lists.newArrayList(act1), Map.class, Map.class);
+        Function<Map, Map> func = buildLinearFunc("c1", Map.class, Map.class, ALL_SUBTASKS_JSLT,  act1);
 
         Map<String, ?> out = func.exec(
                 ImmutableMap.of("url", "https://example.com"),

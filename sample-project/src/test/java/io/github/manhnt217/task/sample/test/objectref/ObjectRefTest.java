@@ -3,18 +3,15 @@ package io.github.manhnt217.task.sample.test.objectref;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.task.TaskContext;
-import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
-import io.github.manhnt217.task.sample.LinearFunction;
-import io.github.manhnt217.task.sample.plugin.ObjectRefConsumer;
-import io.github.manhnt217.task.sample.plugin.ObjectRefProducer;
+import io.github.manhnt217.task.core.task.function.Function;
+import io.github.manhnt217.task.sample.example_plugin.ObjectRefConsumer;
+import io.github.manhnt217.task.sample.example_plugin.ObjectRefProducer;
 import io.github.manhnt217.task.sample.test.AbstractEngineTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
@@ -32,11 +29,10 @@ class ObjectRefTest extends AbstractEngineTest {
 
         PluginActivity act2 = buildPluginActivity("act2", ObjectRefConsumer.class.getSimpleName(), ".act1");
 
-        LinearFunction<Void, Void> func = new LinearFunction<>("c1", Arrays.asList(act1, act2), Void.class, Void.class);
+        Function<Void, Void> func = buildLinearRoutine("c1", act1, act2);
 
         assertDoesNotThrow(() -> {
-            TaskContext context = new TaskContext(func.getName(), null, repo, logger);
-            func.exec(null, context);
+            func.exec(null, new TaskContext(null, repo, logger));
         });
     }
 }

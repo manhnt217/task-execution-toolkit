@@ -61,8 +61,7 @@ public class SyncGroupTest extends AbstractEngineTest {
         PluginActivity pluginCall = mock(PluginActivity.class);
 
         Activity syncGroup = ActivityBuilder
-                .group(synced)
-                .name("syncGroup")
+                .group("syncGroup", synced)
                 .start("syncStart")
                 .end("syncEnd")
                 .linkFromStart(pluginCall)

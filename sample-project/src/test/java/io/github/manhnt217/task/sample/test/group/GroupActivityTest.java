@@ -8,11 +8,10 @@ import io.github.manhnt217.task.core.context.ActivityContext;
 import io.github.manhnt217.task.core.exception.TaskException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.task.TaskContext;
+import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
-import io.github.manhnt217.task.sample.LinearFunction;
-import io.github.manhnt217.task.sample.LinearGroupActivity;
-import io.github.manhnt217.task.sample.plugin.AddTwoNumber;
-import io.github.manhnt217.task.sample.plugin.Curl;
+import io.github.manhnt217.task.sample.example_plugin.AddTwoNumber;
+import io.github.manhnt217.task.sample.example_plugin.Curl;
 import io.github.manhnt217.task.sample.plugin.Log;
 import io.github.manhnt217.task.sample.test.AbstractEngineTest;
 import org.junit.jupiter.api.Test;
@@ -20,7 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Map;
 
 import static io.github.manhnt217.task.sample.TestUtil.OM;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -41,28 +40,24 @@ public class GroupActivityTest extends AbstractEngineTest {
     @Test
     public void testGroupSimple() throws ConfigurationException, TaskException {
 
-        PluginActivity p1 = ActivityBuilder
-                .plugin("p1", Log.class.getSimpleName())
-                .inputMapping("{\"severity\": \"INFO\",\"message\": .START.p1Log}")
-                .build();
+        PluginActivity p1 = buildPluginActivity(
+                "p1",
+                Log.class.getSimpleName(),
+                "{\"severity\": \"INFO\",\"message\": .START.p1Log}");
 
-        PluginActivity p2 = ActivityBuilder
-                .plugin("p2", Log.class.getSimpleName())
-                .inputMapping("{\"severity\": \"INFO\",\"message\": .g1Start.START.p2Log}")
-                .build();
+        PluginActivity p2 = buildPluginActivity(
+                "p2", Log.class.getSimpleName(),
+                "{\"severity\": \"INFO\",\"message\": .g1Start.START.p2Log}");
 
-        GroupActivity group1 = ActivityBuilder
-                .group(false)
-                .name("g1")
-                .inputMapping(ActivityContext.ALL_SUBTASKS_JSLT)
-                .start("g1Start")
-                .end("g1End")
-                .linkFromStart(p1)
-                .link(p1, p2)
-                .linkToEnd(p2)
-                .build();
+        GroupActivity group1 = buildLinearGroup(
+                "g1", false,
+                ActivityContext.ALL_SUBTASKS_JSLT,
+                null,
+                "g1Start",
+                "g1End",
+                p1, p2);
 
-        LinearFunction<Object, Object> func = new LinearFunction<>("c1", Collections.singletonList(group1), Object.class, Object.class);
+        Function<Map, Void> func = buildLinearFunc("c1", Map.class, Void.class, null, group1);
 
         TaskContext context = new TaskContext(func.getName(), null, repo, logger);
         func.exec(ImmutableMap.of(
@@ -82,15 +77,18 @@ public class GroupActivityTest extends AbstractEngineTest {
                 .inputMapping("{\"method\": \"GET\",\"url\": \"example.com\"}")
                 .build();
 
-        assertDoesNotThrow(() -> new LinearGroupActivity("g1",
-                "g1Start", "g1End",
-                ActivityContext.ALL_SUBTASKS_JSLT,
-                Arrays.asList(p1)));
+        assertDoesNotThrow(() -> buildLinearGroup("g1", false,
+                null,
+                ActivityContext.ALL_SUBTASKS_JSLT, "g1Start",
+                "g1End",
+                p1));
 
-        assertThrows(ConfigurationException.class, () -> new LinearGroupActivity("g2",
-                "g2Start", "g2End",
+        assertThrows(ConfigurationException.class, () -> buildLinearGroup("g2", false,
+                null,
                 ActivityContext.ALL_SUBTASKS_JSLT,
-                Arrays.asList(p1)));
+                "g2Start",
+                "g2End",
+                p1));
     }
 
     /**
@@ -112,12 +110,14 @@ public class GroupActivityTest extends AbstractEngineTest {
                 .inputMapping(OM.writeValueAsString(ImmutableMap.of("a", 1, "b", 2)))
                 .build();
 
-        GroupActivity group2 = new LinearGroupActivity("g2",
-                "g2Start", "g2End",
+        GroupActivity group2 = buildLinearGroup("g2", false,
+                null,
                 ActivityContext.ALL_SUBTASKS_JSLT,
-                Arrays.asList(p2));
+                "g2Start",
+                "g2End",
+                p2);
 
         assertThrows(ConfigurationException.class, () ->
-                new LinearFunction("c1", Arrays.asList(p1, group2), Object.class, Object.class));
+                buildLinearRoutine("c1", p1, group2));
     }
 }
