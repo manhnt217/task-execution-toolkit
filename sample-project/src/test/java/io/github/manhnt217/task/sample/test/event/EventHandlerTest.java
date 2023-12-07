@@ -8,7 +8,6 @@ import io.github.manhnt217.task.core.event.source.EventSource;
 import io.github.manhnt217.task.core.exception.ContainerException;
 import io.github.manhnt217.task.core.exception.TaskException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
-import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.task.event.EventSourceConfig;
 import io.github.manhnt217.task.core.task.handler.Handler;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;

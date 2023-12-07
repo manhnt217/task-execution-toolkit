@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import io.github.manhnt217.task.core.activity.Activity;
 import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.activity.func.FunctionCallActivity;
+import io.github.manhnt217.task.core.activity.group.GroupActivity;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.repo.EngineRepository;
@@ -11,6 +12,11 @@ import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.core.task.plugin.Plugin;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.persistence.builder.FunctionBuilder;
+import io.github.manhnt217.task.persistence.builder.GroupActivityBuilder;
+import io.github.manhnt217.task.sample.example_plugin.AddTwoNumber;
+import io.github.manhnt217.task.sample.example_plugin.Curl;
+import io.github.manhnt217.task.sample.example_plugin.ObjectRefConsumer;
+import io.github.manhnt217.task.sample.example_plugin.ObjectRefProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 
@@ -22,11 +28,11 @@ import static org.mockito.Mockito.lenient;
 public abstract class AbstractEngineTest {
 
     public static final Map<String, Class<? extends Plugin<?, ?>>> PLUGINS = ImmutableMap.of(
-            "AddTwoNumber", io.github.manhnt217.task.sample.plugin.AddTwoNumber.class,
-            "Curl", io.github.manhnt217.task.sample.plugin.Curl.class,
+            "AddTwoNumber", AddTwoNumber.class,
+            "Curl", Curl.class,
             "Log", io.github.manhnt217.task.sample.plugin.Log.class,
-            "ObjectRefConsumer", io.github.manhnt217.task.sample.plugin.ObjectRefConsumer.class,
-            "ObjectRefProducer", io.github.manhnt217.task.sample.plugin.ObjectRefProducer.class
+            "ObjectRefConsumer", ObjectRefConsumer.class,
+            "ObjectRefProducer", ObjectRefProducer.class
     );
 
     @Mock
@@ -45,7 +51,15 @@ public abstract class AbstractEngineTest {
     }
 
     protected Function<Void, Void> buildLinearRoutine(String funcName, Activity... children) throws ConfigurationException {
-        FunctionBuilder<Void, Void> builder = ActivityBuilder.routine(funcName);
+        return buildLinearFunc(funcName, Void.class, Void.class, null, children);
+    }
+
+    protected <P, R> Function<P, R> buildLinearFunc(String funcName,
+                                                    Class<? extends P> inputType,
+                                                    Class<? extends R> outputType,
+                                                    String outputMapping,
+                                                    Activity... children) throws ConfigurationException {
+        FunctionBuilder<P, R> builder = ActivityBuilder.function(funcName, inputType, outputType);
         if (children.length == 0) {
             throw new IllegalArgumentException("Empty children");
         }
@@ -55,9 +69,37 @@ public abstract class AbstractEngineTest {
             builder.link(children[i], children[i + 1]);
         }
         builder.linkToEnd(children[i]);
-        Function<Void, Void> func = builder.build();
+        builder.outputMapping(outputMapping);
+
+        Function<P, R> func = builder.build();
         lenient().when(repo.getFunction(funcName)).thenReturn(func);
         return func;
+    }
+
+    protected GroupActivity buildLinearGroup(String actName,
+                                             boolean sync,
+                                             String inputMapping,
+                                             String outputMapping,
+                                             String startName,
+                                             String endName,
+                                             Activity... children) throws ConfigurationException {
+        GroupActivityBuilder builder = ActivityBuilder
+                .group(actName, sync)
+                .start(startName)
+                .end(endName)
+                .inputMapping(inputMapping);
+        if (children.length == 0) {
+            throw new IllegalArgumentException("Empty children");
+        }
+        builder.linkFromStart(children[0]);
+        int i = 0;
+        for (; i < children.length - 1; i++) {
+            builder.link(children[i], children[i + 1]);
+        }
+        builder.linkToEnd(children[i]);
+        builder.outputMapping(outputMapping);
+
+        return builder.build();
     }
 
     protected <P, R> FunctionCallActivity buildSingleActivityFunctionCall(String activityName, Activity childActivity, Class<? extends P> inputType, Class<? extends R> outputType, String inputMapping, String outputMapping) throws ConfigurationException {

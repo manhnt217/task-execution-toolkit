@@ -1,4 +1,4 @@
-package io.github.manhnt217.task.sample.plugin;
+package io.github.manhnt217.task.sample.example_plugin;
 
 import io.github.manhnt217.task.core.context.ObjectRef;
 import io.github.manhnt217.task.core.task.plugin.Plugin;
