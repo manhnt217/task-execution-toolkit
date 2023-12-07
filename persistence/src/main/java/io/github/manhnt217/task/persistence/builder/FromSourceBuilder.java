@@ -7,7 +7,7 @@ public class FromSourceBuilder extends AbstractActivityBuilder<FromSourceActivit
     private final String sourceName;
 
     public FromSourceBuilder(String name, String sourceName) {
-        this.name = name;
+        super(name);
         this.sourceName = sourceName;
     }
 

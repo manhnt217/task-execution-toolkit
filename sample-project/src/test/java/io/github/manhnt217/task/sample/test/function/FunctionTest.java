@@ -2,7 +2,7 @@ package io.github.manhnt217.task.sample.test.function;
 
 import io.github.manhnt217.task.core.activity.func.FunctionCallActivity;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
-import io.github.manhnt217.task.core.context.ObjectRef;
+import io.github.manhnt217.task.core.type.ObjectRef;
 import io.github.manhnt217.task.core.exception.TaskException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.task.TaskContext;
@@ -29,6 +29,6 @@ public class FunctionTest extends AbstractEngineTest {
 
         Function<Void, Void> func = buildLinearRoutine("func", callp1, callp2);
 
-        Assertions.assertDoesNotThrow(() -> func.exec(null, new TaskContext(null, repo, logger)));
+        Assertions.assertDoesNotThrow(() -> func.exec(null, new TaskContext(null, repo, futureProcessor, logger)));
     }
 }

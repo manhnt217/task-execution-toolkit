@@ -6,6 +6,7 @@ import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.activity.func.FunctionCallActivity;
 import io.github.manhnt217.task.core.activity.group.GroupActivity;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
+import io.github.manhnt217.task.core.container.FutureProcessor;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.task.function.Function;
@@ -40,6 +41,9 @@ public abstract class AbstractEngineTest {
 
     @Mock
     protected TaskLogger logger;
+
+    @Mock
+    protected FutureProcessor futureProcessor;
 
     @BeforeEach
     protected void setup () {

@@ -2,6 +2,8 @@ package io.github.manhnt217.task.core.context;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.core.activity.TaskLogger;
+import io.github.manhnt217.task.core.container.FutureProcessor;
+import io.github.manhnt217.task.core.type.ObjectRef;
 import io.github.manhnt217.task.core.exception.inner.ContextException;
 import io.github.manhnt217.task.core.repo.EngineRepository;
 
@@ -61,5 +63,10 @@ public abstract class AbstractSubActivityContext extends AbstractActivityContext
     @Override
     public String getCurrentTaskName() {
         return parent.getCurrentTaskName();
+    }
+
+    @Override
+    public FutureProcessor getFutureProcessor() {
+        return parent.getFutureProcessor();
     }
 }

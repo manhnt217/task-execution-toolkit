@@ -1,6 +1,6 @@
 package io.github.manhnt217.task.sample.example_plugin;
 
-import io.github.manhnt217.task.core.context.ObjectRef;
+import io.github.manhnt217.task.core.type.ObjectRef;
 import io.github.manhnt217.task.core.task.plugin.Plugin;
 import io.github.manhnt217.task.core.task.plugin.PluginLogger;
 

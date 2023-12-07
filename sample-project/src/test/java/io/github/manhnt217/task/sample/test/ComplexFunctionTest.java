@@ -60,7 +60,7 @@ public class ComplexFunctionTest extends AbstractEngineTest {
                 "url", "https://example.com",
                 "method", "GET"
         );
-        TaskContext taskContext = new TaskContext("uuid", TestUtil.OM.valueToTree(props), repo, logger);
+        TaskContext taskContext = new TaskContext("uuid", TestUtil.OM.valueToTree(props), repo, futureProcessor, logger);
         Map<String, ?> out = func.exec(null, taskContext);
         assertThat(out.size(), is(2));
         assertThat(out, hasKey("p1"));
@@ -85,7 +85,7 @@ public class ComplexFunctionTest extends AbstractEngineTest {
 
         Map<String, ?> out = func.exec(
                 ImmutableMap.of("url", "https://example.com"),
-                new TaskContext("uuid", null, repo, logger));
+                new TaskContext("uuid", null, repo, futureProcessor, logger));
         assertThat(out.size(), is(2));
         assertThat(out, hasKey(Function.START_ACTIVITY_NAME));
         assertThat(out, hasKey("act1"));
@@ -114,7 +114,7 @@ public class ComplexFunctionTest extends AbstractEngineTest {
         int n = 7;
         given(repo.getFunction(taskName)).willReturn(r1);
 
-        TaskContext context = new TaskContext(r1.getName(), null, repo, logger);
+        TaskContext context = new TaskContext(r1.getName(), null, repo, futureProcessor, logger);
         Integer result = r1.exec(new RecursiveInput(n, 1), context);
         assertThat(result, is(factorial(n)));
     }

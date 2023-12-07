@@ -4,14 +4,12 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import com.schibsted.spt.data.jslt.Expression;
 import com.schibsted.spt.data.jslt.Parser;
+import io.github.manhnt217.task.core.type.ObjectRef;
 import io.github.manhnt217.task.core.exception.inner.ContextException;
 import io.github.manhnt217.task.core.exception.inner.TransformException;
 import lombok.Getter;
@@ -134,18 +132,21 @@ public class JSONUtil {
         @Override
         public ObjectRef deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
             TreeNode treeNode = p.getCodec().readTree(p);
-            TreeNode refIdNode = treeNode.get(REF_ID);
-            if (!(refIdNode instanceof TextNode)) {
-                throw new JsonParseException(p, "refId not found for ObjectRef");
+            if (!isTextNode(treeNode)) {
+                throw new JsonParseException(p, "ObjectId (hashText) expected for ObjectRef");
             }
             if (activityContext == null) {
                 throw new JsonParseException(p, "No activity context to resolve object ref. Call setActivityContext on the deserializer first");
             }
             try {
-                return activityContext.resolveRef(((TextNode) refIdNode).textValue());
+                return activityContext.resolveRef(((TextNode) treeNode).textValue());
             } catch (ContextException e) {
                 throw new JsonParseException(p, e.getMessage());
             }
+        }
+
+        private boolean isTextNode(TreeNode treeNode) {
+            return treeNode.isValueNode() && ((ValueNode) treeNode).isTextual();
         }
     }
 
@@ -164,7 +165,7 @@ public class JSONUtil {
                 throw new IOException("No activity context to create object ref. Call setActivityContext on the serializer first");
             }
             String refId = activityContext.createRef(value.get());
-            gen.writeObject(Collections.singletonMap(REF_ID, refId));
+            gen.writeString(refId);
         }
     }
 }

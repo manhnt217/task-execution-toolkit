@@ -203,7 +203,7 @@ public class TaskContainer implements EventDispatcher, EventSourceController {
     }
 
     private <E, R> R handle(Handler handler, E event, Class<? extends R> returnType) throws TaskException {
-        TaskContext context = new TaskContext(UUID.randomUUID().toString(), globalProps, repo, new DefaultTaskLogger());
+        TaskContext context = new TaskContext(globalProps, repo, new DefaultTaskLogger());
         JsonNode input = JSONUtil.valueToTree(event, context);
         JsonNode output = handler.handle(input, context);
         try {

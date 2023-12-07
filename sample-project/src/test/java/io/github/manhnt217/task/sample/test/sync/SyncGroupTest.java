@@ -23,7 +23,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
-import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -89,7 +88,7 @@ public class SyncGroupTest extends AbstractEngineTest {
                 });
 
         Runnable task = () -> {
-            TaskContext syncContext = new TaskContext(UUID.randomUUID().toString(), null, mock(EngineRepository.class), mock(TaskLogger.class));
+            TaskContext syncContext = new TaskContext( null, mock(EngineRepository.class), null, mock(TaskLogger.class));
             try {
                 testSyncGroup.exec(null, syncContext);
             } catch (TaskException e) {

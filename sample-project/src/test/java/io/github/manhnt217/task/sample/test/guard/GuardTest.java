@@ -54,7 +54,7 @@ public class GuardTest extends AbstractEngineTest {
                 .linkToEnd(p2)
                 .build();
 
-        TaskContext context = new TaskContext(func.getName(), null, repo, logger);
+        TaskContext context = new TaskContext(func.getName(), null, repo, futureProcessor, logger);
         func.exec(null, context);
 
         verify(logger).info(any(), any(), any(), eq("p2"));
@@ -90,7 +90,7 @@ public class GuardTest extends AbstractEngineTest {
                 .linkToEnd(task3, null)
                 .build();
 
-        func.exec(null, new TaskContext(func.getName(), null, repo, logger));
+        func.exec(null, new TaskContext(func.getName(), null, repo, futureProcessor, logger));
         verify(logger).info(any(), any(), any(), eq("task3"));
     }
 
@@ -139,6 +139,6 @@ public class GuardTest extends AbstractEngineTest {
                 .linkToEnd(p2, null)
                 .build();
 
-        assertThrows(TaskException.class, () -> func.exec(null, new TaskContext(func.getName(), null, repo, logger)));
+        assertThrows(TaskException.class, () -> func.exec(null, new TaskContext(func.getName(), null, repo, futureProcessor, logger)));
     }
 }

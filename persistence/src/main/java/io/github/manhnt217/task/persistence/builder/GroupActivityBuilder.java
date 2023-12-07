@@ -12,8 +12,7 @@ public class GroupActivityBuilder extends ContainerActivityBuilder<GroupActivity
     private final boolean synced;
 
     GroupActivityBuilder(String name, boolean synced) {
-        super();
-        this.name(name);
+        super(name);
         this.synced = synced;
     }
 
