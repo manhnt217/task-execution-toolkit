@@ -11,7 +11,8 @@ import io.github.manhnt217.task.core.activity.SimpleOutboundMessage;
 import io.github.manhnt217.task.core.context.ActivityContext;
 import io.github.manhnt217.task.core.context.JSONUtil;
 import io.github.manhnt217.task.core.exception.ActivityException;
-import io.github.manhnt217.task.core.exception.TimeOutException;
+import io.github.manhnt217.task.core.exception.CancelException;
+import io.github.manhnt217.task.core.exception.TimeoutException;
 import io.github.manhnt217.task.core.type.Future;
 import io.github.manhnt217.task.core.type.ObjectRef;
 import lombok.Getter;
@@ -20,6 +21,8 @@ import lombok.Setter;
 /**
  * @author manhnguyen
  */
+// TODO: Implement WaitMultipleActivity so that we can wait on multiple future at once.
+//  A properties that it might have: atLeast (number) tell the activity to stop waiting when at least a number of future has been completed
 public class WaitActivity extends AbstractActivity {
     public WaitActivity(String name) {
         super(name);
@@ -31,11 +34,13 @@ public class WaitActivity extends AbstractActivity {
         Future<JsonNode> future;
         Long timeout;
         boolean silentTimeout;
+        boolean silentCancel;
         try {
             input = JSONUtil.treeToValue(in.getContent(), Input.class, context);
             future = input.getFuture().get();
             timeout = input.getTimeout();
             silentTimeout = input.isSilentTimeout();
+            silentCancel = input.isSilentCancel();
         } catch (JsonProcessingException e) {
             throw new ActivityException(this, "Cannot deserialize input", e);
         } catch (ClassCastException e) {
@@ -43,33 +48,39 @@ public class WaitActivity extends AbstractActivity {
         }
 
         try {
-            JsonNode result = wait(future, timeout, silentTimeout);
+            JsonNode result = wait(future, timeout);
             return SimpleOutboundMessage.of(result);
+        } catch (TimeoutException e) {
+            if (silentTimeout) {
+                return SimpleOutboundMessage.of(NullNode.getInstance());
+            } else {
+                throw new ActivityException(this, "Wait timed out", e);
+            }
+        } catch (CancelException e) {
+            if (silentCancel) {
+                return SimpleOutboundMessage.of(NullNode.getInstance());
+            } else {
+                throw new ActivityException(this, "Future has been cancelled", e);
+            }
         } catch (Exception e) {
             throw new ActivityException(this, "Exception while waiting for the result", e);
         }
     }
 
-    private JsonNode wait(Future<JsonNode> future, Long timeout, boolean silentTimeout) throws TimeOutException {
-        try {
-            if (timeout == null) {
-                return future.get();
-            } else {
-                return future.get(timeout);
-            }
-        } catch (TimeOutException e) {
-            if (silentTimeout) {
-                return NullNode.getInstance();
-            } else {
-                throw e;
-            }
+    private JsonNode wait(Future<JsonNode> future, Long timeout) throws TimeoutException, CancelException {
+        if (timeout == null) {
+            return future.get();
+        } else {
+            return future.get(timeout);
         }
     }
 
-    @Getter @Setter
+    @Getter
+    @Setter
     public static class Input {
         private ObjectRef<Future<JsonNode>> future;
         private Long timeout;
         private boolean silentTimeout;
+        private boolean silentCancel;
     }
 }
