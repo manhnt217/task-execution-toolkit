@@ -25,6 +25,10 @@ public class ActivityBuilder {
         return new PluginBuilder(name, pluginName);
     }
 
+    public static WaitBuilder wait(String name) {
+        return new WaitBuilder(name);
+    }
+
     public static FromSourceBuilder fromSource(String name, String sourceName) {
         return new FromSourceBuilder(name, sourceName);
     }

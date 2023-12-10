@@ -9,7 +9,7 @@ import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
-import io.github.manhnt217.task.sample.plugin.Log;
+import io.github.manhnt217.task.plugin.Log;
 import io.github.manhnt217.task.sample.test.AbstractEngineTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,10 +18,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 
-import static io.github.manhnt217.task.core.task.function.Function.START_ACTIVITY_NAME;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static io.github.manhnt217.task.core.task.function.Function.*;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 /**

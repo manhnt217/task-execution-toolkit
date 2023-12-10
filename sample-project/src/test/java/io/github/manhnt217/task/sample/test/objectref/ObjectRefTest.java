@@ -4,16 +4,16 @@ import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
-import io.github.manhnt217.task.sample.example_plugin.ObjectRefConsumer;
-import io.github.manhnt217.task.sample.example_plugin.ObjectRefProducer;
 import io.github.manhnt217.task.sample.test.AbstractEngineTest;
+import io.github.manhnt217.task.sample.test.example_plugin.ObjectRefConsumer;
+import io.github.manhnt217.task.sample.test.example_plugin.ObjectRefProducer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author manh nguyen

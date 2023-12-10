@@ -2,7 +2,6 @@ package io.github.manhnt217.task.core.activity.plugin;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import io.github.manhnt217.task.core.ClassUtil;
 import io.github.manhnt217.task.core.activity.AbstractActivity;
 import io.github.manhnt217.task.core.activity.InboundMessage;
 import io.github.manhnt217.task.core.activity.OutboundMessage;
@@ -40,7 +39,7 @@ public class PluginActivity extends AbstractActivity {
     }
 
     private SimpleOutboundMessage executePlugin(ActivityContext context, JsonNode input) throws PluginException {
-        Plugin plugin = createPluginInstance(context);
+        Plugin plugin = getPlugin(pluginName, context);
         Object in;
         try {
             in = JSONUtil.treeToValue(input, plugin.getInputType(), context);
@@ -57,13 +56,11 @@ public class PluginActivity extends AbstractActivity {
         return SimpleOutboundMessage.of(result);
     }
 
-    private Plugin createPluginInstance(ActivityContext context) throws PluginException {
-        Class<? extends Plugin> clazz = context.getRepo().resolvePluginClass(pluginName);
-        if (clazz == null) {
+    private static Plugin getPlugin(String pluginName, ActivityContext context) throws PluginException {
+        Plugin plugin = context.getRepo().resolvePlugin(pluginName);
+        if (plugin == null) {
             throw new PluginException(pluginName, "Plugin not found");
         }
-
-        Plugin plugin = ClassUtil.newPluginInstance(clazz);
         plugin.setName(pluginName);
         return plugin;
     }

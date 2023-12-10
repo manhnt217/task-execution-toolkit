@@ -1,7 +1,7 @@
 package io.github.manhnt217.task.persistence.builder;
 
-import io.github.manhnt217.task.core.activity.group.Group;
 import io.github.manhnt217.task.core.activity.future.FutureActivity;
+import io.github.manhnt217.task.core.activity.group.Group;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 
 /**
