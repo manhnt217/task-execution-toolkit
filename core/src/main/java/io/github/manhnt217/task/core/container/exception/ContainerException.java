@@ -1,9 +1,9 @@
-package io.github.manhnt217.task.core.exception;
+package io.github.manhnt217.task.core.container.exception;
 
 /**
  * @author manhnguyen
  */
-public class ContainerException extends EngineException {
+public class ContainerException extends Exception {
 
     public ContainerException(String message) {
         super(message);

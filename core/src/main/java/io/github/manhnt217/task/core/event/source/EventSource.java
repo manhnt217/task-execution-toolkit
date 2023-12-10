@@ -2,8 +2,9 @@ package io.github.manhnt217.task.core.event.source;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.core.context.JSONUtil;
-import io.github.manhnt217.task.core.exception.ContainerException;
-import io.github.manhnt217.task.core.exception.TaskException;
+import io.github.manhnt217.task.core.exception.ActivityException;
+import io.github.manhnt217.task.core.container.exception.ContainerException;
+import io.github.manhnt217.task.core.task.TaskException;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -55,7 +56,7 @@ public abstract class EventSource<P, R> {
      * @param e the event object
      * @return <code>null</code> only when async = true
      */
-    protected final R dispatch(Object e) throws ContainerException, TaskException {
+    protected final R dispatch(Object e) throws ContainerException, TaskException, ActivityException {
         return dispatcher.dispatch(this, e, getDispatcherReturnType());
     }
 

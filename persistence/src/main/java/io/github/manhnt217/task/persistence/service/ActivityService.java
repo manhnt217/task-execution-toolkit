@@ -8,9 +8,15 @@ import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.persistence.builder.ForEachActivityBuilder;
 import io.github.manhnt217.task.persistence.builder.GroupActivityBuilder;
 import io.github.manhnt217.task.persistence.builder.LinkedActivityGroupBuilder;
-import io.github.manhnt217.task.persistence.model.ActivityDto;
 import io.github.manhnt217.task.persistence.model.ActivityGroupDto;
 import io.github.manhnt217.task.persistence.model.ActivityLinkDto;
+import io.github.manhnt217.task.persistence.model.activity.ActivityDto;
+import io.github.manhnt217.task.persistence.model.activity.ForeachActivityDto;
+import io.github.manhnt217.task.persistence.model.activity.FunctionActivityDto;
+import io.github.manhnt217.task.persistence.model.activity.GroupActivityDto;
+import io.github.manhnt217.task.persistence.model.activity.PluginActivityDto;
+import io.github.manhnt217.task.persistence.model.activity.SourceActivityDto;
+import io.github.manhnt217.task.persistence.model.activity.TrialActivityDto;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,44 +37,49 @@ public class ActivityService {
     }
 
     public Activity buildActivity(ActivityDto activityDto) throws ConfigurationException {
-        switch (activityDto.getType()) {
-            case FOREACH:
-                return forEachActivity(activityDto);
-            case GROUP:
-                return buildGroupActivity(activityDto);
-            case PLUGIN:
-                return buildPluginActivity(activityDto);
-            case FUNC:
-                return buildFuncCallActivity(activityDto);
-            case SOURCE:
-                return buildFromSourceActivity(activityDto);
-            default:
-                throw new IllegalArgumentException("Invalid activity type: " + activityDto.getType());
+        if (activityDto instanceof ForeachActivityDto) {
+            return forEachActivity((ForeachActivityDto) activityDto);
+        } else if (activityDto instanceof GroupActivityDto) {
+            return buildGroupActivity((GroupActivityDto) activityDto);
+        } else if (activityDto instanceof PluginActivityDto) {
+            return buildPluginActivity((PluginActivityDto) activityDto);
+        } else if (activityDto instanceof FunctionActivityDto) {
+            return buildFuncCallActivity((FunctionActivityDto) activityDto);
+        } else if (activityDto instanceof SourceActivityDto) {
+            return buildSourceActivity((SourceActivityDto) activityDto);
+        } else if (activityDto instanceof TrialActivityDto) {
+            return buildTrialActivity((TrialActivityDto) activityDto);
+        } else {
+            throw new IllegalArgumentException("Invalid activity type: " + activityDto.getClass().getName());
         }
     }
 
-    private Activity buildFromSourceActivity(ActivityDto activityDto) {
+    private Activity buildTrialActivity(TrialActivityDto activityDto) {
+        return null;
+    }
+
+    private Activity buildSourceActivity(SourceActivityDto activityDto) {
         return ActivityBuilder
                 .fromSource(activityDto.getName(), activityDto.getSourceName())
                 .build();
     }
 
-    private Activity buildPluginActivity(ActivityDto activityDto) {
+    private Activity buildPluginActivity(PluginActivityDto activityDto) {
         return ActivityBuilder
                 .plugin(activityDto.getName(), activityDto.getPluginName())
                 .inputMapping(activityDto.getInputMapping())
                 .build();
     }
 
-    private Activity buildFuncCallActivity(ActivityDto activityDto) {
+    private Activity buildFuncCallActivity(FunctionActivityDto activityDto) {
         return ActivityBuilder
                 .funcCall(activityDto.getName())
-                .funcName(activityDto.getTask())
+                .funcName(activityDto.getFunctionName())
                 .inputMapping(activityDto.getInputMapping())
                 .build();
     }
 
-    private ForEachActivity forEachActivity(ActivityDto activityDto) throws ConfigurationException {
+    private ForEachActivity forEachActivity(ForeachActivityDto activityDto) throws ConfigurationException {
         ForEachActivityBuilder forEachActivityBuilder = ActivityBuilder
                 .forEach(activityDto.getName())
                 .inputMapping(activityDto.getInputMapping())
@@ -79,7 +90,7 @@ public class ActivityService {
         return forEachActivityBuilder.build();
     }
 
-    private GroupActivity buildGroupActivity(ActivityDto activityDto) throws ConfigurationException {
+    private GroupActivity buildGroupActivity(GroupActivityDto activityDto) throws ConfigurationException {
         GroupActivityBuilder groupActivityBuilder = ActivityBuilder
                 .group(activityDto.getName(), activityDto.isSyncGroup())
                 .inputMapping(activityDto.getInputMapping())

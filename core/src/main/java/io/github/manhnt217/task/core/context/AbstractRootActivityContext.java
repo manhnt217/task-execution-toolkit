@@ -22,10 +22,12 @@ public abstract class AbstractRootActivityContext extends AbstractActivityContex
     private final EngineRepository repo;
     private final TaskLogger logger;
     private final FutureProcessor futureProcessor;
+    private final Callstack callStack;
 
-    public AbstractRootActivityContext(String executionId, ObjectNode props, EngineRepository repo, TaskLogger logger, FutureProcessor futureProcessor) {
+    public AbstractRootActivityContext(String executionId, Callstack callStack, ObjectNode props, EngineRepository repo, TaskLogger logger, FutureProcessor futureProcessor) {
         super(props);
         this.executionId = executionId;
+        this.callStack = callStack;
         this.repo = repo;
         this.logger = logger;
         // Maybe lazy
@@ -86,8 +88,8 @@ public abstract class AbstractRootActivityContext extends AbstractActivityContex
     }
 
     @Override
-    public String getCurrentTaskName() {
-        return null;
+    public Callstack getCallStack() {
+        return this.callStack;
     }
 
     @Override

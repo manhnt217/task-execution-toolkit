@@ -7,14 +7,15 @@ import io.github.manhnt217.task.core.activity.DefaultTaskLogger;
 import io.github.manhnt217.task.core.context.JSONUtil;
 import io.github.manhnt217.task.core.event.source.EventDispatcher;
 import io.github.manhnt217.task.core.event.source.EventSource;
-import io.github.manhnt217.task.core.exception.ContainerException;
-import io.github.manhnt217.task.core.exception.EventSourceNotReadyException;
-import io.github.manhnt217.task.core.exception.MultipleHandlersException;
-import io.github.manhnt217.task.core.exception.NoHandlerException;
-import io.github.manhnt217.task.core.exception.TaskException;
+import io.github.manhnt217.task.core.exception.ActivityException;
+import io.github.manhnt217.task.core.container.exception.ContainerException;
+import io.github.manhnt217.task.core.container.exception.EventSourceNotReadyException;
+import io.github.manhnt217.task.core.container.exception.MultipleHandlersException;
+import io.github.manhnt217.task.core.container.exception.NoHandlerException;
+import io.github.manhnt217.task.core.task.RootContext;
+import io.github.manhnt217.task.core.task.TaskException;
 import io.github.manhnt217.task.core.exception.inner.TransformException;
 import io.github.manhnt217.task.core.repo.EngineRepository;
-import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.event.EventSourceConfig;
 import io.github.manhnt217.task.core.task.handler.Handler;
 import lombok.Getter;
@@ -169,7 +170,7 @@ public class TaskContainer implements EventDispatcher, EventSourceController {
     }
 
     @Override
-    public <E, R> R dispatch(EventSource<?, R> source, E event, Class<? extends R> returnType) throws ContainerException, TaskException {
+    public <E, R> R dispatch(EventSource<?, R> source, E event, Class<? extends R> returnType) throws ContainerException, TaskException, ActivityException {
         String sourceName = source.getName();
         String message = checkEventSourceBeforeDispatching(sourceName);
         if (StringUtils.isNotBlank(message)) {
@@ -204,14 +205,14 @@ public class TaskContainer implements EventDispatcher, EventSourceController {
         });
     }
 
-    private <E, R> R handle(Handler handler, E event, Class<? extends R> returnType) throws TaskException {
-        TaskContext context = new TaskContext(globalProps, repo, new DefaultTaskLogger());
+    private <E, R> R handle(Handler handler, E event, Class<? extends R> returnType) throws TaskException, ActivityException {
+        RootContext context = new RootContext(globalProps, repo, new DefaultTaskLogger());
         JsonNode input = JSONUtil.valueToTree(event, context);
         JsonNode output = handler.handle(input, context);
         try {
             return JSONUtil.treeToValue(output, returnType, context);
         } catch (JsonProcessingException e) {
-            throw new TaskException(handler.getName(), "Exception while deserialize output");
+            throw new TaskException(handler.getName(), "Exception while deserialize output for handler '" + handler.getName() + "'");
         }
     }
 

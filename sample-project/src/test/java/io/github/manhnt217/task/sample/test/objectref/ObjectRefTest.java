@@ -2,7 +2,7 @@ package io.github.manhnt217.task.sample.test.objectref;
 
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
-import io.github.manhnt217.task.core.task.TaskContext;
+import io.github.manhnt217.task.core.task.RootContext;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.sample.test.AbstractEngineTest;
 import io.github.manhnt217.task.sample.test.example_plugin.ObjectRefConsumer;
@@ -32,7 +32,7 @@ class ObjectRefTest extends AbstractEngineTest {
         Function<Void, Void> func = buildLinearRoutine("c1", act1, act2);
 
         assertDoesNotThrow(() -> {
-            func.exec(null, new TaskContext(null, repo, futureProcessor, logger));
+            func.exec(null, new RootContext(null, repo, logger));
         });
     }
 }

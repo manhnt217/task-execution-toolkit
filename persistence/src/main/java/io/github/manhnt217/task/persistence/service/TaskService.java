@@ -6,9 +6,10 @@ import io.github.manhnt217.task.core.task.handler.Handler;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.persistence.builder.FunctionBuilder;
 import io.github.manhnt217.task.persistence.builder.HandlerBuilder;
-import io.github.manhnt217.task.persistence.model.ActivityDto;
+import io.github.manhnt217.task.persistence.model.activity.ActivityDto;
 import io.github.manhnt217.task.persistence.model.FunctionDto;
 import io.github.manhnt217.task.persistence.model.HandlerDto;
+import io.github.manhnt217.task.persistence.model.activity.SourceActivityDto;
 
 /**
  * @author manh nguyen
@@ -59,10 +60,7 @@ public class TaskService {
     }
 
     public Handler buildHandler(HandlerDto handlerDto) throws ConfigurationException {
-        ActivityDto fromSourceActivity = handlerDto.getFromSourceActivity();
-        if (fromSourceActivity.getType() != ActivityDto.Type.SOURCE) {
-            throw new IllegalArgumentException("fromSourceActivity is not type of SOURCE");
-        }
+        SourceActivityDto fromSourceActivity = handlerDto.getFromSourceActivity();
         HandlerBuilder handlerBuilder = ActivityBuilder
                 .handler(handlerDto.getName())
                 .from(ActivityBuilder

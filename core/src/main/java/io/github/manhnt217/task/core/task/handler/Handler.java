@@ -4,9 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.core.activity.group.Group;
 import io.github.manhnt217.task.core.activity.simple.StartActivity;
 import io.github.manhnt217.task.core.activity.source.FromSourceActivity;
+import io.github.manhnt217.task.core.context.ActivityContext;
+import io.github.manhnt217.task.core.context.Callstack;
 import io.github.manhnt217.task.core.exception.ActivityException;
-import io.github.manhnt217.task.core.exception.GroupException;
-import io.github.manhnt217.task.core.exception.TaskException;
+import io.github.manhnt217.task.core.task.TaskException;
 import io.github.manhnt217.task.core.task.Task;
 import io.github.manhnt217.task.core.task.TaskContext;
 import lombok.Getter;
@@ -14,7 +15,7 @@ import lombok.Getter;
 /**
  * @author manh nguyen
  */
-// TODO: We may add type for Handler, just like we did with io.github.manhnt217.task.core.task.function.Function
+// TODO: We may add type for Handler, just like we did with #io.github.manhnt217.task.core.task.function.Function
 public class Handler implements Task {
 
     @Getter
@@ -35,14 +36,17 @@ public class Handler implements Task {
         }
     }
 
-    public JsonNode handle(JsonNode input, TaskContext context) throws TaskException {
-        context.setTaskName(name);
-        try {
-            return activityGroup.execute(input, context);
-        } catch (GroupException e) {
-            throw new TaskException(getName(), input, e);
-        } catch (ActivityException e) {
-            throw new TaskException(getName(), input, e);
-        }
+    public JsonNode handle(JsonNode input, ActivityContext context) throws TaskException, ActivityException {
+
+        TaskContext handlerContext = new TaskContext(
+                context.getExecutionId(),
+                Callstack.push(this.name, context.getCallStack()),
+                context.getProps(),
+                context.getRepo(),
+                context.getFutureProcessor(),
+                context.getLogger());
+
+        handlerContext.setTaskName(name);
+        return activityGroup.execute(input, handlerContext);
     }
 }

@@ -12,6 +12,7 @@ import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.type.ObjectRef;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,27 +25,40 @@ public interface ActivityContext {
     String FROM_PROPS = "." + KEY_PROPS;
 
     ObjectNode getProps();
+
     void saveOutput(Activity activity, OutboundMessage output) throws ContextException;
 
     Iterator<Map.Entry<String, JsonNode>> iterator();
 
+    //<editor-fold desc="Transformer">
     JsonNode transformInput(Activity activity) throws TransformException;
 
     boolean evaluate(String jslt) throws TransformException;
+    //</editor-fold>
 
     String getExecutionId();
 
+    //<editor-fold desc="Repository">
     EngineRepository getRepo();
+    //</editor-fold>
 
+    //<editor-fold desc="RefManager">
     String createRef(Object object);
 
     ObjectRef resolveRef(String refId) throws ContextException;
 
     void clearRef(String refId);
+    //</editor-fold>
 
     TaskLogger getLogger();
 
-    String getCurrentTaskName();
+    //<editor-fold desc="StackManager">
+    Callstack getCallStack();
+
+    default String getCurrentTaskName() {
+        return getCallStack().getTop();
+    }
+    //</editor-fold>
 
     FutureProcessor getFutureProcessor();
 }
