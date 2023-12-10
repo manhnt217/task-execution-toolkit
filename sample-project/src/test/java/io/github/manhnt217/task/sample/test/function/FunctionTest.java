@@ -2,20 +2,20 @@ package io.github.manhnt217.task.sample.test.function;
 
 import io.github.manhnt217.task.core.activity.func.FunctionCallActivity;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
-import io.github.manhnt217.task.core.context.ObjectRef;
 import io.github.manhnt217.task.core.exception.TaskException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
-import io.github.manhnt217.task.sample.example_plugin.ObjectRefConsumer;
-import io.github.manhnt217.task.sample.example_plugin.ObjectRefProducer;
+import io.github.manhnt217.task.core.type.ObjectRef;
 import io.github.manhnt217.task.sample.test.AbstractEngineTest;
+import io.github.manhnt217.task.sample.test.example_plugin.ObjectRefConsumer;
+import io.github.manhnt217.task.sample.test.example_plugin.ObjectRefProducer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static io.github.manhnt217.task.core.task.function.Function.START_INPUT_MAPPING;
+import static io.github.manhnt217.task.core.task.function.Function.*;
 
 @ExtendWith(MockitoExtension.class)
 public class FunctionTest extends AbstractEngineTest {
@@ -29,6 +29,6 @@ public class FunctionTest extends AbstractEngineTest {
 
         Function<Void, Void> func = buildLinearRoutine("func", callp1, callp2);
 
-        Assertions.assertDoesNotThrow(() -> func.exec(null, new TaskContext(null, repo, logger)));
+        Assertions.assertDoesNotThrow(() -> func.exec(null, new TaskContext(null, repo, futureProcessor, logger)));
     }
 }

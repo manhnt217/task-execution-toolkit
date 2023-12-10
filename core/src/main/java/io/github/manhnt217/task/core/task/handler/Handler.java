@@ -14,6 +14,7 @@ import lombok.Getter;
 /**
  * @author manh nguyen
  */
+// TODO: We may add type for Handler, just like we did with io.github.manhnt217.task.core.task.function.Function
 public class Handler implements Task {
 
     @Getter

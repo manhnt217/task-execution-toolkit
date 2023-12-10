@@ -5,8 +5,12 @@ package io.github.manhnt217.task.persistence.builder;
  */
 public class ActivityBuilder {
 
-    public static ForEachActivityBuilder forEach() {
-        return new ForEachActivityBuilder();
+    public static ForEachActivityBuilder forEach(String name) {
+        return new ForEachActivityBuilder(name);
+    }
+
+    public static FutureActivityBuilder future(String name) {
+        return new FutureActivityBuilder(name);
     }
 
     public static GroupActivityBuilder group(String name, boolean synced) {
@@ -19,6 +23,10 @@ public class ActivityBuilder {
 
     public static PluginBuilder plugin(String name, String pluginName) {
         return new PluginBuilder(name, pluginName);
+    }
+
+    public static WaitBuilder wait(String name) {
+        return new WaitBuilder(name);
     }
 
     public static FromSourceBuilder fromSource(String name, String sourceName) {

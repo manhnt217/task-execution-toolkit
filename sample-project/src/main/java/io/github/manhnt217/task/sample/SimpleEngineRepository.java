@@ -20,13 +20,13 @@ public class SimpleEngineRepository implements EngineRepository {
 
     protected final Map<String, Function<?, ?>> functions;
     protected final Map<String, Handler> handlers;
-    protected final Map<String, Class<? extends Plugin>> pluginClasses;
+    protected final Map<String, Plugin> plugins;
     protected final Map<String, EventSourceConfig> eventSources;
 
     public SimpleEngineRepository() {
         functions = new HashMap<>();
         handlers = new HashMap<>();
-        pluginClasses = new HashMap<>();
+        plugins = new HashMap<>();
         eventSources = new HashMap<>();
     }
 
@@ -39,7 +39,7 @@ public class SimpleEngineRepository implements EngineRepository {
     }
 
     public void registerPlugin(PluginDto pluginDto) {
-        pluginClasses.put(pluginDto.getName(), ClassUtil.findPlugin(pluginDto.getClassName(), Plugin.class));
+        plugins.put(pluginDto.getName(), ClassUtil.newPluginInstance(ClassUtil.findPlugin(pluginDto.getClassName(), Plugin.class)));
     }
 
     public void registerEventSource(EventSourceConfig eventSourceConfig) {
@@ -53,8 +53,8 @@ public class SimpleEngineRepository implements EngineRepository {
     }
 
     @Override
-    public Class<? extends Plugin> resolvePluginClass(String pluginName) {
-        return pluginClasses.get(pluginName);
+    public Plugin<?, ?> resolvePlugin(String pluginName) {
+        return plugins.get(pluginName);
     }
 
     @Override

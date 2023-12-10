@@ -7,5 +7,5 @@ import io.github.manhnt217.task.core.task.plugin.Plugin;
  */
 public interface PluginResolver {
 
-    Class<? extends Plugin> resolvePluginClass(String pluginName);
+    Plugin<?, ?> resolvePlugin(String pluginName);
 }

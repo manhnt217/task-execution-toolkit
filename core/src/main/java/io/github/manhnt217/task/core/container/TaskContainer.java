@@ -7,7 +7,11 @@ import io.github.manhnt217.task.core.activity.DefaultTaskLogger;
 import io.github.manhnt217.task.core.context.JSONUtil;
 import io.github.manhnt217.task.core.event.source.EventDispatcher;
 import io.github.manhnt217.task.core.event.source.EventSource;
-import io.github.manhnt217.task.core.exception.*;
+import io.github.manhnt217.task.core.exception.ContainerException;
+import io.github.manhnt217.task.core.exception.EventSourceNotReadyException;
+import io.github.manhnt217.task.core.exception.MultipleHandlersException;
+import io.github.manhnt217.task.core.exception.NoHandlerException;
+import io.github.manhnt217.task.core.exception.TaskException;
 import io.github.manhnt217.task.core.exception.inner.TransformException;
 import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.task.TaskContext;
@@ -19,14 +23,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static io.github.manhnt217.task.core.container.TaskContainer.EventSourceStatus.STARTED;
-import static io.github.manhnt217.task.core.container.TaskContainer.EventSourceStatus.STOPPED;
+import static io.github.manhnt217.task.core.container.TaskContainer.EventSourceStatus.*;
 
 @Slf4j
 public class TaskContainer implements EventDispatcher, EventSourceController {
@@ -203,7 +205,7 @@ public class TaskContainer implements EventDispatcher, EventSourceController {
     }
 
     private <E, R> R handle(Handler handler, E event, Class<? extends R> returnType) throws TaskException {
-        TaskContext context = new TaskContext(UUID.randomUUID().toString(), globalProps, repo, new DefaultTaskLogger());
+        TaskContext context = new TaskContext(globalProps, repo, new DefaultTaskLogger());
         JsonNode input = JSONUtil.valueToTree(event, context);
         JsonNode output = handler.handle(input, context);
         try {

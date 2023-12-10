@@ -23,19 +23,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
-import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
+import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -89,7 +87,7 @@ public class SyncGroupTest extends AbstractEngineTest {
                 });
 
         Runnable task = () -> {
-            TaskContext syncContext = new TaskContext(UUID.randomUUID().toString(), null, mock(EngineRepository.class), mock(TaskLogger.class));
+            TaskContext syncContext = new TaskContext( null, mock(EngineRepository.class), null, mock(TaskLogger.class));
             try {
                 testSyncGroup.exec(null, syncContext);
             } catch (TaskException e) {

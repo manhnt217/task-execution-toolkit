@@ -1,22 +1,23 @@
 package io.github.manhnt217.task.persistence.builder;
 
+import io.github.manhnt217.task.core.activity.future.FutureActivity;
 import io.github.manhnt217.task.core.activity.group.Group;
-import io.github.manhnt217.task.core.activity.loop.ForEachActivity;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 
 /**
  * @author manh nguyen
  */
-public class ForEachActivityBuilder extends ContainerActivityBuilder<ForEachActivity, ForEachActivityBuilder> {
-    ForEachActivityBuilder(String name) {
+public class FutureActivityBuilder extends ContainerActivityBuilder<FutureActivity, FutureActivityBuilder> {
+
+    FutureActivityBuilder(String name) {
         super(name);
     }
 
     @Override
-    public ForEachActivity build() throws ConfigurationException {
+    public FutureActivity build() throws ConfigurationException {
         validate();
         Group group = this.groupBuilder.buildGroup();
-        ForEachActivity forEachActivity = new ForEachActivity(this.name, group);
+        FutureActivity forEachActivity = new FutureActivity(this.name, group);
         forEachActivity.setInputMapping(inputMapping);
         return forEachActivity;
     }

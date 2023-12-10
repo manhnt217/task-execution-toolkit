@@ -13,9 +13,9 @@ import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
+import io.github.manhnt217.task.plugin.Log;
 import io.github.manhnt217.task.sample.TestUtil;
-import io.github.manhnt217.task.sample.example_plugin.Curl;
-import io.github.manhnt217.task.sample.plugin.Log;
+import io.github.manhnt217.task.sample.test.example_plugin.Curl;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,12 +28,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
 import java.util.Map;
 
-import static io.github.manhnt217.task.core.context.ActivityContext.ALL_SUBTASKS_JSLT;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static io.github.manhnt217.task.core.context.ActivityContext.*;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.BDDMockito.atLeastOnce;
+import static org.mockito.BDDMockito.eq;
+import static org.mockito.BDDMockito.verify;
+import static org.mockito.BDDMockito.*;
+import static org.mockito.Mockito.any;
 
 /**
  * @author manh nguyen
@@ -60,7 +62,7 @@ public class ComplexFunctionTest extends AbstractEngineTest {
                 "url", "https://example.com",
                 "method", "GET"
         );
-        TaskContext taskContext = new TaskContext("uuid", TestUtil.OM.valueToTree(props), repo, logger);
+        TaskContext taskContext = new TaskContext("uuid", TestUtil.OM.valueToTree(props), repo, futureProcessor, logger);
         Map<String, ?> out = func.exec(null, taskContext);
         assertThat(out.size(), is(2));
         assertThat(out, hasKey("p1"));
@@ -85,7 +87,7 @@ public class ComplexFunctionTest extends AbstractEngineTest {
 
         Map<String, ?> out = func.exec(
                 ImmutableMap.of("url", "https://example.com"),
-                new TaskContext("uuid", null, repo, logger));
+                new TaskContext("uuid", null, repo, futureProcessor, logger));
         assertThat(out.size(), is(2));
         assertThat(out, hasKey(Function.START_ACTIVITY_NAME));
         assertThat(out, hasKey("act1"));
@@ -114,7 +116,7 @@ public class ComplexFunctionTest extends AbstractEngineTest {
         int n = 7;
         given(repo.getFunction(taskName)).willReturn(r1);
 
-        TaskContext context = new TaskContext(r1.getName(), null, repo, logger);
+        TaskContext context = new TaskContext(r1.getName(), null, repo, futureProcessor, logger);
         Integer result = r1.exec(new RecursiveInput(n, 1), context);
         assertThat(result, is(factorial(n)));
     }
