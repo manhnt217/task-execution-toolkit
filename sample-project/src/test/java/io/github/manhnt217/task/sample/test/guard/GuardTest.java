@@ -3,10 +3,11 @@ package io.github.manhnt217.task.sample.test.guard;
 import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.activity.group.Group;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
-import io.github.manhnt217.task.core.exception.TaskException;
+import io.github.manhnt217.task.core.exception.ActivityException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.repo.EngineRepository;
-import io.github.manhnt217.task.core.task.TaskContext;
+import io.github.manhnt217.task.core.task.RootContext;
+import io.github.manhnt217.task.core.task.TaskException;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.plugin.Log;
@@ -35,7 +36,7 @@ public class GuardTest extends AbstractEngineTest {
      * <img src="{@docRoot}/doc-files/images/testSimpleGuard.png">
      */
     @Test
-    public void testSimpleGuard() throws ConfigurationException, TaskException, IOException {
+    public void testSimpleGuard() throws ConfigurationException, TaskException, IOException, ActivityException {
 
         PluginActivity p1 = ActivityBuilder
                 .plugin("p1", Log.class.getSimpleName())
@@ -55,7 +56,7 @@ public class GuardTest extends AbstractEngineTest {
                 .linkToEnd(p2)
                 .build();
 
-        TaskContext context = new TaskContext(func.getName(), null, repo, futureProcessor, logger);
+        RootContext context = new RootContext(null, repo, logger);
         func.exec(null, context);
 
         verify(logger).info(any(), any(), any(), eq("p2"));
@@ -65,7 +66,7 @@ public class GuardTest extends AbstractEngineTest {
      * <img src="{@docRoot}/doc-files/images/testOtherwise.png">
      */
     @Test
-    public void testOtherwise() throws ConfigurationException, TaskException, IOException {
+    public void testOtherwise() throws ConfigurationException, TaskException, IOException, ActivityException {
         PluginActivity task1 = ActivityBuilder
                 .plugin("task1", Log.class.getSimpleName())
                 .inputMapping("{\"severity\": \"INFO\",\"message\": \"task1\"}")
@@ -91,7 +92,7 @@ public class GuardTest extends AbstractEngineTest {
                 .linkToEnd(task3, null)
                 .build();
 
-        func.exec(null, new TaskContext(func.getName(), null, repo, futureProcessor, logger));
+        func.exec(null, new RootContext(null, repo, logger));
         verify(logger).info(any(), any(), any(), eq("task3"));
     }
 
@@ -140,6 +141,6 @@ public class GuardTest extends AbstractEngineTest {
                 .linkToEnd(p2, null)
                 .build();
 
-        assertThrows(TaskException.class, () -> func.exec(null, new TaskContext(func.getName(), null, repo, futureProcessor, logger)));
+        assertThrows(ActivityException.class, () -> func.exec(null, new RootContext(null, repo, logger)));
     }
 }

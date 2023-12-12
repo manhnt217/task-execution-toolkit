@@ -1,5 +1,6 @@
 package io.github.manhnt217.task.persistence.model;
 
+import io.github.manhnt217.task.persistence.model.activity.SourceActivityDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +12,6 @@ import lombok.Setter;
 public class HandlerDto {
     private String name;
     private String outputMapping;
-    private ActivityDto fromSourceActivity;
+    private SourceActivityDto fromSourceActivity;
     private ActivityGroupDto group;
 }

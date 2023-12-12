@@ -2,9 +2,10 @@ package io.github.manhnt217.task.sample.test.loop;
 
 import io.github.manhnt217.task.core.activity.loop.ForEachActivity;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
-import io.github.manhnt217.task.core.exception.TaskException;
+import io.github.manhnt217.task.core.exception.ActivityException;
+import io.github.manhnt217.task.core.task.RootContext;
+import io.github.manhnt217.task.core.task.TaskException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
-import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.plugin.Log;
@@ -39,7 +40,7 @@ public class LoopTest extends AbstractEngineTest {
      * @throws ConfigurationException
      */
     @Test
-    public void testForEachSimple() throws ConfigurationException, IOException, TaskException {
+    public void testForEachSimple() throws ConfigurationException, IOException, TaskException, ActivityException {
         final String FOR_EACH_1 = "forEach1";
 
         PluginActivity p1 = ActivityBuilder
@@ -60,7 +61,7 @@ public class LoopTest extends AbstractEngineTest {
                 .build();
 
         Function<Object, Map> func = buildLinearFunc("c1", Object.class, Map.class, ALL_SUBTASKS_JSLT, loop1);
-        TaskContext context = new TaskContext(func.getName(), null, repo, futureProcessor, logger);
+        RootContext context = new RootContext(null, repo, logger);
         Map<String, Object> out = func.exec(null, context);
 
         for (int i = 0; i < 3; i++) {

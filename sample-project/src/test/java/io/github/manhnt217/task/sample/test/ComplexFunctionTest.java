@@ -7,10 +7,11 @@ import io.github.manhnt217.task.core.activity.func.FunctionCallActivity;
 import io.github.manhnt217.task.core.activity.group.Group;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
 import io.github.manhnt217.task.core.context.ActivityContext;
-import io.github.manhnt217.task.core.exception.TaskException;
+import io.github.manhnt217.task.core.exception.ActivityException;
+import io.github.manhnt217.task.core.task.RootContext;
+import io.github.manhnt217.task.core.task.TaskException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.repo.EngineRepository;
-import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.plugin.Log;
@@ -45,7 +46,7 @@ import static org.mockito.Mockito.any;
 public class ComplexFunctionTest extends AbstractEngineTest {
 
     @Test
-    public void testComplex1() throws IOException, ConfigurationException, TaskException {
+    public void testComplex1() throws IOException, ConfigurationException, TaskException, ActivityException {
         PluginActivity p1 = ActivityBuilder
                 .plugin("p1", Curl.class.getSimpleName())
                 .inputMapping(ActivityContext.FROM_PROPS)
@@ -62,7 +63,7 @@ public class ComplexFunctionTest extends AbstractEngineTest {
                 "url", "https://example.com",
                 "method", "GET"
         );
-        TaskContext taskContext = new TaskContext("uuid", TestUtil.OM.valueToTree(props), repo, futureProcessor, logger);
+        RootContext taskContext = new RootContext(TestUtil.OM.valueToTree(props), repo, logger);
         Map<String, ?> out = func.exec(null, taskContext);
         assertThat(out.size(), is(2));
         assertThat(out, hasKey("p1"));
@@ -76,7 +77,7 @@ public class ComplexFunctionTest extends AbstractEngineTest {
     }
 
     @Test
-    public void testComplex2_PassingInputFromParent() throws IOException, ConfigurationException, TaskException {
+    public void testComplex2_PassingInputFromParent() throws IOException, ConfigurationException, TaskException, ActivityException {
 
         PluginActivity act1 = ActivityBuilder
                 .plugin("act1", Curl.class.getSimpleName())
@@ -87,7 +88,7 @@ public class ComplexFunctionTest extends AbstractEngineTest {
 
         Map<String, ?> out = func.exec(
                 ImmutableMap.of("url", "https://example.com"),
-                new TaskContext("uuid", null, repo, futureProcessor, logger));
+                new RootContext(null, repo, logger));
         assertThat(out.size(), is(2));
         assertThat(out, hasKey(Function.START_ACTIVITY_NAME));
         assertThat(out, hasKey("act1"));
@@ -96,7 +97,7 @@ public class ComplexFunctionTest extends AbstractEngineTest {
     }
 
     @Test
-    public void testRecursive(@Mock EngineRepository repo, @Mock TaskLogger logger) throws ConfigurationException, TaskException, JsonProcessingException {
+    public void testRecursive(@Mock EngineRepository repo, @Mock TaskLogger logger) throws ConfigurationException, TaskException, JsonProcessingException, ActivityException {
 
         // Calculate the factorial
         String taskName = "r1";
@@ -116,7 +117,7 @@ public class ComplexFunctionTest extends AbstractEngineTest {
         int n = 7;
         given(repo.getFunction(taskName)).willReturn(r1);
 
-        TaskContext context = new TaskContext(r1.getName(), null, repo, futureProcessor, logger);
+        RootContext context = new RootContext(null, repo, logger);
         Integer result = r1.exec(new RecursiveInput(n, 1), context);
         assertThat(result, is(factorial(n)));
     }

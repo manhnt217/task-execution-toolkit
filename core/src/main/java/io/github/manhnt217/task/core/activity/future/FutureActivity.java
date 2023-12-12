@@ -6,10 +6,10 @@ import io.github.manhnt217.task.core.activity.InboundMessage;
 import io.github.manhnt217.task.core.activity.OutboundMessage;
 import io.github.manhnt217.task.core.activity.SimpleOutboundMessage;
 import io.github.manhnt217.task.core.activity.group.Group;
+import io.github.manhnt217.task.core.container.FutureProcessor;
 import io.github.manhnt217.task.core.context.ActivityContext;
 import io.github.manhnt217.task.core.context.JSONUtil;
 import io.github.manhnt217.task.core.exception.ActivityException;
-import io.github.manhnt217.task.core.exception.GroupException;
 import io.github.manhnt217.task.core.type.Future;
 import io.github.manhnt217.task.core.type.ObjectRef;
 
@@ -20,17 +20,10 @@ public class FutureActivity extends AbstractGroupActivity {
 
     @Override
     public OutboundMessage process(InboundMessage in, ActivityContext context) throws ActivityException {
-        ObjectRef<Future<JsonNode>> futureRef = new ObjectRef<>(context.getFutureProcessor().submit(() -> executeGroup(in, context)));
-        JsonNode output = JSONUtil.valueToTree(futureRef, context);
+        FutureProcessor futureProcessor = context.getFutureProcessor();
+        Future<JsonNode> future = futureProcessor.submit(() -> activityGroup.execute(in.getContent(), new FutureContext(context)));
+        JsonNode output = JSONUtil.valueToTree(new ObjectRef<>(future), context);
         return SimpleOutboundMessage.of(output);
     }
 
-    private JsonNode executeGroup(InboundMessage in, ActivityContext context) throws ActivityException {
-        try {
-            JsonNode result = activityGroup.execute(in.getContent(), new FutureContext(context));
-            return result;
-        } catch (GroupException e) {
-            throw new ActivityException(this, "Group execution failed", e);
-        }
-    }
 }
