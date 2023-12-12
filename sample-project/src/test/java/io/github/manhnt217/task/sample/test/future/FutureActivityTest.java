@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static io.github.manhnt217.task.core.context.ActivityContext.from;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -51,7 +52,7 @@ public class FutureActivityTest extends AbstractEngineTest {
                 .linkFromStart(fooPlugin)
                 .linkToEnd(fooPlugin)
                 .end("f1end")
-                .outputMapping("." + fooPluginName)
+                .outputMapping(from(fooPlugin))
                 .build();
 
         RootContext context = new RootContext(null, repo, logger);
@@ -68,30 +69,27 @@ public class FutureActivityTest extends AbstractEngineTest {
 
     @Test
     public void testFutureAndWait() throws Exception {
-        String fooPluginName = "foo";
         int rs = 42;
 
-        PluginActivity fooPlugin = mockPlugin(fooPluginName, invocation -> {
+        PluginActivity fooPlugin = mockPlugin("foo", invocation -> {
             Thread.sleep(1000);
             return rs;
         });
-        String f1Name = "f1";
         FutureActivity f1 = ActivityBuilder
-                .future(f1Name)
+                .future("f1")
                 .start("f1start")
                 .linkFromStart(fooPlugin)
                 .linkToEnd(fooPlugin)
                 .end("f1end")
-                .outputMapping("." + fooPluginName)
+                .outputMapping(from(fooPlugin))
                 .build();
 
-        String w1Name = "w1";
         WaitActivity w1 = ActivityBuilder
-                .wait(w1Name)
-                .inputMapping("{\"future\": .f1}")
+                .wait("w1")
+                .inputMapping("{\"future\": " + from(f1) + "}")
                 .build();
 
-        Function<Void, Integer> func = buildLinearFunc("func", Void.class, Integer.class, "." + w1Name, f1, w1);
+        Function<Void, Integer> func = buildLinearFunc("func", Void.class, Integer.class, from(w1), f1, w1);
         Integer result = func.exec(null, new RootContext(null, repo, logger));
 
         assertThat(result, is(rs));
@@ -99,30 +97,27 @@ public class FutureActivityTest extends AbstractEngineTest {
 
     @Test
     public void testWaitOnWrongRef() throws Exception {
-        String mockPluginName = "mockRef";
-        PluginActivity mockPlugin = mockPlugin(mockPluginName, invocation -> new ObjectRef<>(1000));
+        PluginActivity mockPlugin = mockPlugin("mockRef", invocation -> new ObjectRef<>(1000));
 
-        String fooPluginName = "foo";
-        PluginActivity fooPlugin = mockPlugin(fooPluginName, invocation -> 42);
+        PluginActivity fooPlugin = mockPlugin("foo", invocation -> 42);
 
-        String f1Name = "f1";
         FutureActivity f1 = ActivityBuilder
-                .future(f1Name)
+                .future("f1")
                 .start("f1start")
                 .linkFromStart(fooPlugin)
                 .linkToEnd(fooPlugin)
                 .end("f1end")
-                .outputMapping("." + fooPluginName)
+                .outputMapping(from(fooPlugin))
                 .build();
 
         String w1Name = "w1";
         WaitActivity w1 = ActivityBuilder
                 .wait(w1Name)
-                .inputMapping("{\"future\": ." + mockPluginName + "}")
+                .inputMapping("{\"future\": " + from(mockPlugin) + "}")
                 .build();
 
         Function<Void, Integer> func = buildLinearFunc("func",
-                Void.class, Integer.class, "." + w1Name,
+                Void.class, Integer.class, from(w1),
                 mockPlugin, f1, w1);
         try {
             func.exec(null, new RootContext(null, repo, logger));
