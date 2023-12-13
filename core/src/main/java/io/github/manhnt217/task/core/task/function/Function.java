@@ -44,7 +44,7 @@ public class Function<P, R> implements Task {
     //   - Check for the appearance of ObjectRef in the return (of a Callable) by travese through the output (JsonNode), check for any key
     //     named refId, and the node type is TextNode, and the text value equals to one of the available object refs. Then we copy those refs to the parent context.
     //   - All the Object Refs in the parent context will be available in the child context.
-    public R exec(Object in, ActivityContext context) throws TaskException, ActivityException {
+    public R exec(P in, ActivityContext context) throws TaskException, ActivityException {
         TaskContext funcCallCtx = new TaskContext(
                 context.getExecutionId(),
                 Callstack.push(this.name, context.getCallStack()),

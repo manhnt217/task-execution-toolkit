@@ -1,10 +1,10 @@
 {
   "plugins": [
-    {"name": "AddTwoNumber", "className": "io.github.manhnt217.task.sample.plugin.AddTwoNumber"},
-    {"name": "Curl", "className": "io.github.manhnt217.task.sample.plugin.Curl"},
-    {"name": "Log", "className": "io.github.manhnt217.task.sample.plugin.Log"},
-    {"name": "ObjectRefConsumer", "className": "io.github.manhnt217.task.sample.plugin.ObjectRefConsumer"},
-    {"name": "ObjectRefProducer", "className": "io.github.manhnt217.task.sample.plugin.ObjectRefProducer"}
+    {"name": "AddTwoNumber", "className": "io.github.manhnt217.task.sample.example_plugin.AddTwoNumber"},
+    {"name": "Curl", "className": "io.github.manhnt217.task.sample.example_plugin.Curl"},
+    {"name": "Log", "className": "io.github.manhnt217.task.sample.example_plugin.Log"},
+    {"name": "ObjectRefConsumer", "className": "io.github.manhnt217.task.sample.example_plugin.ObjectRefConsumer"},
+    {"name": "ObjectRefProducer", "className": "io.github.manhnt217.task.sample.example_plugin.ObjectRefProducer"}
   ],
   "functions": [
     {

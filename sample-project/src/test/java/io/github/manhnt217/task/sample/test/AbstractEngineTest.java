@@ -15,10 +15,10 @@ import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.persistence.builder.FunctionBuilder;
 import io.github.manhnt217.task.persistence.builder.GroupActivityBuilder;
 import io.github.manhnt217.task.plugin.Log;
-import io.github.manhnt217.task.sample.test.example_plugin.AddTwoNumber;
-import io.github.manhnt217.task.sample.test.example_plugin.Curl;
-import io.github.manhnt217.task.sample.test.example_plugin.ObjectRefConsumer;
-import io.github.manhnt217.task.sample.test.example_plugin.ObjectRefProducer;
+import io.github.manhnt217.task.sample.example_plugin.AddTwoNumber;
+import io.github.manhnt217.task.sample.example_plugin.Curl;
+import io.github.manhnt217.task.sample.example_plugin.ObjectRefConsumer;
+import io.github.manhnt217.task.sample.example_plugin.ObjectRefProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Answers;
 import org.mockito.Mock;
@@ -29,7 +29,6 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.*;
 
 public abstract class AbstractEngineTest {
 

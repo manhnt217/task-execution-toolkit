@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class SimpleEngineRepository implements EngineRepository {
 
     protected final Map<String, Function<?, ?>> functions;
-    protected final Map<String, Handler> handlers;
+    protected final Map<String, Handler<?, ?>> handlers;
     protected final Map<String, Plugin> plugins;
     protected final Map<String, EventSourceConfig> eventSources;
 
@@ -72,10 +72,12 @@ public class SimpleEngineRepository implements EngineRepository {
         return handlers.get(name);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public List<Handler> findHandlerBySourceName(String sourceName) {
+    public <E, R> List<Handler<E, R>> findHandler(String sourceName, Class<? extends E> eventType, Class<? extends R> returnType) {
         return handlers.values().stream()
                 .filter(h -> sourceName.equals(h.getSourceName()))
+                .map(h -> (Handler<E, R>) h)
                 .collect(Collectors.toList());
     }
 }

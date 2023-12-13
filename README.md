@@ -15,17 +15,16 @@
   * Task
     * Define the instruction that library's client wants to execute.
     * There are 2 types of tasks: **Function** and **Handler**.
-    * Function, when get executed, contains multiple activities linked together. Its execution begins from a **StartActivity** and terminates when it reaches an **EndActivity**
-    * Handler is similar to Function, but instead of being called from another Function, it will be called from the engine (**TaskContainer**) to handle events dispatching from **EventSource**.
+    * Function, contains multiple activities linked together. Function can be called from another function (using _FunctionCallActivity_) or from outside world (library's client). Its execution begins from a **StartActivity** and terminates when it reaches an **EndActivity**
+    * Handler is similar to _Function_, but instead of being called from another Function, it will be called internally (from the engine) to handle events dispatching from **EventSource**.
   * Activity
-    * Define each step in a **CompositeTask**.
+    * Define each step in a **Function**.
     * Activity can be a loop, a try/catch block or simply call another function.
-    * There are multiple types of activities: _ForEach_, _Group_, _Trial_, _FunctionCall_, _PluginCall_, etc.
+    * There are multiple types of activities: _ForEach_, _Group_, _Trial_, _FunctionCall_, _PluginCall_, _Rethrow_, etc.
   * Plugin
-    * Plugin, when executed, will load invoke a Java code that will perform the job.
+    * Plugin, when executed, will invoke a Java code that will perform the job.
     * Plugin can return a value, but it must be serializable to JSON (Using Jackson library).
-    * From the caller's standpoint, _Plugin_ and _Function_ are quite similar.
-  * TaskRepository
+  * EngineRepository
     * [TBD]
   * TaskContainer
     * [TBD]
