@@ -1,21 +1,18 @@
 package io.github.manhnt217.task.core.container;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.manhnt217.task.core.activity.DefaultTaskLogger;
-import io.github.manhnt217.task.core.context.JSONUtil;
-import io.github.manhnt217.task.core.event.source.EventDispatcher;
-import io.github.manhnt217.task.core.event.source.EventSource;
-import io.github.manhnt217.task.core.exception.ActivityException;
 import io.github.manhnt217.task.core.container.exception.ContainerException;
 import io.github.manhnt217.task.core.container.exception.EventSourceNotReadyException;
 import io.github.manhnt217.task.core.container.exception.MultipleHandlersException;
 import io.github.manhnt217.task.core.container.exception.NoHandlerException;
-import io.github.manhnt217.task.core.task.RootContext;
-import io.github.manhnt217.task.core.task.TaskException;
+import io.github.manhnt217.task.core.context.JSONUtil;
+import io.github.manhnt217.task.core.exception.ActivityException;
 import io.github.manhnt217.task.core.exception.inner.TransformException;
 import io.github.manhnt217.task.core.repo.EngineRepository;
+import io.github.manhnt217.task.core.task.RootContext;
+import io.github.manhnt217.task.core.task.TaskException;
 import io.github.manhnt217.task.core.task.event.EventSourceConfig;
 import io.github.manhnt217.task.core.task.handler.Handler;
 import lombok.Getter;
@@ -86,7 +83,7 @@ public class TaskContainer implements EventDispatcher, EventSourceController {
             if (eventSources.containsKey(sourceName)) {
                 throw new IllegalStateException("EventSource '" + sourceName + "' has already been deployed. Undeploy first");
             }
-            EventSource<?, ?> eventSource = createEventSourceInstance(eventSourceConfig);
+            EventSource<?, ?, ?> eventSource = createEventSourceInstance(eventSourceConfig);
             eventSources.put(sourceName, new EventSourceRef(eventSource, STOPPED));
 
             if (eventSourceConfig.isAutoStart()) {
@@ -95,7 +92,7 @@ public class TaskContainer implements EventDispatcher, EventSourceController {
         });
     }
 
-    private EventSource<?, ?> createEventSourceInstance(EventSourceConfig eventSourceConfig) throws ContainerException {
+    private EventSource<?, ?, ?> createEventSourceInstance(EventSourceConfig eventSourceConfig) throws ContainerException {
         String propsJSLT = eventSourceConfig.getPropsJSLT();
         JsonNode pluginProps;
         try {
@@ -105,7 +102,7 @@ public class TaskContainer implements EventDispatcher, EventSourceController {
                     "EventSource = '" + eventSourceConfig.getName() + "'. InputMapping = '" + propsJSLT + "'");
         }
         try {
-            return (EventSource<?, ?>) eventSourceConfig.createEventSource(this, pluginProps);
+            return (EventSource<?, ?, ?>) eventSourceConfig.createEventSource(this, pluginProps);
         } catch (Exception e) {
             throw new ContainerException("Exception while createing new event source instance. " +
                     "EventSource = '" + eventSourceConfig.getName() + "'", e);
@@ -170,27 +167,32 @@ public class TaskContainer implements EventDispatcher, EventSourceController {
     }
 
     @Override
-    public <E, R> R dispatch(EventSource<?, R> source, E event, Class<? extends R> returnType) throws ContainerException, TaskException, ActivityException {
+    public <E, R> R dispatch(EventSource<?, E, R> source, E event, Class<? extends E> eventType, Class<? extends R> returnType) throws ContainerException, TaskException, ActivityException {
         String sourceName = source.getName();
         String message = checkEventSourceBeforeDispatching(sourceName);
         if (StringUtils.isNotBlank(message)) {
             log.warn(message);
             throw new EventSourceNotReadyException(message);
         }
-        List<Handler> handlers = repo.findHandlerBySourceName(sourceName);
+        List<Handler<E, R>> handlers = repo.findHandler(sourceName, eventType, returnType);
         if (handlers == null || handlers.isEmpty()) {
             throw new NoHandlerException(source);
         }
         if (source.isAsync()) {
-            for (Handler handler : handlers) {
-                executorService.submit(() -> this.handle(handler, event, returnType));
+            for (Handler<E, R> handler : handlers) {
+                executorService.submit(() -> this.handle(handler, event));
             }
             return null;
         } else if (handlers.size() == 1) {
-            return this.handle(handlers.get(0), event, returnType);
+            return this.handle(handlers.get(0), event);
         } else {
             throw new MultipleHandlersException(source);
         }
+    }
+
+    @Override
+    public <E, R> void shutdownEventSource(EventSource<?, E, R> source, boolean forceStop) throws ContainerException {
+        this.stopEventSource(source.getName(), forceStop);
     }
 
     private String checkEventSourceBeforeDispatching(String sourceName) {
@@ -205,15 +207,9 @@ public class TaskContainer implements EventDispatcher, EventSourceController {
         });
     }
 
-    private <E, R> R handle(Handler handler, E event, Class<? extends R> returnType) throws TaskException, ActivityException {
+    private <E, R> R handle(Handler<E, R> handler, E event) throws TaskException, ActivityException {
         RootContext context = new RootContext(globalProps, repo, new DefaultTaskLogger());
-        JsonNode input = JSONUtil.valueToTree(event, context);
-        JsonNode output = handler.handle(input, context);
-        try {
-            return JSONUtil.treeToValue(output, returnType, context);
-        } catch (JsonProcessingException e) {
-            throw new TaskException(handler.getName(), "Exception while deserialize output for handler '" + handler.getName() + "'");
-        }
+        return handler.handle(event, context);
     }
 
     enum EventSourceStatus {
@@ -223,12 +219,12 @@ public class TaskContainer implements EventDispatcher, EventSourceController {
 
     private static class EventSourceRef {
         @Getter
-        private final EventSource<?, ?> eventSource;
+        private final EventSource<?, ?, ?> eventSource;
         @Getter
         @Setter
         private EventSourceStatus status;
 
-        EventSourceRef(EventSource<?, ?> eventSource, EventSourceStatus status) {
+        EventSourceRef(EventSource<?, ?, ?> eventSource, EventSourceStatus status) {
             this.eventSource = eventSource;
             this.status = status;
         }

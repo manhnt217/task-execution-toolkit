@@ -8,6 +8,6 @@ import java.util.List;
  * @author manhnguyen
  */
 public interface HandlerResolver {
-    public Handler getHandler(String name);
-    public List<Handler> findHandlerBySourceName(String sourceName);
+    Handler getHandler(String name);
+    <E, R> List<Handler<E, R>> findHandler(String sourceName, Class<? extends E> eventType, Class<? extends R> returnType);
 }

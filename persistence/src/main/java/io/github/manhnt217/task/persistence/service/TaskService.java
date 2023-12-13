@@ -60,14 +60,17 @@ public class TaskService {
     }
 
     public Handler buildHandler(HandlerDto handlerDto) throws ConfigurationException {
-        SourceActivityDto fromSourceActivity = handlerDto.getFromSourceActivity();
-        HandlerBuilder handlerBuilder = ActivityBuilder
-                .handler(handlerDto.getName())
-                .from(ActivityBuilder
-                        .fromSource(fromSourceActivity.getName(), fromSourceActivity.getSourceName()).build())
-                .outputMapping(handlerDto.getOutputMapping());
+        try {
+            SourceActivityDto fromSourceActivity = handlerDto.getFromSourceActivity();
+            HandlerBuilder handlerBuilder = ActivityBuilder
+                    .handler(handlerDto.getName(), Class.forName(handlerDto.getEventClass()), Class.forName(handlerDto.getOutputClass()))
+                    .from(ActivityBuilder.fromSource(fromSourceActivity.getName(), fromSourceActivity.getSourceName()).build())
+                    .outputMapping(handlerDto.getOutputMapping());
 
-        activityService.buildGroupBuilder(handlerBuilder, handlerDto.getGroup());
-        return handlerBuilder.build();
+            activityService.buildGroupBuilder(handlerBuilder, handlerDto.getGroup());
+            return handlerBuilder.build();
+        } catch (ClassNotFoundException e) {
+            throw new ConfigurationException("Input/Output class not found for handler '" + handlerDto.getName() + "'", e);
+        }
     }
 }

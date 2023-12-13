@@ -1,6 +1,6 @@
 {
   "plugins": [
-    {"name": "AddTwoNumber", "className": "io.github.manhnt217.task.sample.plugin.AddTwoNumber"},
+    {"name": "AddTwoNumber", "className": "io.github.manhnt217.task.sample.example_plugin.AddTwoNumber"},
   ],
   "functions": []
 }

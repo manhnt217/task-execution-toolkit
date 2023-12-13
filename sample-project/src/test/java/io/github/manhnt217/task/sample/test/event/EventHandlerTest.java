@@ -1,10 +1,9 @@
 package io.github.manhnt217.task.sample.test.event;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.manhnt217.task.core.activity.source.FromSourceActivity;
 import io.github.manhnt217.task.core.container.TaskContainer;
-import io.github.manhnt217.task.core.event.source.EventSource;
+import io.github.manhnt217.task.core.container.EventSource;
 import io.github.manhnt217.task.core.exception.ActivityException;
 import io.github.manhnt217.task.core.container.exception.ContainerException;
 import io.github.manhnt217.task.core.task.TaskException;
@@ -37,51 +36,55 @@ public class EventHandlerTest extends AbstractEngineTest {
     private ArgumentCaptor<EventSource> eventSourceCaptor;
 
     @Captor
-    private ArgumentCaptor<JsonNode> inputCaptor;
+    private ArgumentCaptor<String> inputCaptor;
 
     @Test
     public void testSimpleHandler() throws ContainerException, TaskException, ConfigurationException, InterruptedException, ActivityException {
-        String sourceName = "simpleEventSource";
 
         ObjectNode props = TestUtil.OM.createObjectNode();
         TaskContainer taskContainer = spy(new TaskContainer(props, repo));
         EventSourceConfig esc = spy(new EventSourceConfig());
-        esc.setName(sourceName);
+        esc.setName("simpleEventSource");
         esc.setAutoStart(true);
         esc.setAsync(false);
         esc.setPropsJSLT(null);
         esc.setPluginClassName(SimpleEventSource.class.getName());
         esc.loadClass();
 
-        FromSourceActivity fromSourceActivity = ActivityBuilder.fromSource("from" + sourceName, sourceName).build();
+        FromSourceActivity fromSourceActivity = ActivityBuilder.fromSource("from" + "simpleEventSource", "simpleEventSource").build();
         Handler handler = spy(ActivityBuilder
-                .handler("h1")
+                .handler("h1", String.class, String.class)
                 .from(fromSourceActivity)
                 .linkToEnd(fromSourceActivity)
                 .build());
 
         when(repo.findAllEventSources()).thenReturn(Collections.singletonList(esc));
-        when(repo.findHandlerBySourceName(sourceName)).thenReturn(Collections.singletonList(handler));
+        when(repo.findHandler(eq(esc.getName()), eq(String.class), eq(String.class))).thenReturn(Collections.singletonList(handler));
 
         taskContainer.start();
         Thread.sleep(1000);
 
-        verify(taskContainer).dispatch(eventSourceCaptor.capture(), eq("Hello world"), eq(String.class));
+        verify(taskContainer).dispatch(eventSourceCaptor.capture(), eq("Hello world"), eq(String.class), eq(String.class));
         verify(handler).handle(inputCaptor.capture(), any());
 
         EventSource createdES = eventSourceCaptor.getValue();
-        assertThat(createdES.getName(), is(sourceName));
+        assertThat(createdES.getName(), is("simpleEventSource"));
         assertThat(createdES.isAsync(), is(false));
         assertThat(createdES.getDispatcherReturnType(), is((Object)String.class));
-        assertThat(inputCaptor.getValue().textValue(), is("Hello world"));
+        assertThat(inputCaptor.getValue(), is("Hello world"));
 
         taskContainer.shutdown();
     }
 
-    public static class SimpleEventSource extends EventSource<Object, String> {
+    public static class SimpleEventSource extends EventSource<Object, String, String> {
         @Override
         protected Class<?> getPropsType() {
             return Object.class;
+        }
+
+        @Override
+        public Class<? extends String> getDispatcherEventType() {
+            return String.class;
         }
 
         @Override

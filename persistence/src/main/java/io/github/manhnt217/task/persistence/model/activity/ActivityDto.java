@@ -2,6 +2,8 @@ package io.github.manhnt217.task.persistence.model.activity;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.github.manhnt217.task.core.activity.group.GroupActivity;
+import io.github.manhnt217.task.core.activity.source.FromSourceActivity;
 import io.github.manhnt217.task.persistence.model.ActivityGroupDto;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +17,12 @@ import lombok.Setter;
         use = JsonTypeInfo.Id.NAME,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = TrialActivityDto.class, name = ActivityDto.Type.TRY)
+        @JsonSubTypes.Type(value = TrialActivityDto.class, name = ActivityDto.Type.TRY),
+        @JsonSubTypes.Type(value = GroupActivityDto.class, name = ActivityDto.Type.GROUP),
+        @JsonSubTypes.Type(value = ForeachActivityDto.class, name = ActivityDto.Type.FOREACH),
+        @JsonSubTypes.Type(value = FunctionActivityDto.class, name = ActivityDto.Type.FUNC),
+        @JsonSubTypes.Type(value = PluginActivityDto.class, name = ActivityDto.Type.PLUGIN),
+        @JsonSubTypes.Type(value = SourceActivityDto.class, name = ActivityDto.Type.SOURCE)
 })
 public class ActivityDto {
 
