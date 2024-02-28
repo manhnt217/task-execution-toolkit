@@ -37,10 +37,6 @@ public class ActivityBuilder {
         return new TrialActivityBuilder(name, ex, catchRootCause);
     }
 
-    public static FromSourceBuilder fromSource(String name, String sourceName) {
-        return new FromSourceBuilder(name, sourceName);
-    }
-
     public static  <P, R> FunctionBuilder<P, R> function(String name, Class<? extends P> inputClass, Class<? extends R> outputClass) {
         return new FunctionBuilder<>(name, inputClass, outputClass);
     }

@@ -1,15 +1,15 @@
 package io.github.manhnt217.task.persistence.service;
 
+import io.github.manhnt217.task.core.activity.source.FromSourceActivity;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.core.task.handler.Handler;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.persistence.builder.FunctionBuilder;
 import io.github.manhnt217.task.persistence.builder.HandlerBuilder;
-import io.github.manhnt217.task.persistence.model.activity.ActivityDto;
 import io.github.manhnt217.task.persistence.model.FunctionDto;
 import io.github.manhnt217.task.persistence.model.HandlerDto;
-import io.github.manhnt217.task.persistence.model.activity.SourceActivityDto;
+import io.github.manhnt217.task.persistence.model.activity.simple.SourceActivityDto;
 
 /**
  * @author manh nguyen
@@ -61,10 +61,12 @@ public class TaskService {
 
     public Handler buildHandler(HandlerDto handlerDto) throws ConfigurationException {
         try {
-            SourceActivityDto fromSourceActivity = handlerDto.getFromSourceActivity();
+            SourceActivityDto sourceActivityDto = handlerDto.getFromSourceActivity();
+            FromSourceActivity fromSourceActivity = new FromSourceActivity(sourceActivityDto.getName(), sourceActivityDto.getSourceName());
+            fromSourceActivity.setInputMapping(sourceActivityDto.getInputMapping());
             HandlerBuilder handlerBuilder = ActivityBuilder
                     .handler(handlerDto.getName(), Class.forName(handlerDto.getEventClass()), Class.forName(handlerDto.getOutputClass()))
-                    .from(ActivityBuilder.fromSource(fromSourceActivity.getName(), fromSourceActivity.getSourceName()).build())
+                    .from(fromSourceActivity)
                     .outputMapping(handlerDto.getOutputMapping());
 
             activityService.buildGroupBuilder(handlerBuilder, handlerDto.getGroup());

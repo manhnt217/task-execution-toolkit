@@ -12,12 +12,19 @@
       "propsJSLT": ".timerInterval",
       "autoStart": true,
       "async": false
+    },
+    {
+      "name": "HttpServer",
+      "pluginClassName": "io.github.manhnt217.task.plugin.source.http.HttpEventSource",
+      "propsJSLT": "{\"host\": \"0.0.0.0\", \"port\": 28080}",
+      "autoStart": true,
+      "async": false
     }
   ],
   "handlers": [
     {
       "name": "h1",
-      "outputMapping": "if (mod(.FromTimer, 10) > 8) \"EXIT\" else \"Hehe\"",
+      "outputMapping": "\"Hello, is there anybody in there?\"",
       "eventClass": "java.lang.String",
       "outputClass": "java.lang.String",
       "fromSourceActivity": {
@@ -41,6 +48,36 @@
           },
           {
             "from": "Add",
+            "to": "END"
+          }
+        ]
+      }
+    },
+    {
+      "name": "http-handler",
+      "outputMapping": "{\"body\":string({\"message\": \"Hello \" + .json.name}),\"contentType\": \"application/json\"}",
+      "eventClass": "io.github.manhnt217.task.plugin.source.http.HttpEventSourceRequest",
+      "outputClass": "io.github.manhnt217.task.plugin.source.http.HttpEventsourceResponse",
+      "fromSourceActivity": {
+        "name": "FromRequest",
+        "type": "SOURCE",
+        "sourceName": "HttpServer"
+      },
+      "group": {
+        "activities": [
+          {
+            "name": "json",
+            "type": "JSON_PARSER",
+            "inputMapping": ".FromRequest.body"
+          }
+        ],
+        "links": [
+          {
+            "from": "FromRequest",
+            "to": "json"
+          },
+          {
+            "from": "json",
             "to": "END"
           }
         ]

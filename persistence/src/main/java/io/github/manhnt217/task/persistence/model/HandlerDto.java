@@ -1,6 +1,6 @@
 package io.github.manhnt217.task.persistence.model;
 
-import io.github.manhnt217.task.persistence.model.activity.SourceActivityDto;
+import io.github.manhnt217.task.persistence.model.activity.simple.SourceActivityDto;
 import lombok.Getter;
 import lombok.Setter;
 

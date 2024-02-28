@@ -7,7 +7,9 @@ import io.github.manhnt217.task.core.container.exception.ContainerException;
 import io.github.manhnt217.task.core.task.TaskException;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public abstract class EventSource<P, E, R> {
 
     @Getter @Setter
@@ -39,6 +41,7 @@ public abstract class EventSource<P, E, R> {
         if (!running) {
             return;
         }
+        log.info("Shutting down event source '" + this.name + "'");
         shutdownInternal();
         running = false;
     }

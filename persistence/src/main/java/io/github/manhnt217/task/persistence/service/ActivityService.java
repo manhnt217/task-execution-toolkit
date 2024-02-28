@@ -1,11 +1,17 @@
 package io.github.manhnt217.task.persistence.service;
 
 import io.github.manhnt217.task.core.activity.Activity;
+import io.github.manhnt217.task.core.activity.future.FutureActivity;
+import io.github.manhnt217.task.core.activity.future.WaitActivity;
 import io.github.manhnt217.task.core.activity.group.GroupActivity;
 import io.github.manhnt217.task.core.activity.loop.ForEachActivity;
+import io.github.manhnt217.task.core.activity.simple.JsonParserActivity;
+import io.github.manhnt217.task.core.activity.simple.MapperActivity;
+import io.github.manhnt217.task.core.activity.source.FromSourceActivity;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.persistence.builder.ForEachActivityBuilder;
+import io.github.manhnt217.task.persistence.builder.FutureActivityBuilder;
 import io.github.manhnt217.task.persistence.builder.GroupActivityBuilder;
 import io.github.manhnt217.task.persistence.builder.LinkedActivityGroupBuilder;
 import io.github.manhnt217.task.persistence.model.ActivityGroupDto;
@@ -13,10 +19,14 @@ import io.github.manhnt217.task.persistence.model.ActivityLinkDto;
 import io.github.manhnt217.task.persistence.model.activity.ActivityDto;
 import io.github.manhnt217.task.persistence.model.activity.ForeachActivityDto;
 import io.github.manhnt217.task.persistence.model.activity.FunctionActivityDto;
+import io.github.manhnt217.task.persistence.model.activity.FutureActivityDto;
 import io.github.manhnt217.task.persistence.model.activity.GroupActivityDto;
-import io.github.manhnt217.task.persistence.model.activity.PluginActivityDto;
-import io.github.manhnt217.task.persistence.model.activity.SourceActivityDto;
+import io.github.manhnt217.task.persistence.model.activity.simple.JsonParserActivityDto;
+import io.github.manhnt217.task.persistence.model.activity.simple.MapperActivityDto;
+import io.github.manhnt217.task.persistence.model.activity.simple.PluginActivityDto;
+import io.github.manhnt217.task.persistence.model.activity.simple.SourceActivityDto;
 import io.github.manhnt217.task.persistence.model.activity.TrialActivityDto;
+import io.github.manhnt217.task.persistence.model.activity.simple.WaitActivityDto;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,27 +51,48 @@ public class ActivityService {
             return forEachActivity((ForeachActivityDto) activityDto);
         } else if (activityDto instanceof GroupActivityDto) {
             return buildGroupActivity((GroupActivityDto) activityDto);
+        } else if (activityDto instanceof FutureActivityDto) {
+            return buildFutureActivity((FutureActivityDto) activityDto);
         } else if (activityDto instanceof PluginActivityDto) {
             return buildPluginActivity((PluginActivityDto) activityDto);
         } else if (activityDto instanceof FunctionActivityDto) {
             return buildFuncCallActivity((FunctionActivityDto) activityDto);
-        } else if (activityDto instanceof SourceActivityDto) {
-            return buildSourceActivity((SourceActivityDto) activityDto);
         } else if (activityDto instanceof TrialActivityDto) {
             return buildTrialActivity((TrialActivityDto) activityDto);
+        } else if (activityDto instanceof SourceActivityDto) {
+            FromSourceActivity activity = new FromSourceActivity(activityDto.getName(), ((SourceActivityDto) activityDto).getSourceName());
+            activity.setInputMapping(activityDto.getInputMapping());
+            return activity;
+        } else if (activityDto instanceof WaitActivityDto) {
+            WaitActivity activity = new WaitActivity(activityDto.getName());
+            activity.setInputMapping(activityDto.getInputMapping());
+            return activity;
+        } else if (activityDto instanceof JsonParserActivityDto) {
+            JsonParserActivity activity = new JsonParserActivity(activityDto.getName());
+            activity.setInputMapping(activityDto.getInputMapping());
+            return activity;
+        } else if (activityDto instanceof MapperActivityDto) {
+            MapperActivity activity = new MapperActivity(activityDto.getName());
+            activity.setInputMapping(activityDto.getInputMapping());
+            return activity;
         } else {
             throw new IllegalArgumentException("Invalid activity type: " + activityDto.getClass().getName());
         }
     }
 
-    private Activity buildTrialActivity(TrialActivityDto activityDto) {
-        return null;
-    }
-
-    private Activity buildSourceActivity(SourceActivityDto activityDto) {
-        return ActivityBuilder
-                .fromSource(activityDto.getName(), activityDto.getSourceName())
-                .build();
+    private Activity buildTrialActivity(TrialActivityDto activityDto) throws ConfigurationException {
+        try {
+            Class<?> clazz = Class.forName(activityDto.getEx());
+            if (!Throwable.class.isAssignableFrom(clazz)) {
+                throw new IllegalArgumentException("Class '" + clazz + "' is not Throwable");
+            }
+            return ActivityBuilder
+                    .trial(activityDto.getName(), (Class<? extends Throwable>) clazz, activityDto.isCatchRootCause())
+                    .inputMapping(activityDto.getInputMapping())
+                    .build();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Activity buildPluginActivity(PluginActivityDto activityDto) {
@@ -99,6 +130,17 @@ public class ActivityService {
                 .end(activityDto.getEndName());
         buildGroupBuilder(groupActivityBuilder, activityDto.getGroup());
         return groupActivityBuilder.build();
+    }
+
+    private FutureActivity buildFutureActivity(FutureActivityDto activityDto) throws ConfigurationException {
+        FutureActivityBuilder builder = ActivityBuilder
+                .future(activityDto.getName())
+                .inputMapping(activityDto.getInputMapping())
+                .outputMapping(activityDto.getOutputMapping())
+                .start(activityDto.getStartName())
+                .end(activityDto.getEndName());
+        buildGroupBuilder(builder, activityDto.getGroup());
+        return builder.build();
     }
 
     void buildGroupBuilder(LinkedActivityGroupBuilder<?> linkedActivityGroupBuilder, ActivityGroupDto groupDto) throws ConfigurationException {

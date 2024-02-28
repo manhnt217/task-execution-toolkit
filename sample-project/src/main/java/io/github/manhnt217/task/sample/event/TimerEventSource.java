@@ -51,6 +51,8 @@ public class TimerEventSource extends EventSource<Long, Long, String> {
             String result = dispatch(Instant.now().getEpochSecond());
             if ("EXIT".equals(result)) {
                 throw new RuntimeException("Terminate the source");
+            } else {
+                System.out.println(result);
             }
         } catch (Exception e) {
             try {

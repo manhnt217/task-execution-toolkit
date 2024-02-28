@@ -51,7 +51,7 @@ public class EventHandlerTest extends AbstractEngineTest {
         esc.setPluginClassName(SimpleEventSource.class.getName());
         esc.loadClass();
 
-        FromSourceActivity fromSourceActivity = ActivityBuilder.fromSource("from" + "simpleEventSource", "simpleEventSource").build();
+        FromSourceActivity fromSourceActivity = new FromSourceActivity("from" + esc.getName(), esc.getName());
         Handler handler = spy(ActivityBuilder
                 .handler("h1", String.class, String.class)
                 .from(fromSourceActivity)
