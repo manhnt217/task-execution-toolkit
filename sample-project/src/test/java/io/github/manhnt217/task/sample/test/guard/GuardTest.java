@@ -1,8 +1,11 @@
 package io.github.manhnt217.task.sample.test.guard;
 
+import io.github.manhnt217.task.core.activity.Activity;
 import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.activity.group.Group;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
+import io.github.manhnt217.task.core.activity.simple.FromLastActivity;
+import io.github.manhnt217.task.core.activity.simple.MapperActivity;
 import io.github.manhnt217.task.core.exception.ActivityException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.repo.EngineRepository;
@@ -12,6 +15,8 @@ import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.plugin.Log;
 import io.github.manhnt217.task.sample.test.AbstractEngineTest;
+import io.github.manhnt217.task.sample.test.helper.SampleInput;
+import io.github.manhnt217.task.sample.test.helper.SampleOutput;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -19,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 
+import static io.github.manhnt217.task.core.context.ActivityContext.from;
 import static io.github.manhnt217.task.core.task.function.Function.*;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
@@ -142,5 +148,38 @@ public class GuardTest extends AbstractEngineTest {
                 .build();
 
         assertThrows(ActivityException.class, () -> func.exec(null, new RootContext(null, repo, logger)));
+    }
+
+    @Test
+    public void testFromLastActivity() throws TaskException, ActivityException, ConfigurationException {
+
+        MapperActivity p1 = new MapperActivity("p1");
+        p1.setInputMapping("{\"category\": \"high\", \"important\": true, \"rate\": -5.0}");
+        MapperActivity p2 = new MapperActivity("p2");
+        p2.setInputMapping("{\"category\": \"low\"}");
+
+        FromLastActivity pickFirst = new FromLastActivity("pickFirst");
+
+        Function<SampleInput, SampleOutput> func = ActivityBuilder
+                .function("c1", SampleInput.class, SampleOutput.class)
+                .linkFromStart(p1, from(START_ACTIVITY_NAME) + ".age > 10")
+                .linkFromStart(p2, Group.OTHERWISE_GUARD_EXP)
+                .link(p1, pickFirst)
+                .link(p2, pickFirst)
+                .linkToEnd(pickFirst)
+                .outputMapping(from("pickFirst"))
+                .build();
+
+        RootContext context = new RootContext(null, repo, logger);
+        SampleOutput result1 = func.exec(new SampleInput("Kevin", 15, "London"), context);
+        SampleOutput result2 = func.exec(new SampleInput("Stacy", 4, "New Jersey"), context);
+
+        assertThat(result1.getCategory(), is("high"));
+        assertThat(result1.isImportant(), is(true));
+        assertThat(result1.getRate(), is(-5.0));
+
+        assertThat(result2.getCategory(), is("low"));
+        assertThat(result2.isImportant(), is(false));
+        assertThat(result2.getRate(), is(0.0));
     }
 }

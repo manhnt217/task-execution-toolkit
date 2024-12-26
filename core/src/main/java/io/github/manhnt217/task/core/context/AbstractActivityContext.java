@@ -3,11 +3,14 @@ package io.github.manhnt217.task.core.context;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.manhnt217.task.core.activity.Activity;
+import io.github.manhnt217.task.core.activity.ActivityInfo;
 import io.github.manhnt217.task.core.activity.OutboundMessage;
 import io.github.manhnt217.task.core.exception.inner.ContextException;
 import io.github.manhnt217.task.core.exception.inner.TransformException;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,6 +23,8 @@ public abstract class AbstractActivityContext implements ActivityContext {
      * Store global properties
      */
     protected final ObjectNode contextParams; // root object to evaluate JSLT expression
+
+    protected final List<ActivityInfo> activityExecutionRecords = new ArrayList<>();
 
     protected final ObjectNode props;
 
@@ -37,22 +42,29 @@ public abstract class AbstractActivityContext implements ActivityContext {
     }
 
     @Override
-    public void saveOutput(Activity activity, OutboundMessage output) throws ContextException {
-        validate(activity);
-        if (activity.registerOutput() && output != null && !output.isEmpty()) {
-            if (contextParams.get(activity.getName()) != null) {
-                throw new ContextException("Output of activity '" + activity.getName() + "' has already existed in the context");
+    public void saveOutput(ActivityInfo activityInfo, OutboundMessage output) throws ContextException {
+        validate(activityInfo);
+        if (activityInfo.isRegisterOutput() && output != null && !output.isEmpty()) {
+            if (contextParams.get(activityInfo.getName()) != null) {
+                throw new ContextException("Output of activity '" + activityInfo.getName() + "' has already existed in the context");
             }
-            contextParams.set(activity.getName(), output.getContent());
+            activityInfo.setHasOutput(true);
+            contextParams.set(activityInfo.getName(), output.getContent());
         }
+        activityExecutionRecords.add(activityInfo);
     }
 
-    private static void validate(Activity activity) throws ContextException {
+    @Override
+    public List<ActivityInfo> getExecutedActivities() {
+		return activityExecutionRecords;
+    }
+
+    private static void validate(ActivityInfo activity) throws ContextException {
         if (activity.getName().startsWith("_")) {
             throw new ContextException("Activity's name cannot start with '_'");
         }
         if (activity.getName().contains(".")) {
-            throw new ContextException("Activity's name cannot container '.'");
+            throw new ContextException("Activity's name cannot contain '.'");
         }
     }
 

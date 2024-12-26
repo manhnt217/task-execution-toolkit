@@ -1,10 +1,8 @@
 package io.github.manhnt217.task.core.activity.group;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.github.manhnt217.task.core.activity.Activity;
-import io.github.manhnt217.task.core.activity.InboundMessage;
-import io.github.manhnt217.task.core.activity.OutboundMessage;
-import io.github.manhnt217.task.core.activity.SimpleInboundMessage;
+import io.github.manhnt217.task.core.activity.*;
+import io.github.manhnt217.task.core.activity.ActivityInfo;
 import io.github.manhnt217.task.core.exception.ActivityInputException;
 import io.github.manhnt217.task.core.exception.ActivityOutputException;
 import io.github.manhnt217.task.core.activity.group.exception.ActivityTransitionException;
@@ -19,6 +17,7 @@ import lombok.Getter;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -77,6 +76,11 @@ public class Group implements LinkedActivityGroup<JsonNode, JsonNode> {
     private static OutboundMessage executeActivity(ActivityContext context, Activity currentActivity) throws ActivityException {
         InboundMessage inboundMessage;
         JsonNode taskInput;
+        if (currentActivity instanceof ExecutionAwareActivity) {
+            ((ExecutionAwareActivity) currentActivity).withExecutionContext(context);
+        }
+        ActivityInfo activityInfo = ActivityInfo.from(currentActivity);
+        activityInfo.setStartTime(OffsetDateTime.now());
         try {
             taskInput = context.transformInput(currentActivity);
         } catch (TransformException e) {
@@ -84,8 +88,9 @@ public class Group implements LinkedActivityGroup<JsonNode, JsonNode> {
         }
         inboundMessage = SimpleInboundMessage.of(taskInput);
         OutboundMessage out = currentActivity.process(inboundMessage, context);
+        activityInfo.setEndTime(OffsetDateTime.now());
         try {
-            context.saveOutput(currentActivity, out);
+            context.saveOutput(activityInfo, out);
         } catch (ContextException e) {
             throw new ActivityOutputException(context.getCurrentTaskName(), currentActivity.getName(), e);
         }
