@@ -7,6 +7,7 @@ import io.github.manhnt217.task.task_engine.activity.impl.DefaultActivityLogger;
 import io.github.manhnt217.task.task_engine.activity.impl.ExecutionLog;
 import io.github.manhnt217.task.task_engine.activity.impl.TaskBasedActivity;
 import io.github.manhnt217.task.task_engine.exception.ActivityException;
+import io.github.manhnt217.task.task_engine.exception.TaskException;
 import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
 
 import java.util.HashMap;
@@ -43,8 +44,7 @@ public class Main {
         task3.setTask(TestUtil.loadTask("SqlTask"));
         task3.setInputMapping("{\"sql\":\"" + SQL + "\"} + ._PROPS_");
 
-        TaskBasedActivity testActivity = new TaskBasedActivity("testActivity");
-        testActivity.setTask(new LinearCompositeTask("doesntMatterNow", Lists.newArrayList(task1, task2, task3)));
+        LinearCompositeTask task = new LinearCompositeTask("doesntMatterNow", Lists.newArrayList(task1, task2, task3));
 
         Map<String, Object> input = ImmutableMap.of(
                 "url", "https://example.com",
@@ -65,9 +65,9 @@ public class Main {
 
         String executionId = UUID.randomUUID().toString();
         try {
-            TestUtil.executeActivity(testActivity, TestUtil.OM.valueToTree(input), logHandler, executionId);
-        } catch (ActivityException e) {
-            logHandler.error(executionId, testActivity.getName(), "Failed to execute activity", e);
+            TestUtil.executeTask(task, null, TestUtil.OM.valueToTree(input), logHandler, executionId);
+        } catch (TaskException e) {
+            logHandler.error(executionId, "doesntmatter", "Failed to execute activity", e);
         }
 
         List<ExecutionLog> logs = logHandler.getLogs();

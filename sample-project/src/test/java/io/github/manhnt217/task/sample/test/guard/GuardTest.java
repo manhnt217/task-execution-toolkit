@@ -2,6 +2,7 @@ package io.github.manhnt217.task.sample.test.guard;
 
 import io.github.manhnt217.task.sample.TestUtil;
 import io.github.manhnt217.task.task_engine.exception.ActivityException;
+import io.github.manhnt217.task.task_engine.exception.TaskException;
 import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.task_engine.activity.impl.DefaultActivityLogger;
 import io.github.manhnt217.task.task_engine.activity.impl.ExecutionLog;
@@ -26,10 +27,9 @@ public class GuardTest {
     /**
      * <img src="{@docRoot}/doc-files/images/testSimpleGuard.png">
      *
-     * @throws ActivityException
      */
     @Test
-    public void testSimpleGuard() throws ActivityException, ConfigurationException {
+    public void testSimpleGuard() throws ConfigurationException, TaskException {
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
         TaskBasedActivity task1 = new TaskBasedActivity("task1");
@@ -52,10 +52,7 @@ public class GuardTest {
         compositeTask.linkToEnd(task1);
         compositeTask.linkToEnd(task2);
 
-        TaskBasedActivity testActivity = new TaskBasedActivity("testActivity");
-        testActivity.setTask(compositeTask);
-
-        TestUtil.executeActivity(testActivity, null, logHandler, UUID.randomUUID().toString());
+        TestUtil.executeTask(compositeTask, null, null, logHandler, UUID.randomUUID().toString());
         List<ExecutionLog> logs = logHandler.getLogs();
 
         assertThat(logs.size(), is(1));
@@ -65,10 +62,9 @@ public class GuardTest {
     /**
      * <img src="{@docRoot}/doc-files/images/testOtherwise.png">
      *
-     * @throws ActivityException
      */
     @Test
-    public void testOtherwise() throws ActivityException, ConfigurationException {
+    public void testOtherwise() throws ConfigurationException, TaskException {
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
         TaskBasedActivity task1 = new TaskBasedActivity("task1");
@@ -97,10 +93,7 @@ public class GuardTest {
         compositeTask.linkToEnd(task2);
         compositeTask.linkToEnd(task3);
 
-        TaskBasedActivity complextActivity = new TaskBasedActivity("cc");
-        complextActivity.setTask(compositeTask);
-
-        TestUtil.executeActivity(complextActivity, null, logHandler, UUID.randomUUID().toString());
+        TestUtil.executeTask(compositeTask, null, null, logHandler, UUID.randomUUID().toString());
         List<ExecutionLog> logs = logHandler.getLogs();
 
         assertThat(logs.size(), is(1));
@@ -108,7 +101,7 @@ public class GuardTest {
     }
 
     @Test
-    public void testConflictedGuards() {
+    public void testConflictedGuards() throws ConfigurationException {
         TaskBasedActivity task1 = new TaskBasedActivity("task1");
         task1.setInputMapping("{\"severity\": \"INFO\",\"message\": \"task1\"}");
         task1.setTask(TestUtil.loadTask("LogTask"));
@@ -154,10 +147,7 @@ public class GuardTest {
         compositeTask.linkFromStart(task1, "3 > 5");
         compositeTask.linkFromStart(task2, "10 / 7 == 1");
 
-
-        TaskBasedActivity testActivity = new TaskBasedActivity("testActivity", compositeTask);
-
-        assertThrows(ActivityException.class, () ->
-                TestUtil.executeActivity(testActivity, null, logHandler, UUID.randomUUID().toString()));
+        assertThrows(TaskException.class, () ->
+                TestUtil.executeTask(compositeTask, null, null, logHandler, UUID.randomUUID().toString()));
     }
 }

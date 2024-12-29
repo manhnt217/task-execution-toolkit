@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.sample.LinearCompositeTask;
 import io.github.manhnt217.task.sample.TestUtil;
 import io.github.manhnt217.task.task_engine.exception.ActivityException;
+import io.github.manhnt217.task.task_engine.exception.TaskException;
 import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.task_engine.activity.impl.DefaultActivityLogger;
 import io.github.manhnt217.task.task_engine.activity.impl.ExecutionLog;
@@ -28,10 +29,9 @@ public class LoopTest {
     /**
      * <img src="{@docRoot}/doc-files/images/testForEachSimple.png">
      * @throws ConfigurationException
-     * @throws ActivityException
      */
     @Test
-    public void testForEachSimple() throws ConfigurationException, ActivityException, JsonProcessingException {
+    public void testForEachSimple() throws ConfigurationException, JsonProcessingException, TaskException {
 
         final String FOR_EACH_1 = "forEach1";
 
@@ -48,10 +48,8 @@ public class LoopTest {
         List<String> loopInput = Arrays.asList("a", "b", "c");
         loop1.setInputMapping(TestUtil.OM.writeValueAsString(loopInput)); // 3 items
 
-        TaskBasedActivity topLevelActivity = new TaskBasedActivity(
-                "topLevelActivity",
-                new LinearCompositeTask("c1", Collections.singletonList(loop1)));
-        JsonNode output = TestUtil.executeActivity(topLevelActivity, null, logHandler, UUID.randomUUID().toString());
+        LinearCompositeTask task = new LinearCompositeTask("c1", Collections.singletonList(loop1));
+        JsonNode output = TestUtil.executeTask(task, null, null, logHandler, UUID.randomUUID().toString());
         Map<String, Object> out = TestUtil.OM.treeToValue(output, Map.class);
 
         List<ExecutionLog> logs = logHandler.getLogs();

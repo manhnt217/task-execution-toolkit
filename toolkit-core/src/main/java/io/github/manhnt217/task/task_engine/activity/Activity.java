@@ -27,4 +27,8 @@ public interface Activity {
      * but hasn't returned any output yet due to some certain criteria are not met
      */
     OutboundMessage process(InboundMessage in, ActivityLogger activityLogger, ActivityContext context) throws ActivityException;
+
+    ActivityGroup<?, ?> getParent();
+
+    void setParent(ActivityGroup<?, ?> parent);
 }

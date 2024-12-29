@@ -7,6 +7,7 @@ import io.github.manhnt217.task.task_engine.exception.ActivityException;
 import io.github.manhnt217.task.task_engine.exception.GroupException;
 import io.github.manhnt217.task.task_engine.activity.impl.LinkBasedActivityGroup;
 import io.github.manhnt217.task.task_engine.exception.TaskException;
+import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
 import lombok.Getter;
 
 import static io.github.manhnt217.task.task_engine.context.ActivityContext.ALL_SUBTASKS_JSLT;
@@ -22,12 +23,12 @@ public class CompositeTask extends LinkBasedActivityGroup implements Task {
     public static final String END_ACTIVITY_NAME = "END";
     private final String name;
 
-    public CompositeTask(String name, String outputMapping) {
+    public CompositeTask(String name, String outputMapping) throws ConfigurationException {
         super(START_ACTIVITY_NAME, END_ACTIVITY_NAME, outputMapping);
         this.name = name;
     }
 
-    public CompositeTask(String name) {
+    public CompositeTask(String name) throws ConfigurationException {
         this(name, ALL_SUBTASKS_JSLT);
     }
 

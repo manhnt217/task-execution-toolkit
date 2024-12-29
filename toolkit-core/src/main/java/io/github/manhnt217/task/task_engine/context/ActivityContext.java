@@ -15,6 +15,7 @@ public interface ActivityContext {
 
     String KEY_PROPS = "_PROPS_";
     String ALL_SUBTASKS_JSLT = "{\""+KEY_PROPS+"\": null, * : . }";
+    String FROM_PROPS = "." + KEY_PROPS;
 
     void saveOutput(Activity activity, OutboundMessage output) throws ContextException;
 

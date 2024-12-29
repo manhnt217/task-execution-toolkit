@@ -1,6 +1,7 @@
 package io.github.manhnt217.task.task_engine.activity.impl;
 
 import io.github.manhnt217.task.task_engine.activity.Activity;
+import io.github.manhnt217.task.task_engine.activity.ActivityGroup;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +14,7 @@ public abstract class AbstractSimpleActivity implements Activity {
 
     private final String name;
     private String inputMapping;
+    private ActivityGroup<?, ?> parent;
 
     public AbstractSimpleActivity(String name) {
         this.name = name;
