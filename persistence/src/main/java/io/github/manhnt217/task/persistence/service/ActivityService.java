@@ -70,8 +70,7 @@ public class ActivityService {
 
     private ForEachActivity forEachActivity(ActivityDto activityDto) throws ConfigurationException {
         ForEachActivityBuilder forEachActivityBuilder = ActivityBuilder
-                .forEach()
-                .name(activityDto.getName())
+                .forEach(activityDto.getName())
                 .inputMapping(activityDto.getInputMapping())
                 .outputMapping(activityDto.getOutputMapping())
                 .start(activityDto.getStartName())

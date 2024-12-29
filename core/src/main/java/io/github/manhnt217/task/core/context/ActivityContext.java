@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.manhnt217.task.core.activity.Activity;
 import io.github.manhnt217.task.core.activity.OutboundMessage;
 import io.github.manhnt217.task.core.activity.TaskLogger;
+import io.github.manhnt217.task.core.container.FutureProcessor;
 import io.github.manhnt217.task.core.exception.inner.ContextException;
 import io.github.manhnt217.task.core.exception.inner.TransformException;
 import io.github.manhnt217.task.core.repo.EngineRepository;
+import io.github.manhnt217.task.core.type.ObjectRef;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -43,4 +45,6 @@ public interface ActivityContext {
     TaskLogger getLogger();
 
     String getCurrentTaskName();
+
+    FutureProcessor getFutureProcessor();
 }

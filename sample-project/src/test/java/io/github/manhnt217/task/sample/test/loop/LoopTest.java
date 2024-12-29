@@ -7,8 +7,8 @@ import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
+import io.github.manhnt217.task.plugin.Log;
 import io.github.manhnt217.task.sample.TestUtil;
-import io.github.manhnt217.task.sample.plugin.Log;
 import io.github.manhnt217.task.sample.test.AbstractEngineTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,11 +19,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static io.github.manhnt217.task.core.context.ActivityContext.ALL_SUBTASKS_JSLT;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static io.github.manhnt217.task.core.context.ActivityContext.*;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -50,8 +50,7 @@ public class LoopTest extends AbstractEngineTest {
         List<String> loopInput = Arrays.asList("a", "b", "c");
 
         ForEachActivity loop1 = ActivityBuilder
-                .forEach()
-                .name(FOR_EACH_1)
+                .forEach(FOR_EACH_1)
                 .start("f1Start")
                 .end("f1End")
                 .linkFromStart(p1)
@@ -61,7 +60,7 @@ public class LoopTest extends AbstractEngineTest {
                 .build();
 
         Function<Object, Map> func = buildLinearFunc("c1", Object.class, Map.class, ALL_SUBTASKS_JSLT, loop1);
-        TaskContext context = new TaskContext(func.getName(), null, repo, logger);
+        TaskContext context = new TaskContext(func.getName(), null, repo, futureProcessor, logger);
         Map<String, Object> out = func.exec(null, context);
 
         for (int i = 0; i < 3; i++) {

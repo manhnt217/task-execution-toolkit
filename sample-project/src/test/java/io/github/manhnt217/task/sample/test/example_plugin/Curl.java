@@ -1,4 +1,4 @@
-package io.github.manhnt217.task.sample.example_plugin;
+package io.github.manhnt217.task.sample.test.example_plugin;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.manhnt217.task.core.task.plugin.Plugin;

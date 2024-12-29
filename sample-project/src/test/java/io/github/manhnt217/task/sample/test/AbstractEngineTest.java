@@ -6,6 +6,7 @@ import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.activity.func.FunctionCallActivity;
 import io.github.manhnt217.task.core.activity.group.GroupActivity;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
+import io.github.manhnt217.task.core.container.FutureProcessor;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.task.function.Function;
@@ -13,26 +14,27 @@ import io.github.manhnt217.task.core.task.plugin.Plugin;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.persistence.builder.FunctionBuilder;
 import io.github.manhnt217.task.persistence.builder.GroupActivityBuilder;
-import io.github.manhnt217.task.sample.example_plugin.AddTwoNumber;
-import io.github.manhnt217.task.sample.example_plugin.Curl;
-import io.github.manhnt217.task.sample.example_plugin.ObjectRefConsumer;
-import io.github.manhnt217.task.sample.example_plugin.ObjectRefProducer;
+import io.github.manhnt217.task.plugin.Log;
+import io.github.manhnt217.task.sample.test.example_plugin.AddTwoNumber;
+import io.github.manhnt217.task.sample.test.example_plugin.Curl;
+import io.github.manhnt217.task.sample.test.example_plugin.ObjectRefConsumer;
+import io.github.manhnt217.task.sample.test.example_plugin.ObjectRefProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 public abstract class AbstractEngineTest {
 
-    public static final Map<String, Class<? extends Plugin<?, ?>>> PLUGINS = ImmutableMap.of(
-            "AddTwoNumber", AddTwoNumber.class,
-            "Curl", Curl.class,
-            "Log", io.github.manhnt217.task.sample.plugin.Log.class,
-            "ObjectRefConsumer", ObjectRefConsumer.class,
-            "ObjectRefProducer", ObjectRefProducer.class
+    public static final Map<String, Plugin<?, ?>> PLUGINS = ImmutableMap.of(
+            "AddTwoNumber", new AddTwoNumber(),
+            "Curl", new Curl(),
+            "Log", new Log(),
+            "ObjectRefConsumer", new ObjectRefConsumer(),
+            "ObjectRefProducer", new ObjectRefProducer()
     );
 
     @Mock
@@ -41,9 +43,12 @@ public abstract class AbstractEngineTest {
     @Mock
     protected TaskLogger logger;
 
+    @Mock
+    protected FutureProcessor futureProcessor;
+
     @BeforeEach
     protected void setup () {
-        lenient().when(repo.resolvePluginClass(any(String.class)))
+        lenient().when(repo.resolvePlugin(any(String.class)))
                 .then(invocation -> {
                     String pluginName = invocation.getArgument(0);
                     return PLUGINS.get(pluginName);

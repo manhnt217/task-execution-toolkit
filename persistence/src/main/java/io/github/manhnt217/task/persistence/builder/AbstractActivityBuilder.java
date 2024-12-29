@@ -9,12 +9,11 @@ import org.apache.commons.lang3.StringUtils;
  */
 public abstract class AbstractActivityBuilder<A extends Activity, B extends AbstractActivityBuilder<A, B>> {
 
-    protected String name;
+    protected final String name;
     protected String inputMapping;
 
-    public B name(String name) {
+    protected AbstractActivityBuilder(String name) {
         this.name = name;
-        return (B) this;
     }
 
     public B inputMapping(String inputMapping) {

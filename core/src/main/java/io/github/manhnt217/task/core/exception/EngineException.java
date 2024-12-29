@@ -26,4 +26,18 @@ public abstract class EngineException extends Exception {
             return cause;
         }
     }
+
+    public ActivityException getRootActivityException() {
+        return getRootActivityException0(null);
+    }
+
+    protected final ActivityException getRootActivityException0(ActivityException currentActivityException) {
+        ActivityException aE = this instanceof ActivityException ? ((ActivityException) this) : currentActivityException;
+        Throwable cause = getCause();
+        if (cause instanceof EngineException) {
+            return ((EngineException) cause).getRootActivityException0(aE);
+        } else {
+            return aE;
+        }
+    }
 }

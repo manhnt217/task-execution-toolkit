@@ -1,8 +1,8 @@
-package io.github.manhnt217.task.sample.example_plugin;
+package io.github.manhnt217.task.sample.test.example_plugin;
 
-import io.github.manhnt217.task.core.context.ObjectRef;
 import io.github.manhnt217.task.core.task.plugin.Plugin;
 import io.github.manhnt217.task.core.task.plugin.PluginLogger;
+import io.github.manhnt217.task.core.type.ObjectRef;
 
 /**
  * @author manh nguyen

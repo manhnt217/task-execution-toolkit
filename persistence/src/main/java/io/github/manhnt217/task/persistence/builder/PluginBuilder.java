@@ -11,6 +11,7 @@ public class PluginBuilder extends AbstractActivityBuilder<PluginActivity, Plugi
     private final String pluginName;
 
     PluginBuilder(String name, String pluginName) {
+        super(name);
         this.name = name;
         this.pluginName = pluginName;
     }

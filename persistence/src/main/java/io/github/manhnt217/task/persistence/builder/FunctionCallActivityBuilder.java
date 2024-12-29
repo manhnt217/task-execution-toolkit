@@ -10,7 +10,7 @@ public class FunctionCallActivityBuilder extends AbstractActivityBuilder<Functio
     private String functionName;
 
     FunctionCallActivityBuilder(String name) {
-        this.name = name;
+        super(name);
     }
 
     public FunctionCallActivityBuilder funcName(String func) {
