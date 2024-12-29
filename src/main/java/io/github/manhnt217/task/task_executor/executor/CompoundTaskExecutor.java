@@ -32,11 +32,13 @@ public class CompoundTaskExecutor extends TaskExecutor {
             for (Task subTask : executionOrder) {
                 executeTask(subTask, context, executionSessionId, logger);
             }
-            return context.transform(compoundTask.getOutputMapping());
+            try {
+                return context.transform(compoundTask.getOutputMapping());
+            } catch (Exception e) {
+                throw new RuntimeException("Exception while transform the output");
+            }
         } catch (UnresolvableDependencyException e) {
             throw new TaskExecutionException("Cannot execute task because of unresolvable dependencies", task, e);
-        } catch (TaskExecutionException e) {
-            throw new SubTaskExecutionException(task, e);
         } catch (Exception e) {
             throw new TaskExecutionException("Unexpected exception occurred", task, e);
         }
@@ -61,8 +63,14 @@ public class CompoundTaskExecutor extends TaskExecutor {
         return result;
     }
 
-    private void executeTask(Task task, ParamContext context, String executionSessionId, Logger logger) throws TaskExecutionException {
-        JsonNode inputAfterTransform = context.transformInput(task);
+    public static JsonNode executeTask(Task task, ParamContext context, String executionSessionId, Logger logger) throws TaskExecutionException {
+        JsonNode inputAfterTransform;
+        try {
+            inputAfterTransform = context.transformInput(task);
+        } catch (Exception e) {
+            throw new TaskExecutionException("Exception while transform the input", task, e);
+        }
+
         log(task, task.getStartLogExpression(), context, executionSessionId, logger);
 
         TaskExecutor executor = getTaskExecutor(task);
@@ -70,9 +78,11 @@ public class CompoundTaskExecutor extends TaskExecutor {
 
         context.saveTaskOutput(task, output);
         log(task, task.getEndLogExpression(), context, executionSessionId, logger);
+
+        return output;
     }
 
-    private void log(Task task, String logExp, ParamContext ctx, String executionSessionId, Logger logger) {
+    private static void log(Task task, String logExp, ParamContext ctx, String executionSessionId, Logger logger) {
         if (StringUtils.isBlank(logExp)) {
             return;
         }
