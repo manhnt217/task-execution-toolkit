@@ -1,8 +1,7 @@
 package io.github.manhnt217.task.task_executor.executor;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.github.manhnt217.task.task_executor.process.LogHandler;
-import io.github.manhnt217.task.task_executor.process.Severity;
+import io.github.manhnt217.task.task_executor.process.Logger;
 import io.github.manhnt217.task.task_executor.task.CompoundTask;
 import io.github.manhnt217.task.task_executor.task.Task;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +16,7 @@ import java.util.stream.Collectors;
 public class CompoundTaskExecutor extends TaskExecutor {
 
     @Override
-    public JsonNode execute(Task task, JsonNode input, String executionSessionId, LogHandler logHandler) throws TaskExecutionException {
+    public JsonNode execute(Task task, JsonNode input, String executionSessionId, Logger logger) throws TaskExecutionException {
 
         if (!(task instanceof CompoundTask)) {
             throw new IllegalArgumentException("Task " + task + " is not a compound task");
@@ -31,13 +30,15 @@ public class CompoundTaskExecutor extends TaskExecutor {
         try {
             List<Task> executionOrder = resolveDependencies(compoundTask.getSubTasks());
             for (Task subTask : executionOrder) {
-                executeTask(subTask, context, executionSessionId, logHandler);
+                executeTask(subTask, context, executionSessionId, logger);
             }
             return context.allTaskOutputs();
         } catch (UnresolvableDependencyException e) {
-            throw new TaskExecutionException("Cannot execute task because of unresolvable dependencies. " + e.getMessage(), e, task);
+            throw new TaskExecutionException("Cannot execute task because of unresolvable dependencies", task, e);
         } catch (TaskExecutionException e) {
             throw new SubTaskExecutionException(task, e);
+        } catch (Exception e) {
+            throw new TaskExecutionException("Unexpected exception occurred", task, e);
         }
     }
 
@@ -60,30 +61,26 @@ public class CompoundTaskExecutor extends TaskExecutor {
         return result;
     }
 
-    private void executeTask(Task task, ParamContext context, String executionSessionId, LogHandler logHandler) throws TaskExecutionException {
-        JsonNode inputAfterTransform = extractInput(task, context);
-        log(task, task.getStartLogExpression(), context, executionSessionId, logHandler);
+    private void executeTask(Task task, ParamContext context, String executionSessionId, Logger logger) throws TaskExecutionException {
+        JsonNode inputAfterTransform = context.transformInput(task);
+        log(task, task.getStartLogExpression(), context, executionSessionId, logger);
 
         TaskExecutor executor = getTaskExecutor(task);
-        JsonNode output = executor.execute(task, inputAfterTransform, executionSessionId, logHandler);
+        JsonNode output = executor.execute(task, inputAfterTransform, executionSessionId, logger);
 
         context.saveTaskOutput(task, output);
-        log(task, task.getEndLogExpression(), context, executionSessionId, logHandler);
+        log(task, task.getEndLogExpression(), context, executionSessionId, logger);
     }
 
-    private static JsonNode extractInput(Task task, ParamContext context) throws TaskExecutionException {
-        return context.transformInput(task);
-    }
-
-    private void log(Task task, String jslt, ParamContext ctx, String executionSessionId, LogHandler logHandler) {
-        if (StringUtils.isBlank(jslt)) {
+    private void log(Task task, String logExp, ParamContext ctx, String executionSessionId, Logger logger) {
+        if (StringUtils.isBlank(logExp)) {
             return;
         }
         try {
-            JsonNode jsonNode = ctx.transform(jslt);
-            logHandler.log(executionSessionId, task.getId(), Severity.INFO, jsonNode.isContainerNode() ? "" : jsonNode.asText());
+            JsonNode jsonNode = ctx.transform(logExp);
+            logger.info(executionSessionId, task.getId(), jsonNode.isContainerNode() ? "" : jsonNode.asText());
         } catch (Exception e) {
-            logHandler.log(executionSessionId, task.getId(), Severity.WARN, "Error while applying log expression to the context. Expression = " + jslt);
+            logger.warn(executionSessionId, task.getId(), "Error while applying log expression to the context. Expression = " + logExp, e);
         }
     }
 

@@ -7,8 +7,6 @@ import org.apache.commons.lang3.StringUtils;
 
 public class JSLTUtil {
 
-	public static final String ALL = ".";
-
 	public static JsonNode applyTransform(String jsltExp, JsonNode input) {
 		if (StringUtils.isBlank(jsltExp)) {
 			return input;

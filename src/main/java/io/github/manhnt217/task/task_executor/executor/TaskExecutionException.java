@@ -9,17 +9,13 @@ public class TaskExecutionException extends Exception {
 
 	private final Task task;
 
-	public TaskExecutionException(String message, Task task) {
-		super("Task " + task.getId() + " cannot be executed.\nCaused by: " + message);
+	public TaskExecutionException(Task task, TemplateExecutionException e) {
+		super("Task " + task.getId() + " cannot be executed", e);
 		this.task = task;
 	}
 
-	public TaskExecutionException(TemplateExecutionException e, Task task) {
-		super("Task " + task.getId() + " cannot be executed.\nCaused by: " + e.getMessage());
-		this.task = task;
-	}
 
-	public TaskExecutionException(String message, Exception e, Task task) {
+	public TaskExecutionException(String message, Task task, Exception e) {
 		super("Task " + task.getId() + " cannot be executed.\nCaused by: " + message, e);
 		this.task = task;
 	}

@@ -11,15 +11,13 @@ public abstract class Task {
 
 	/**
 	 * <ul>
-	 * 	   <li> Contains alphanumerics, sharps & hyphens ONLY </li>
+	 * 	   <li> Contains alphanumerics hyphens ONLY </li>
 	 * 	   <li> No 2 or more consecutive sharps, hyphens. </li>
 	 * 	   <li> Must start and end with an alphanumeric. </li>
-	 * 	   <li> Example: <code>a-package#a-subpackage#some-task-1</code> </li>
+	 * 	   <li> Example: <code>com-fortna-wes-hk-cron1</code> </li>
 	 * </ul>
 	 */
 	protected String id;
-
-	protected InputType inputType;
 
 	protected String inputMappingExpression;
 
@@ -28,11 +26,4 @@ public abstract class Task {
 	protected String endLogExpression;
 
 	protected Set<String> dependencies = Collections.emptySet();
-
-	/**
-	 * Define which source (JSON) to apply the <code>inputMappingExpression</code> (JSLT transformation)
-	 */
-	public enum InputType {
-		NONE, PARENT, PREVIOUS_TASK, GLOBAL
-	}
 }
