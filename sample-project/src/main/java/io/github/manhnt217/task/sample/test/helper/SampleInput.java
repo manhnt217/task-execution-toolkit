@@ -1,7 +1,9 @@
 package io.github.manhnt217.task.sample.test.helper;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 /**
@@ -10,8 +12,10 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @Accessors(chain = true)
-public class SampleOutput {
-	private String category;
-	private boolean important;
-	private double rate;
+@AllArgsConstructor
+@ToString
+public class SampleInput {
+	private String name;
+	private int age;
+	private String address;
 }

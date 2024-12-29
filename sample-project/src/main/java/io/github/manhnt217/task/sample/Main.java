@@ -3,9 +3,16 @@ package io.github.manhnt217.task.sample;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
+import io.github.manhnt217.task.core.activity.DefaultTaskLogger;
 import io.github.manhnt217.task.core.container.TaskContainer;
+import io.github.manhnt217.task.core.exception.ActivityException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.repo.EngineRepository;
+import io.github.manhnt217.task.core.task.RootContext;
+import io.github.manhnt217.task.core.task.TaskException;
+import io.github.manhnt217.task.core.task.function.Function;
+import io.github.manhnt217.task.sample.test.helper.SampleInput;
+import io.github.manhnt217.task.sample.test.helper.SampleOutput;
 import lombok.Data;
 
 import java.io.IOException;
@@ -15,10 +22,21 @@ import java.io.IOException;
  */
 public class Main {
 
-    public static void main(String[] args) throws IOException, ConfigurationException, InterruptedException {
+    public static void main(String[] args) throws Exception {
 //        Foo foo = TestUtil.OM.treeToValue(NullNode.getInstance(), Foo.class);
 //        System.out.println("Foo: " + (foo == null));
-        testHandler();
+        testFunction();
+//        testHandler();
+    }
+
+    private static void testFunction() throws Exception {
+        EngineRepository repo = new JsonBasedEngineRepository("simpleFunctionRepo.json");
+        RootContext rootContext = new RootContext(null, repo, new DefaultTaskLogger());
+
+        @SuppressWarnings("unchecked")
+        Function<SampleInput, SampleOutput> simpleFunction = repo.getFunction("simpleFunction");
+		System.out.println("Result 1: " + simpleFunction.exec(new SampleInput("Lanne", 21, "Kyoto"), rootContext));
+		System.out.println("Result 2: " + simpleFunction.exec(new SampleInput("Phil", 7, "Paris"), rootContext));
     }
 
     private static void testHandler() throws IOException, ConfigurationException {

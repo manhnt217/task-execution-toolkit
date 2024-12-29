@@ -1,0 +1,66 @@
+{
+  "plugins": [
+    {"name": "AddTwoNumber", "className": "io.github.manhnt217.task.sample.example_plugin.AddTwoNumber"},
+    {"name": "Curl", "className": "io.github.manhnt217.task.sample.example_plugin.Curl"},
+    {"name": "Log", "className": "io.github.manhnt217.task.plugin.Log"},
+    {"name": "ObjectRefConsumer", "className": "io.github.manhnt217.task.sample.example_plugin.ObjectRefConsumer"},
+    {"name": "ObjectRefProducer", "className": "io.github.manhnt217.task.sample.example_plugin.ObjectRefProducer"}
+  ],
+  "functions": [
+    {
+      "name": "simpleFunction",
+      "inputClass": "io.github.manhnt217.task.sample.test.helper.SampleInput",
+      "outputClass": "io.github.manhnt217.task.sample.test.helper.SampleOutput",
+      "outputMapping": ".pickFirst",
+      "group": {
+        "activities": [
+          {
+            "type": "MAPPER",
+            "name": "p1",
+            "inputMapping": "{\"category\": \"high\", \"important\": true, \"rate\": -5.0}",
+            "group": null
+          },
+          {
+            "type": "MAPPER",
+            "name": "p2",
+            "inputMapping": "{\"category\": \"low\"}",
+            "group": null
+          },
+          {
+            "type": "FROMLAST",
+            "name": "pickFirst",
+            "inputMapping": null,
+            "group": null
+          }
+        ],
+        "links": [
+          {
+            "from": "START",
+            "to": "p1",
+            "guard": ".START.age > 10"
+          },
+          {
+            "from": "START",
+            "to": "p2",
+            "guard": "<otherwise>"
+          },
+          {
+            "from": "p1",
+            "to": "pickFirst",
+            "guard": null
+          },
+          {
+            "from": "p2",
+            "to": "pickFirst",
+            "guard": null
+          },
+          {
+            "from": "pickFirst",
+            "to": "END",
+            "guard": null
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,11 +1,13 @@
 package io.github.manhnt217.task.sample.test.guard;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.manhnt217.task.core.activity.Activity;
 import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.activity.group.Group;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
 import io.github.manhnt217.task.core.activity.simple.FromLastActivity;
 import io.github.manhnt217.task.core.activity.simple.MapperActivity;
+import io.github.manhnt217.task.core.context.JSONUtil;
 import io.github.manhnt217.task.core.exception.ActivityException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.repo.EngineRepository;
@@ -21,6 +23,7 @@ import io.github.manhnt217.task.persistence.model.activity.MapperActivityDto;
 import io.github.manhnt217.task.persistence.service.TaskService;
 import io.github.manhnt217.task.plugin.Log;
 import io.github.manhnt217.task.sample.SimpleEngineRepository;
+import io.github.manhnt217.task.sample.TestUtil;
 import io.github.manhnt217.task.sample.test.AbstractEngineTest;
 import io.github.manhnt217.task.sample.test.helper.SampleInput;
 import io.github.manhnt217.task.sample.test.helper.SampleOutput;
@@ -192,7 +195,7 @@ public class GuardTest extends AbstractEngineTest {
     }
 
     @Test
-    public void testFromLastActivity_Dto() throws TaskException, ActivityException, ConfigurationException {
+    public void testFromLastActivity_Dto() throws TaskException, ActivityException, ConfigurationException, JsonProcessingException {
 
         MapperActivityDto p1 = new MapperActivityDto();
         p1.setName("p1");
@@ -222,6 +225,8 @@ public class GuardTest extends AbstractEngineTest {
         functionDto.setOutputClass(SampleOutput.class.getName());
         functionDto.setGroup(groupDto);
         functionDto.setOutputMapping(from("pickFirst"));
+
+        System.out.println(TestUtil.OM.writeValueAsString(functionDto));
 
         @SuppressWarnings("unchecked")
         Function<SampleInput, SampleOutput> func = TaskService.instance().buildFunction(functionDto);
