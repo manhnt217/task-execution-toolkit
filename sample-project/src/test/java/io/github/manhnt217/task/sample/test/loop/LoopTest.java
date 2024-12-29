@@ -50,8 +50,7 @@ public class LoopTest extends AbstractEngineTest {
         List<String> loopInput = Arrays.asList("a", "b", "c");
 
         ForEachActivity loop1 = ActivityBuilder
-                .forEach()
-                .name(FOR_EACH_1)
+                .forEach(FOR_EACH_1)
                 .start("f1Start")
                 .end("f1End")
                 .linkFromStart(p1)
@@ -61,7 +60,7 @@ public class LoopTest extends AbstractEngineTest {
                 .build();
 
         Function<Object, Map> func = buildLinearFunc("c1", Object.class, Map.class, ALL_SUBTASKS_JSLT, loop1);
-        TaskContext context = new TaskContext(func.getName(), null, repo, logger);
+        TaskContext context = new TaskContext(func.getName(), null, repo, futureProcessor, logger);
         Map<String, Object> out = func.exec(null, context);
 
         for (int i = 0; i < 3; i++) {

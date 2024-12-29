@@ -9,7 +9,8 @@ public abstract class ContainerActivityBuilder<A extends Activity, B extends Con
 
     protected GroupBuilder groupBuilder;
 
-    ContainerActivityBuilder() {
+    ContainerActivityBuilder(String name) {
+        super(name);
         groupBuilder = new GroupBuilder();
     }
 

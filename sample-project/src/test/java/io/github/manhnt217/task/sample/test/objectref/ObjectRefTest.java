@@ -32,7 +32,7 @@ class ObjectRefTest extends AbstractEngineTest {
         Function<Void, Void> func = buildLinearRoutine("c1", act1, act2);
 
         assertDoesNotThrow(() -> {
-            func.exec(null, new TaskContext(null, repo, logger));
+            func.exec(null, new TaskContext(null, repo, futureProcessor, logger));
         });
     }
 }

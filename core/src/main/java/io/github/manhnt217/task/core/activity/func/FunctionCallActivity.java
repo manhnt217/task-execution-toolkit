@@ -51,7 +51,7 @@ public class FunctionCallActivity extends AbstractActivity {
 
         Object output;
         try {
-            output = function.exec(funcIn, new TaskContext(context.getExecutionId(), context.getProps(), context.getRepo(), context.getLogger()));
+            output = function.exec(funcIn, new TaskContext(context.getExecutionId(), context.getProps(), context.getRepo(), context.getFutureProcessor(), context.getLogger()));
         } catch (TaskException e) {
             throw new ActivityException(this, e);
         }

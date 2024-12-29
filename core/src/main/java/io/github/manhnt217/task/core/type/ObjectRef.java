@@ -1,4 +1,4 @@
-package io.github.manhnt217.task.core.context;
+package io.github.manhnt217.task.core.type;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
