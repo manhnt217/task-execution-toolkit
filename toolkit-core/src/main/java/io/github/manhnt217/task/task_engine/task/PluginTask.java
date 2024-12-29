@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.task_engine.activity.ActivityLogger;
 import io.github.manhnt217.task.task_engine.context.ActivityContext;
+import io.github.manhnt217.task.task_engine.context.JSONUtil;
 import io.github.manhnt217.task.task_engine.exception.PluginException;
 
 /**
@@ -21,7 +22,7 @@ public abstract class PluginTask<P, R> implements Task {
     public final JsonNode run(JsonNode input, String activityName, ActivityLogger activityLogger, ActivityContext context) throws PluginException {
         P in;
         try {
-            in = context.treeToValue(input, getInputClass());
+            in = JSONUtil.treeToValue(input, getInputClass(), context);
         } catch (JsonProcessingException e) {
             throw new PluginException(getName(), input, "Cannot convert in to desired type", e);
         }
@@ -31,7 +32,7 @@ public abstract class PluginTask<P, R> implements Task {
         } catch (Exception e) {
             throw new PluginException(getName(), input, "Exception while executing task", e);
         }
-        return context.valueToTree(rs);
+        return JSONUtil.valueToTree(rs, context);
     }
 
     public String getName() {

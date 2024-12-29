@@ -2,6 +2,8 @@ package io.github.manhnt217.task.task_engine.activity.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.task_engine.activity.*;
+import io.github.manhnt217.task.task_engine.activity.impl.simple.EndActivity;
+import io.github.manhnt217.task.task_engine.activity.impl.simple.StartActivity;
 import io.github.manhnt217.task.task_engine.context.ActivityContext;
 import io.github.manhnt217.task.task_engine.exception.ActivityException;
 import io.github.manhnt217.task.task_engine.exception.GroupException;
@@ -57,7 +59,7 @@ public abstract class LinkBasedActivityGroup implements ActivityGroup<JsonNode, 
     protected EndActivity endActivity;
     protected List<Activity> activities;
 
-    public LinkBasedActivityGroup(String startActivityName, String endActivityName, String outputMapping) {
+    public LinkBasedActivityGroup(String startActivityName, String endActivityName, String outputMapping) throws ConfigurationException {
         this.activities = new ArrayList<>();
         this.links = new HashMap<>();
 
@@ -83,9 +85,31 @@ public abstract class LinkBasedActivityGroup implements ActivityGroup<JsonNode, 
         else return -1;
     }
 
+    private static void saveOutput(ActivityContext context, Activity currentActivity, OutboundMessage out) throws GroupException {
+        try {
+            context.saveOutput(currentActivity, out);
+        } catch (ContextException e) {
+            throw new GroupException("Error while saving output for activity '" + currentActivity.getName() + "'", e);
+        }
+    }
+
     @Override
-    public void addActivity(Activity activity) {
+    public void addActivity(Activity activity) throws ConfigurationException {
+        if (activity.getParent() != null) {
+            throw new ConfigurationException("Activity '" + activity.getName() + "' has already belonged to another group. Please remove first");
+        }
         activities.add(activity);
+        activity.setParent(this);
+    }
+
+    @Override
+    public void removeActivity(Activity activity) throws ConfigurationException {
+        boolean removed = activities.remove(activity);
+        if (removed) {
+            activity.setParent(null);
+        } else {
+            throw new ConfigurationException("Activity '" + activity.getName() + "' does not belong to this group");
+        }
     }
 
     @Override
@@ -102,14 +126,6 @@ public abstract class LinkBasedActivityGroup implements ActivityGroup<JsonNode, 
                 return out.getContent();
             }
             currentActivity = nextActivity;
-        }
-    }
-
-    private static void saveOutput(ActivityContext context, Activity currentActivity, OutboundMessage out) throws GroupException {
-        try {
-            context.saveOutput(currentActivity, out);
-        } catch (ContextException e) {
-            throw new GroupException("Error while saving output for activity '" + currentActivity.getName() + "'", e);
         }
     }
 
