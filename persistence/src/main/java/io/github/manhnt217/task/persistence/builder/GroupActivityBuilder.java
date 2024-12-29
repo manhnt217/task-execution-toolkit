@@ -5,7 +5,7 @@ import io.github.manhnt217.task.core.activity.group.GroupActivity;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public class GroupActivityBuilder extends ContainerActivityBuilder<GroupActivity, GroupActivityBuilder> {
     GroupActivityBuilder() {

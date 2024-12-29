@@ -5,7 +5,7 @@ import io.github.manhnt217.task.core.activity.loop.ForEachActivity;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public class ForEachActivityBuilder extends ContainerActivityBuilder<ForEachActivity, ForEachActivityBuilder> {
     ForEachActivityBuilder() {

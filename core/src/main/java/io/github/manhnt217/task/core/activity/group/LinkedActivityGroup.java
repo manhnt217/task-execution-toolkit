@@ -4,7 +4,7 @@ import io.github.manhnt217.task.core.activity.Activity;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public interface LinkedActivityGroup<P, Q> extends ActivityGroup<P, Q>{
 

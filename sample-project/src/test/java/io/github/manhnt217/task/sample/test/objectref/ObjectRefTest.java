@@ -1,13 +1,13 @@
 package io.github.manhnt217.task.sample.test.objectref;
 
-import io.github.manhnt217.task.sample.LinearCompositeTask;
-import io.github.manhnt217.task.sample.TestUtil;
-import io.github.manhnt217.task.sample.plugin.ObjectRefConsumerTask;
-import io.github.manhnt217.task.sample.plugin.ObjectRefProducerTask;
-import io.github.manhnt217.task.core.activity.DefaultActivityLogger;
-import io.github.manhnt217.task.core.activity.task.TaskBasedActivity;
+import io.github.manhnt217.task.core.activity.DefaultTaskLogger;
+import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
+import io.github.manhnt217.task.sample.LinearFunction;
+import io.github.manhnt217.task.sample.TestUtil;
+import io.github.manhnt217.task.sample.plugin.ObjectRefConsumer;
+import io.github.manhnt217.task.sample.plugin.ObjectRefProducer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -18,29 +18,27 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 @Execution(ExecutionMode.CONCURRENT)
 class ObjectRefTest {
 
     @Test
     public void testSimpleObjectRef() throws ConfigurationException {
-        DefaultActivityLogger logHandler = new DefaultActivityLogger();
+        DefaultTaskLogger logHandler = new DefaultTaskLogger();
 
-        TaskBasedActivity objectRefProducerTask1 = ActivityBuilder
-                .task("objectRefProducerTask1")
-                .taskName(ObjectRefProducerTask.class.getName())
+        PluginActivity act1 = ActivityBuilder
+                .plugin("act1", ObjectRefProducer.class.getSimpleName())
                 .build();
 
-        TaskBasedActivity objectRefConsumerTask1 = ActivityBuilder
-                .task("objectRefConsumerTask1")
-                .taskName(ObjectRefConsumerTask.class.getName())
-                .inputMapping(".objectRefProducerTask1")
+        PluginActivity act2 = ActivityBuilder
+                .plugin("act2", ObjectRefConsumer.class.getSimpleName())
+                .inputMapping(".act1")
                 .build();
 
-        LinearCompositeTask task = new LinearCompositeTask("c1", Arrays.asList(objectRefProducerTask1, objectRefConsumerTask1));
+        LinearFunction func = new LinearFunction("c1", Arrays.asList(act1, act2));
 
         assertDoesNotThrow(() ->
-                TestUtil.executeTask(task, null, null, logHandler, UUID.randomUUID().toString()));
+                TestUtil.executeFunc(func, null, null, logHandler, UUID.randomUUID().toString()));
     }
 }

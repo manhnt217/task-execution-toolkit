@@ -1,7 +1,7 @@
 package io.github.manhnt217.task.sample;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public class ConsoleColors {
     // Reset

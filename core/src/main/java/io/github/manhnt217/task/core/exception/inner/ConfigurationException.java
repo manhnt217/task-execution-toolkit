@@ -1,7 +1,7 @@
 package io.github.manhnt217.task.core.exception.inner;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public class ConfigurationException extends Exception {
     public ConfigurationException(String message, Throwable cause) {

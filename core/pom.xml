@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>io.github.manhnt217.task</groupId>
-        <artifactId>task-execution-toolkit</artifactId>
+        <groupId>io.github.manhnt217.function</groupId>
+        <artifactId>function-execution-toolkit</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
