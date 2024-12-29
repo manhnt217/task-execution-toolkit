@@ -39,3 +39,5 @@ build/
 
 *.drawio.bkp
 *.drawio.dtmp
+
+.idea
