@@ -10,7 +10,7 @@ import io.github.manhnt217.task.task_engine.activity.InboundMessage;
 import io.github.manhnt217.task.task_engine.activity.OutboundMessage;
 import io.github.manhnt217.task.task_engine.activity.SimpleOutboundMessage;
 import io.github.manhnt217.task.task_engine.activity.group.Group;
-import io.github.manhnt217.task.task_engine.activity.simple.AbstractSimpleActivity;
+import io.github.manhnt217.task.task_engine.activity.AbstractActivity;
 import io.github.manhnt217.task.task_engine.context.ActivityContext;
 import io.github.manhnt217.task.task_engine.context.JSONUtil;
 import io.github.manhnt217.task.task_engine.context.sub.ForEachContext;
@@ -20,7 +20,7 @@ import io.github.manhnt217.task.task_engine.exception.GroupException;
 /**
  * @author manhnguyen
  */
-public class ForEachActivity extends AbstractSimpleActivity implements Activity {
+public class ForEachActivity extends AbstractActivity implements Activity {
 
     public static final String KEY_ITEM = "item";
     public static final String KEY_INDEX = "index";

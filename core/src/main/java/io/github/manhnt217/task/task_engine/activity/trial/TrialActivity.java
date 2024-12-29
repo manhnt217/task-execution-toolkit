@@ -4,7 +4,7 @@ import io.github.manhnt217.task.task_engine.activity.Activity;
 import io.github.manhnt217.task.task_engine.activity.ActivityLogger;
 import io.github.manhnt217.task.task_engine.activity.InboundMessage;
 import io.github.manhnt217.task.task_engine.activity.OutboundMessage;
-import io.github.manhnt217.task.task_engine.activity.simple.AbstractSimpleActivity;
+import io.github.manhnt217.task.task_engine.activity.AbstractActivity;
 import io.github.manhnt217.task.task_engine.context.ActivityContext;
 import io.github.manhnt217.task.task_engine.exception.ActivityException;
 import lombok.Getter;
@@ -15,7 +15,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class TrialActivity extends AbstractSimpleActivity implements Activity {
+public class TrialActivity extends AbstractActivity implements Activity {
 
     public TrialActivity(String name) {
         super(name);

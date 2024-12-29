@@ -4,15 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.sample.LinearCompositeTask;
 import io.github.manhnt217.task.sample.TestUtil;
-import io.github.manhnt217.task.task_engine.activity.group.Group;
-import io.github.manhnt217.task.task_engine.activity.simple.EndActivity;
-import io.github.manhnt217.task.task_engine.activity.simple.StartActivity;
+import io.github.manhnt217.task.sample.plugin.CurlTask;
+import io.github.manhnt217.task.sample.plugin.LogTask;
 import io.github.manhnt217.task.task_engine.exception.TaskException;
 import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.task_engine.activity.DefaultActivityLogger;
 import io.github.manhnt217.task.task_engine.activity.ExecutionLog;
 import io.github.manhnt217.task.task_engine.activity.task.TaskBasedActivity;
 import io.github.manhnt217.task.task_engine.activity.loop.ForEachActivity;
+import io.github.manhnt217.task.task_engine.persistence.builder.ActivityBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -34,27 +34,27 @@ public class LoopTest {
      */
     @Test
     public void testForEachSimple() throws ConfigurationException, JsonProcessingException, TaskException {
-
         final String FOR_EACH_1 = "forEach1";
 
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
-        TaskBasedActivity task1 = new TaskBasedActivity("task1");
-        task1.setInputMapping("{\"severity\": \"INFO\",\"message\": \"Item \" + .f1Start.item}");
-        task1.setTask(TestUtil.loadTask("LogTask"));
-
-        Group group = new Group();
-        group.addActivity(new StartActivity("f1Start"));
-        EndActivity f1End = new EndActivity("f1End");
-        f1End.setInputMapping(".f1Start.item + .f1Start.index");
-        group.addActivity(f1End);
-        group.linkFromStart(task1, null);
-        group.linkToEnd(task1, null);
-
-        ForEachActivity loop1 = new ForEachActivity(FOR_EACH_1, group);
+        TaskBasedActivity task1 = ActivityBuilder
+                .task("task1", ActivityBuilder.plugin(LogTask.class.getName()).build())
+                .inputMapping("{\"severity\": \"INFO\",\"message\": \"Item \" + .f1Start.item}")
+                .build();
 
         List<String> loopInput = Arrays.asList("a", "b", "c");
-        loop1.setInputMapping(TestUtil.OM.writeValueAsString(loopInput)); // 3 items
+
+        ForEachActivity loop1 = ActivityBuilder
+                .forEach()
+                .name(FOR_EACH_1)
+                .start("f1Start")
+                .end("f1End")
+                .linkFromStart(task1)
+                .linkToEnd(task1)
+                .inputMapping(TestUtil.OM.writeValueAsString(loopInput))
+                .outputMapping(".f1Start.item + .f1Start.index")
+                .build();
 
         LinearCompositeTask task = new LinearCompositeTask("c1", Collections.singletonList(loop1));
         JsonNode output = TestUtil.executeTask(task, null, null, logHandler, UUID.randomUUID().toString());
