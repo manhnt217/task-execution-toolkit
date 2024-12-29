@@ -4,11 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import io.github.manhnt217.task.task_executor.activity.ActivityException;
 import io.github.manhnt217.task.task_executor.process.DefaultLogger;
 import io.github.manhnt217.task.task_executor.task.CompoundTask;
 import io.github.manhnt217.task.task_executor.task.Task;
-import io.github.manhnt217.task.task_executor.task.TaskExecutionException;
 import io.github.manhnt217.task.task_executor.task.TemplateTask;
 import org.junit.jupiter.api.Test;
 
@@ -32,27 +31,24 @@ public class ComplexTaskTest {
             "END;";
 
     @Test
-    public void testComplex1() throws TaskExecutionException, JsonProcessingException {
+    public void testComplex1() throws ActivityException, JsonProcessingException {
         DefaultLogger logHandler = new DefaultLogger();
 
         TemplateTask task1 = new TemplateTask("task1");
-        task1.setInputMappingExpression("._PARENT_");
+        task1.setInputMapping("._PROPS_");
         task1.setTemplateName("CurlTemplate");
-        task1.setEndLogExpression("\"Finish task 1\"");
+        task1.setEndLog("\"Finish task 1\"");
 
         TemplateTask task2 = new TemplateTask("task2");
         task2.setTemplateName("LogTemplate");
-        task2.setInputMappingExpression("{\"severity\": \"INFO\", \"message\": \"Status code is \" + .task1.statusCode}");
+        task2.setInputMapping("{\"severity\": \"INFO\", \"message\": \"Status code is \" + .task1.statusCode}");
 
         TemplateTask task3 = new TemplateTask("task3");
         task3.setTemplateName("SqlTemplate");
-        task3.setInputMappingExpression("{\"sql\":\"" + SQL + "\"} + ._PARENT_");
-
-        task2.setDependencies(Sets.newHashSet(task1.getName()));
-        task3.setDependencies(Sets.newHashSet(task2.getName()));
+        task3.setInputMapping("{\"sql\":\"" + SQL + "\"} + ._PROPS_");
 
         CompoundTask compoundTask1 = new CompoundTask("c1", Lists.newArrayList(task1, task2, task3));
-        compoundTask1.setInputMappingExpression("._PARENT_");
+        compoundTask1.setOutputMapping(CompoundTask.ALL_SUBTASKS_JSLT);
 
         Map<String, Object> input = ImmutableMap.of(
                 "url", "https://example.com",
@@ -83,5 +79,30 @@ public class ComplexTaskTest {
         assertThat(logHandler.getLogs().size(), greaterThanOrEqualTo(2));
         assertThat(logHandler.getLogs().get(0).getContent(), is("Finish task 1"));
         assertThat(logHandler.getLogs().get(1).getContent(), is("Status code is 200"));
+    }
+
+    @Test
+    public void testComplex2_PassingInputFromParent() throws ActivityException, JsonProcessingException {
+        DefaultLogger logHandler = new DefaultLogger();
+
+        TemplateTask task1 = new TemplateTask("task1");
+        task1.setInputMapping("{\"url\": ._START_.request, \"method\": \"GET\"}");
+        task1.setTemplateName("CurlTemplate");
+        task1.setEndLog("\"Finish task 1\"");
+
+        CompoundTask compoundTask1 = new CompoundTask("c1", Lists.newArrayList(task1));
+        compoundTask1.setInputMapping("{\"request\": ._PROPS_.url}");
+        compoundTask1.setOutputMapping(CompoundTask.ALL_SUBTASKS_JSLT);
+
+        Map<String, Object> input = ImmutableMap.of("url", "https://example.com");
+        JsonNode output = TestUtil.executeTask(compoundTask1, Task.OBJECT_MAPPER.valueToTree(input), logHandler, UUID.randomUUID().toString());
+        Map<String, Object> out = OM.treeToValue(output, Map.class);
+        assertThat(out.size(), is(1));
+        assertThat(out, hasKey("task1"));
+
+        assertThat((Map<String, Object>) out.get("task1"), hasKey("statusCode"));
+
+        assertThat(logHandler.getLogs().size(), is(1));
+        assertThat(logHandler.getLogs().get(0).getContent(), is("Finish task 1"));
     }
 }

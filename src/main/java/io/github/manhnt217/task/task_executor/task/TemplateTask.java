@@ -17,7 +17,7 @@ public class TemplateTask extends Task {
 	}
 
 	@Override
-	public JsonNode execute(JsonNode input, String executionId, Logger logger) throws TaskExecutionException {
+	public JsonNode execute(JsonNode input, String executionId, Logger logger, JsonNode props) throws TaskExecutionException {
 		try {
 			return Template.run(
 					this.getTemplateName(),
