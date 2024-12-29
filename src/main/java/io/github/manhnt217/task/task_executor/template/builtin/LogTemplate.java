@@ -1,8 +1,8 @@
-package io.github.manhnt217.task.task_executor.process.builtin;
+package io.github.manhnt217.task.task_executor.template.builtin;
 
-import io.github.manhnt217.task.task_executor.process.Severity;
-import io.github.manhnt217.task.task_executor.process.Template;
-import io.github.manhnt217.task.task_executor.process.TemplateLogger;
+import io.github.manhnt217.task.task_executor.activity.impl.ExecutionLog;
+import io.github.manhnt217.task.task_executor.template.Template;
+import io.github.manhnt217.task.task_executor.activity.impl.task.TemplateLogger;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +39,7 @@ public class LogTemplate extends Template<LogTemplate.LogDto, Object> {
 	@NoArgsConstructor
 	@Data
 	public static class LogDto {
-		private Severity severity;
+		private ExecutionLog.Severity severity;
 		private String message;
 	}
 }

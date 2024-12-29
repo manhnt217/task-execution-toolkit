@@ -1,7 +1,7 @@
-package io.github.manhnt217.task.task_executor.task;
+package io.github.manhnt217.task.task_executor.activity.impl.task;
 
 import io.github.manhnt217.task.task_executor.activity.ActivityException;
-import io.github.manhnt217.task.task_executor.process.TemplateExecutionException;
+import io.github.manhnt217.task.task_executor.template.TemplateExecutionException;
 import lombok.Getter;
 
 @Getter

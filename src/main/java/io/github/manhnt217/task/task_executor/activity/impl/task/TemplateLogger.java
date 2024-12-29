@@ -1,4 +1,6 @@
-package io.github.manhnt217.task.task_executor.process;
+package io.github.manhnt217.task.task_executor.activity.impl.task;
+
+import io.github.manhnt217.task.task_executor.activity.Logger;
 
 public class TemplateLogger {
 

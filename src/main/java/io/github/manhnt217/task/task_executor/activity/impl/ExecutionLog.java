@@ -1,4 +1,4 @@
-package io.github.manhnt217.task.task_executor.process;
+package io.github.manhnt217.task.task_executor.activity.impl;
 
 import io.github.manhnt217.task.task_executor.common.CommonUtil;
 import lombok.AccessLevel;
@@ -36,5 +36,9 @@ public class ExecutionLog {
 		} else {
 			return content;
 		}
+	}
+
+	public enum Severity {
+		INFO, WARN, ERROR
 	}
 }

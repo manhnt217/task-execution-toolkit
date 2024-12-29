@@ -1,9 +1,9 @@
-package io.github.manhnt217.task.task_executor.process.builtin;
+package io.github.manhnt217.task.task_executor.template.builtin;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.manhnt217.task.task_executor.process.Template;
-import io.github.manhnt217.task.task_executor.process.TemplateLogger;
-import io.github.manhnt217.task.task_executor.task.Task;
+import io.github.manhnt217.task.task_executor.template.Template;
+import io.github.manhnt217.task.task_executor.activity.impl.task.TemplateLogger;
+import io.github.manhnt217.task.task_executor.activity.impl.task.Task;
 import kong.unirest.HttpMethod;
 import kong.unirest.HttpRequestWithBody;
 import kong.unirest.HttpResponse;
