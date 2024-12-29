@@ -1,11 +1,8 @@
 package io.github.manhnt217.task.task_executor;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.github.manhnt217.task.task_executor.executor.CompoundTaskExecutor;
-import io.github.manhnt217.task.task_executor.executor.ParamContext;
-import io.github.manhnt217.task.task_executor.executor.TaskExecutionException;
 import io.github.manhnt217.task.task_executor.process.DefaultLogger;
-import io.github.manhnt217.task.task_executor.task.Task;
+import io.github.manhnt217.task.task_executor.task.*;
 
 public class TestUtil {
 
@@ -13,6 +10,6 @@ public class TestUtil {
 
         ParamContext context = new ParamContext();
         context.setParentInput(input);
-        return CompoundTaskExecutor.executeTask(task, context, executionSessionId, logger);
+        return TaskUtil.executeTask(task, context, executionSessionId, logger);
     }
 }
