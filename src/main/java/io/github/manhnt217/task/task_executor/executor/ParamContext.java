@@ -1,10 +1,10 @@
-package io.github.manhnt217.task.task_executor.task;
+package io.github.manhnt217.task.task_executor.executor;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.github.manhnt217.task.task_executor.Main;
+import io.github.manhnt217.task.task_executor.task.Task;
 
-public class TaskExecutionContext {
+public class ParamContext {
 
 	public static final String DOT = ".";
 	public static final String KEY_GLOBAL_SPACE = "_";
@@ -18,14 +18,22 @@ public class TaskExecutionContext {
 	 */
 	private final ObjectNode contextParams; // root object to evaluate JSLT expression
 
-	public TaskExecutionContext() {
-		this.contextParams = Main.om.createObjectNode();
-		this.globalSpace = Main.om.createObjectNode();
+	public ParamContext() {
+		this.contextParams = TaskExecutor.om.createObjectNode();
+		this.globalSpace = TaskExecutor.om.createObjectNode();
 		this.contextParams.set(KEY_GLOBAL_SPACE, globalSpace);
 	}
 
-	public void saveTaskInput(Task task, JsonNode input) {
-		ObjectNode inputNode = Main.om.createObjectNode();
+	public static String getTaskInputPath(Task task) {
+		return DOT + task.getId() + DOT + KEY_IN;
+	}
+
+	public static String getTaskOutputPath(Task task) {
+		return DOT + task.getId() + DOT + KEY_OUT;
+	}
+
+    public void saveTaskInput(Task task, JsonNode input) {
+		ObjectNode inputNode = TaskExecutor.om.createObjectNode();
 		inputNode.set(KEY_IN, input);
 		contextParams.set(task.getId(), inputNode);
 	}

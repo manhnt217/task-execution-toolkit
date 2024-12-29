@@ -1,6 +1,7 @@
 package io.github.manhnt217.task.task_executor.process.builtin.sql;
 
 import com.google.common.base.Strings;
+import io.github.manhnt217.task.task_executor.common.ConsoleColors;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -9,8 +10,6 @@ import org.hibernate.cfg.Environment;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
 
 import java.util.function.Consumer;
-
-import static io.github.manhnt217.task.task_executor.common.ConsoleColors.highlight;
 
 @Slf4j
 public class DataSourceConnector implements AutoCloseable {
@@ -23,7 +22,7 @@ public class DataSourceConnector implements AutoCloseable {
         try {
             configure();
         } catch (Exception e) {
-            log.error(highlight("Got an exception while configuring datasource '" + dataSource.getName() + "'"), e);
+            log.error(ConsoleColors.highlight("Got an exception while configuring datasource '" + dataSource.getName() + "'"), e);
             e.printStackTrace();
             throw e;
         }

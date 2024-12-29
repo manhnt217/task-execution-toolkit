@@ -1,27 +1,19 @@
 package io.github.manhnt217.task.task_executor;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
-import io.github.manhnt217.task.task_executor.executor.CompoundTaskExecutor;
 import io.github.manhnt217.task.task_executor.executor.TaskExecutor;
 import io.github.manhnt217.task.task_executor.task.CompoundTask;
 import io.github.manhnt217.task.task_executor.task.Task;
-import io.github.manhnt217.task.task_executor.task.TaskExecutionContext;
+import io.github.manhnt217.task.task_executor.executor.ParamContext;
 import io.github.manhnt217.task.task_executor.task.TemplateTask;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Map;
 
 public class Main {
 
-	public static final ObjectMapper om = new ObjectMapper();
 	public static final String SQL = "DECLARE " +
 			"    p varchar2(10); " +
 			"BEGIN " +
@@ -30,19 +22,12 @@ public class Main {
 			"    DBMS_OUTPUT.PUT_LINE('Got a result: ================ ' || p || chr(10) || ' ABC'); " +
 			"END;";
 
-	static {
-		om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		om.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-		om.registerModule(new JSR310Module());
-		om.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
-	}
-
 	public static void main(String[] args) throws IOException {
 
 		TemplateTask task1 = new TemplateTask();
 		task1.setId("task1");
 		task1.setTemplateName("CurlTemplate");
-		task1.setInputMappingExpression(TaskExecutionContext.EXP_INIT_PARAMS);
+		task1.setInputMappingExpression(ParamContext.EXP_INIT_PARAMS);
 		task1.setInputType(Task.InputType.CONTEXT);
 		task1.setOutputMappingExpression(".statusCode");
 		task1.setEndLogExpression("\"Finish task 1\"");
@@ -70,12 +55,12 @@ public class Main {
 		CompoundTask compoundTask1 = new CompoundTask(Sets.newHashSet(task1, task3, task2));
 		compoundTask1.setId("c1");
 		compoundTask1.setInputType(Task.InputType.CONTEXT);
-		compoundTask1.setInputMappingExpression(TaskExecutionContext.EXP_INIT_PARAMS);
+		compoundTask1.setInputMappingExpression(ParamContext.EXP_INIT_PARAMS);
 
 		CompoundTask compoundTask2 = new CompoundTask(Sets.newHashSet(task1, task2, task3));
 		compoundTask2.setId("c2");
 		compoundTask2.setInputType(Task.InputType.CONTEXT);
-		compoundTask2.setInputMappingExpression(TaskExecutionContext.EXP_INIT_PARAMS);
+		compoundTask2.setInputMappingExpression(ParamContext.EXP_INIT_PARAMS);
 
 		CompoundTask mainTask = new CompoundTask(Sets.newHashSet(compoundTask1, compoundTask2));
 
@@ -84,12 +69,12 @@ public class Main {
 		mainTask.setOutputMappingExpression("{}");
 
 
-		JsonNode input1 = Main.om.valueToTree(input);
+		JsonNode input1 = TaskExecutor.om.valueToTree(input);
 		TaskExecutor executor = TaskExecutor.getTaskExecutor(mainTask);
 		JsonNode output = executor.execute(mainTask, input1);
 		System.out.println("Task output:");
-		System.out.println(om.writerWithDefaultPrettyPrinter().writeValueAsString(output));
+		System.out.println(TaskExecutor.om.writerWithDefaultPrettyPrinter().writeValueAsString(output));
 		System.out.println("Task logs");
-		System.out.println(om.writerWithDefaultPrettyPrinter().writeValueAsString(executor.getLogs()));
+		System.out.println(TaskExecutor.om.writerWithDefaultPrettyPrinter().writeValueAsString(executor.getLogs()));
 	}
 }
