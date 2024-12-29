@@ -12,7 +12,6 @@ import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.type.ObjectRef;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,7 +21,15 @@ public interface ActivityContext {
 
     String KEY_PROPS = "_PROPS_";
     String ALL_SUBTASKS_JSLT = "{\""+KEY_PROPS+"\": null, * : . }";
-    String FROM_PROPS = "." + KEY_PROPS;
+    String FROM_PROPS = from(KEY_PROPS);
+
+    static String from(String key) {
+        return "." + key;
+    }
+
+    static String from(Activity activity) {
+        return "." + activity.getName();
+    }
 
     ObjectNode getProps();
 

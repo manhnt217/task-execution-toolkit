@@ -18,7 +18,7 @@ public class Function<P, R> implements Task {
 
     public static final String START_ACTIVITY_NAME = "START";
     public static final String END_ACTIVITY_NAME = "END";
-    public static final String START_INPUT_MAPPING = "." + START_ACTIVITY_NAME;
+    public static final String START_INPUT_MAPPING = ActivityContext.from(START_ACTIVITY_NAME);
     @Getter
     protected final String name;
     protected final Group activityGroup;
