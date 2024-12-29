@@ -13,9 +13,9 @@ import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
+import io.github.manhnt217.task.plugin.Log;
 import io.github.manhnt217.task.sample.TestUtil;
-import io.github.manhnt217.task.sample.example_plugin.Curl;
-import io.github.manhnt217.task.sample.plugin.Log;
+import io.github.manhnt217.task.sample.test.example_plugin.Curl;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,12 +28,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
 import java.util.Map;
 
-import static io.github.manhnt217.task.core.context.ActivityContext.ALL_SUBTASKS_JSLT;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static io.github.manhnt217.task.core.context.ActivityContext.*;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.BDDMockito.atLeastOnce;
+import static org.mockito.BDDMockito.eq;
+import static org.mockito.BDDMockito.verify;
+import static org.mockito.BDDMockito.*;
+import static org.mockito.Mockito.any;
 
 /**
  * @author manh nguyen

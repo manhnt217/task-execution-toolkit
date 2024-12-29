@@ -1,8 +1,11 @@
 package io.github.manhnt217.task.core.container;
 
+import io.github.manhnt217.task.core.exception.TimeOutException;
 import io.github.manhnt217.task.core.type.Future;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class FutureImpl<T> implements Future<T> {
 
@@ -13,12 +16,22 @@ public class FutureImpl<T> implements Future<T> {
     }
 
     @Override
-    public T get() throws Exception {
-        return innerFuture.get();
+    public T get() {
+        try {
+            return innerFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public T get(long timeout) throws Exception {
-        return innerFuture.get(timeout, TimeUnit.MILLISECONDS);
+    public T get(long timeout) throws TimeOutException {
+        try {
+            return innerFuture.get(timeout, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (TimeoutException e) {
+            throw new TimeOutException();
+        }
     }
 }

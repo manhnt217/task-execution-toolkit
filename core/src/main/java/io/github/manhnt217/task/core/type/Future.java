@@ -1,8 +1,10 @@
 package io.github.manhnt217.task.core.type;
 
+import io.github.manhnt217.task.core.exception.TimeOutException;
+
 public interface Future<T> {
 
-    T get() throws Exception;
+    T get();
 
-    T get(long timeout) throws Exception;
+    T get(long timeout) throws TimeOutException;
 }

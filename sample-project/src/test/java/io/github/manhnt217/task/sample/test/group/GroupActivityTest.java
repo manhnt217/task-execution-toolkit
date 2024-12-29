@@ -10,19 +10,18 @@ import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
-import io.github.manhnt217.task.sample.example_plugin.AddTwoNumber;
-import io.github.manhnt217.task.sample.example_plugin.Curl;
-import io.github.manhnt217.task.sample.plugin.Log;
+import io.github.manhnt217.task.plugin.Log;
 import io.github.manhnt217.task.sample.test.AbstractEngineTest;
+import io.github.manhnt217.task.sample.test.example_plugin.AddTwoNumber;
+import io.github.manhnt217.task.sample.test.example_plugin.Curl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
 
-import static io.github.manhnt217.task.sample.TestUtil.OM;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static io.github.manhnt217.task.sample.TestUtil.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**

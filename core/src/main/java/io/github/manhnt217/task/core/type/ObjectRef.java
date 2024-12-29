@@ -5,17 +5,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 /**
  * @author manh nguyen
  */
-public class ObjectRef {
+public class ObjectRef<T> {
 
     @JsonIgnore
-    private final Object value;
+    private final T value;
 
-    public ObjectRef(Object value) {
+    public ObjectRef(T value) {
         this.value = value;
     }
 
     @JsonIgnore
-    public <T> T get() {
-        return (T) this.value;
+    public T get() {
+        return this.value;
     }
 }

@@ -4,7 +4,7 @@ import io.github.manhnt217.task.core.activity.source.FromSourceActivity;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.task.handler.Handler;
 
-import static io.github.manhnt217.task.core.task.function.Function.END_ACTIVITY_NAME;
+import static io.github.manhnt217.task.core.task.function.Function.*;
 
 /**
  * @author manh nguyen
