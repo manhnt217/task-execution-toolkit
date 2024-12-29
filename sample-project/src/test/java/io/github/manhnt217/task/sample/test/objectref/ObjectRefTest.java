@@ -2,8 +2,8 @@ package io.github.manhnt217.task.sample.test.objectref;
 
 import io.github.manhnt217.task.sample.LinearCompositeTask;
 import io.github.manhnt217.task.sample.TestUtil;
-import io.github.manhnt217.task.task_engine.activity.impl.DefaultActivityLogger;
-import io.github.manhnt217.task.task_engine.activity.impl.task.TaskBasedActivity;
+import io.github.manhnt217.task.task_engine.activity.DefaultActivityLogger;
+import io.github.manhnt217.task.task_engine.activity.task.TaskBasedActivity;
 import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
