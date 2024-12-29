@@ -4,7 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter @Setter
 public abstract class Task {
@@ -29,7 +31,7 @@ public abstract class Task {
 
 	protected String endLogExpression;
 
-	protected List<String> dependencies = new ArrayList<>(0);
+	protected Set<String> dependencies = new HashSet<>(0);
 
 	public boolean isIndependent() {
 		return getDependencies().size() == 0;
