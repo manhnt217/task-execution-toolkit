@@ -1,15 +1,15 @@
 package io.github.manhnt217.task.task_executor.executor;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.github.manhnt217.task.task_executor.process.ExecutionLog;
-import io.github.manhnt217.task.task_executor.process.Template;
-import io.github.manhnt217.task.task_executor.process.TemplateExecutionException;
+import io.github.manhnt217.task.task_executor.process.*;
 import io.github.manhnt217.task.task_executor.task.Task;
 import io.github.manhnt217.task.task_executor.task.TemplateTask;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public class TemplateTaskExecutor extends TaskExecutor {
+
     @Override
-    public JsonNode execute(Task task, JsonNode input) {
+    public JsonNode execute(Task task, JsonNode input, String executionSessionId, LogHandler logHandler) throws TaskExecutionException {
         if (!(task instanceof TemplateTask)) {
             throw new IllegalArgumentException("Task " + task + " is not a TemplateTask");
         }
@@ -18,9 +18,11 @@ public class TemplateTaskExecutor extends TaskExecutor {
             return Template.run(
                     templateTask.getTemplateName(),
                     input,
-                    (severity, message) -> this.logs.add(new ExecutionLog(templateTask.getId(), severity, message)));
+                    new TemplateLogHandler(executionSessionId, task.getId(), logHandler));
         } catch (TemplateExecutionException e) {
-            throw new TaskExecutionException(e);
+            throw new TaskExecutionException(e, task);
+        } catch (Exception e) {
+            throw new TaskExecutionException("An exception was thrown during the task execution. Stacktrace: " + ExceptionUtils.getRootCauseMessage(e), task);
         }
     }
 }
