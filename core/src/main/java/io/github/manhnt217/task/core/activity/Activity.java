@@ -3,6 +3,7 @@ package io.github.manhnt217.task.core.activity;
 import io.github.manhnt217.task.core.activity.group.ActivityGroup;
 import io.github.manhnt217.task.core.context.ActivityContext;
 import io.github.manhnt217.task.core.exception.ActivityException;
+import io.github.manhnt217.task.core.exception.ActivityInputException;
 
 import java.util.Collections;
 import java.util.Set;
@@ -18,7 +19,7 @@ public interface Activity {
         return Collections.singleton(getName());
     }
 
-    String getInputMapping();
+    String getInputMapping() throws ActivityInputException;
 
     ActivityGroup<?, ?> getParent();
 

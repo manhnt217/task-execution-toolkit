@@ -26,7 +26,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static io.github.manhnt217.task.core.container.TaskContainer.EventSourceStatus.*;
+import static io.github.manhnt217.task.core.container.TaskContainer.EventSourceStatus.STARTED;
+import static io.github.manhnt217.task.core.container.TaskContainer.EventSourceStatus.STOPPED;
 
 @Slf4j
 public class TaskContainer implements EventDispatcher, EventSourceController {

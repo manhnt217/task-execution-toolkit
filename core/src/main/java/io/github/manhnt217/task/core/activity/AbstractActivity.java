@@ -1,6 +1,7 @@
 package io.github.manhnt217.task.core.activity;
 
 import io.github.manhnt217.task.core.activity.group.ActivityGroup;
+import io.github.manhnt217.task.core.exception.ActivityInputException;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -21,5 +22,9 @@ public abstract class AbstractActivity implements Activity {
             throw new IllegalArgumentException("Activity's name cannot be empty");
         }
         this.name = name;
+    }
+
+    public String getInputMapping() throws ActivityInputException {
+        return inputMapping;
     }
 }

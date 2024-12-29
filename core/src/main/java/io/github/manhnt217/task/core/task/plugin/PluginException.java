@@ -3,7 +3,6 @@ package io.github.manhnt217.task.core.task.plugin;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.core.exception.ExecutionException;
 import lombok.Getter;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author manh nguyen

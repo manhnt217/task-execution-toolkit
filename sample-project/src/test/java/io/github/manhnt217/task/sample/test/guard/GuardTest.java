@@ -172,7 +172,7 @@ public class GuardTest extends AbstractEngineTest {
         FromLastActivity pickFirst = new FromLastActivity("pickFirst");
 
         Function<SampleInput, SampleOutput> func = ActivityBuilder
-                .function("c1", SampleInput.class, SampleOutput.class)
+                .function("simpleFunction", SampleInput.class, SampleOutput.class)
                 .linkFromStart(p1, from(START_ACTIVITY_NAME) + ".age > 10")
                 .linkFromStart(p2, Group.OTHERWISE_GUARD_EXP)
                 .link(p1, pickFirst)
@@ -181,9 +181,10 @@ public class GuardTest extends AbstractEngineTest {
                 .outputMapping(from("pickFirst"))
                 .build();
 
-        RootContext context = new RootContext(null, repo, logger);
-        SampleOutput result1 = func.exec(new SampleInput("Kevin", 15, "London"), context);
-        SampleOutput result2 = func.exec(new SampleInput("Stacy", 4, "New Jersey"), context);
+        RootContext context1 = new RootContext(null, repo, logger);
+        RootContext context2 = new RootContext(null, repo, logger);
+        SampleOutput result1 = func.exec(new SampleInput("Kevin", 15, "London"), context1);
+        SampleOutput result2 = func.exec(new SampleInput("Stacy", 4, "New Jersey"), context2);
 
         assertThat(result1.getCategory(), is("high"));
         assertThat(result1.isImportant(), is(true));
@@ -220,20 +221,66 @@ public class GuardTest extends AbstractEngineTest {
         ));
 
         FunctionDto functionDto = new FunctionDto();
-        functionDto.setName("c1");
+        functionDto.setName("simpleFunction");
         functionDto.setInputClass(SampleInput.class.getName());
         functionDto.setOutputClass(SampleOutput.class.getName());
         functionDto.setGroup(groupDto);
         functionDto.setOutputMapping(from("pickFirst"));
+
+        @SuppressWarnings("unchecked")
+        Function<SampleInput, SampleOutput> func = TaskService.instance().buildFunction(functionDto);
+
+        RootContext context1 = new RootContext(null, repo, logger);
+        RootContext context2 = new RootContext(null, repo, logger);
+        SampleOutput result1 = func.exec(new SampleInput("Kevin", 15, "London"), context1);
+        SampleOutput result2 = func.exec(new SampleInput("Stacy", 4, "New Jersey"), context2);
+
+        assertThat(result1.getCategory(), is("high"));
+        assertThat(result1.isImportant(), is(true));
+        assertThat(result1.getRate(), is(-5.0));
+
+        assertThat(result2.getCategory(), is("low"));
+        assertThat(result2.isImportant(), is(false));
+        assertThat(result2.getRate(), is(0.0));
+    }
+
+
+    @Test
+    public void test_EndActivity_Extends_FromLastActivity() throws TaskException, ActivityException, ConfigurationException, JsonProcessingException {
+
+        MapperActivityDto p1 = new MapperActivityDto();
+        p1.setName("p1");
+        p1.setInputMapping("{\"category\": \"high\", \"important\": true, \"rate\": -5.0}");
+
+        MapperActivityDto p2 = new MapperActivityDto();
+        p2.setName("p2");
+        p2.setInputMapping("{\"category\": \"low\"}");
+
+        ActivityGroupDto groupDto = new ActivityGroupDto();
+
+        groupDto.setActivities(Arrays.asList(p1, p2));
+        groupDto.setLinks(Arrays.asList(
+                new ActivityLinkDto(){{ setFrom(START_ACTIVITY_NAME); setTo(p1.getName()); setGuard(from(START_ACTIVITY_NAME) + ".age > 10"); }},
+                new ActivityLinkDto(){{ setFrom(START_ACTIVITY_NAME); setTo(p2.getName()); setGuard(Group.OTHERWISE_GUARD_EXP); }},
+                new ActivityLinkDto(){{ setFrom(p1.getName()); setTo(END_ACTIVITY_NAME);  }},
+                new ActivityLinkDto(){{ setFrom(p2.getName()); setTo(END_ACTIVITY_NAME);  }}
+        ));
+
+        FunctionDto functionDto = new FunctionDto();
+        functionDto.setName("simpleFunction");
+        functionDto.setInputClass(SampleInput.class.getName());
+        functionDto.setOutputClass(SampleOutput.class.getName());
+        functionDto.setGroup(groupDto);
 
         System.out.println(TestUtil.OM.writeValueAsString(functionDto));
 
         @SuppressWarnings("unchecked")
         Function<SampleInput, SampleOutput> func = TaskService.instance().buildFunction(functionDto);
 
-        RootContext context = new RootContext(null, repo, logger);
-        SampleOutput result1 = func.exec(new SampleInput("Kevin", 15, "London"), context);
-        SampleOutput result2 = func.exec(new SampleInput("Stacy", 4, "New Jersey"), context);
+        RootContext context1 = new RootContext(null, repo, logger);
+        RootContext context2 = new RootContext(null, repo, logger);
+        SampleOutput result1 = func.exec(new SampleInput("Kevin", 15, "London"), context1);
+        SampleOutput result2 = func.exec(new SampleInput("Stacy", 4, "New Jersey"), context2);
 
         assertThat(result1.getCategory(), is("high"));
         assertThat(result1.isImportant(), is(true));

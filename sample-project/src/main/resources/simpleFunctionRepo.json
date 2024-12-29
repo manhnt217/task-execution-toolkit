@@ -26,7 +26,6 @@
       "name": "simpleFunction",
       "inputClass": "io.github.manhnt217.task.sample.test.helper.SampleInput",
       "outputClass": "io.github.manhnt217.task.sample.test.helper.SampleOutput",
-      "outputMapping": ".pickFirst",
       "group": {
         "activities": [
           {
@@ -38,10 +37,6 @@
             "type": "MAPPER",
             "name": "p2",
             "inputMapping": "{\"category\": \"low\"}"
-          },
-          {
-            "type": "FROMLAST",
-            "name": "pickFirst"
           }
         ],
         "links": [
@@ -57,14 +52,10 @@
           },
           {
             "from": "p1",
-            "to": "pickFirst"
+            "to": "END"
           },
           {
             "from": "p2",
-            "to": "pickFirst"
-          },
-          {
-            "from": "pickFirst",
             "to": "END"
           }
         ]

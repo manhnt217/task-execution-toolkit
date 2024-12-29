@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.manhnt217.task.core.activity.Activity;
 import io.github.manhnt217.task.core.activity.ActivityInfo;
 import io.github.manhnt217.task.core.activity.OutboundMessage;
+import io.github.manhnt217.task.core.exception.ActivityInputException;
 import io.github.manhnt217.task.core.exception.inner.ContextException;
 import io.github.manhnt217.task.core.exception.inner.TransformException;
 
@@ -74,7 +75,7 @@ public abstract class AbstractActivityContext implements ActivityContext {
     }
 
     @Override
-    public JsonNode transformInput(Activity activity) throws TransformException {
+    public JsonNode transformInput(Activity activity) throws TransformException, ActivityInputException {
         return JSONUtil.applyTransform(activity.getInputMapping(), contextParams);
     }
 

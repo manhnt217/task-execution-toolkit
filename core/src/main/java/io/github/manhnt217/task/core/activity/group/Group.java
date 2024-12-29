@@ -2,14 +2,13 @@ package io.github.manhnt217.task.core.activity.group;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.core.activity.*;
-import io.github.manhnt217.task.core.activity.ActivityInfo;
-import io.github.manhnt217.task.core.exception.ActivityInputException;
-import io.github.manhnt217.task.core.exception.ActivityOutputException;
 import io.github.manhnt217.task.core.activity.group.exception.ActivityTransitionException;
 import io.github.manhnt217.task.core.activity.simple.EndActivity;
 import io.github.manhnt217.task.core.activity.simple.StartActivity;
 import io.github.manhnt217.task.core.context.ActivityContext;
 import io.github.manhnt217.task.core.exception.ActivityException;
+import io.github.manhnt217.task.core.exception.ActivityInputException;
+import io.github.manhnt217.task.core.exception.ActivityOutputException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.exception.inner.ContextException;
 import io.github.manhnt217.task.core.exception.inner.TransformException;
@@ -18,12 +17,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.OffsetDateTime;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
