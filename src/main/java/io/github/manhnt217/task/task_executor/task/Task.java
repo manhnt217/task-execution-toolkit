@@ -13,6 +13,7 @@ import io.github.manhnt217.task.task_executor.activity.impl.SimpleOutboundMessag
 import io.github.manhnt217.task.task_executor.process.Logger;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -30,9 +31,32 @@ public abstract class Task implements Activity {
 		OBJECT_MAPPER.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
 	}
 
+	public Task(String name) {
+		this.name = name;
+	}
+
 	@Override
-	public OutboundMessage process(InboundMessage in, String executionId, Logger logger) throws ActivityException {
-		return SimpleOutboundMessage.of(this.execute(in.getContent(), executionId, logger));
+	public OutboundMessage process(InboundMessage in, String executionId, Logger logger, ExecContext context) throws ActivityException {
+
+		log(getStartLogExpression(), context, executionId, logger);
+
+		SimpleOutboundMessage out = SimpleOutboundMessage.of(this.execute(in.getContent(), executionId, logger));
+
+		log(getEndLogExpression(), context, executionId, logger);
+
+		return out;
+	}
+
+	private void log(String logExp, ExecContext ctx, String executionId, Logger logger) {
+		if (StringUtils.isBlank(logExp)) {
+			return;
+		}
+		try {
+			JsonNode jsonNode = ctx.transform(logExp);
+			logger.info(executionId, getName(), jsonNode.isContainerNode() ? "" : jsonNode.asText());
+		} catch (Exception e) {
+			logger.warn(executionId, getName(), "Error while applying log expression to the context. Expression = " + logExp, e);
+		}
 	}
 
 	public abstract JsonNode execute(JsonNode input, String executionId, Logger logger) throws TaskExecutionException;

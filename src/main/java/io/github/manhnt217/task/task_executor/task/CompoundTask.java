@@ -12,6 +12,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.github.manhnt217.task.task_executor.task.ParamContext.WITHOUT_PARENT_JSLT;
 
@@ -49,10 +50,11 @@ public class CompoundTask extends Task implements ContainerActivity {
     private Map<Activity, Map<String, Activity>> links;
 
     public CompoundTask() {
-        this(Collections.emptyList());
+        this("COMPOUNDTASK-" + UUID.randomUUID(), Collections.emptyList());
     }
 
-    public CompoundTask(List<Task> subTasks) {
+    public CompoundTask(String name, List<Task> subTasks) {
+        super(name);
         this.activities = new ArrayList<>();
         this.links = new HashMap<>();
 
@@ -71,6 +73,19 @@ public class CompoundTask extends Task implements ContainerActivity {
             linkTasks(subTasks.get(i), subTasks.get(i + 1));
         }
         linkActivities(subTasks.get(subTasks.size() - 1), endActivity, null);
+    }
+
+    /**
+     * {@link #BLANK_GUARD_EXP} should always be checked first
+     * {@link #OTHERWISE_GUARD_EXP} should always be checked last
+     * @return
+     */
+    private static int compareGuard(String g1, String g2) {
+        if (g1.equals(BLANK_GUARD_EXP)) return -1;
+        if (g2.equals(BLANK_GUARD_EXP)) return 1;
+        if (g1.equals(OTHERWISE_GUARD_EXP)) return 1;
+        if (g2.equals(OTHERWISE_GUARD_EXP)) return -1;
+        else return -1;
     }
 
     private void linkTasks(Task from, Task to) {
@@ -109,7 +124,7 @@ public class CompoundTask extends Task implements ContainerActivity {
         }
     }
 
-    private OutboundMessage executeActivity(Activity activity, ParamContext context, String executionId, Logger logger) throws ActivityException {
+    private OutboundMessage executeActivity(Activity activity, ExecContext context, String executionId, Logger logger) throws ActivityException {
         InboundMessage inboundMessage;
         if (activity instanceof Task) {
             JsonNode taskInput = context.transformInput((Task) activity);
@@ -117,12 +132,12 @@ public class CompoundTask extends Task implements ContainerActivity {
         } else {
             inboundMessage = SimpleInboundMessage.empty();
         }
-        return activity.process(inboundMessage, executionId, logger);
+        return activity.process(inboundMessage, executionId, logger, context);
     }
 
-    private void saveOutput(Activity activity, OutboundMessage out, ParamContext context) {
+    private void saveOutput(Activity activity, OutboundMessage out, ExecContext context) {
         if (activity.registerOutput()) {
-            context.saveOutput(activity, out.getContent());
+            context.saveOutput(activity, out);
         }
     }
 
@@ -131,15 +146,18 @@ public class CompoundTask extends Task implements ContainerActivity {
         if (guardToActivityMap == null) {
             throw new IllegalStateException("Activity link to no where. Process stops");
         }
-        String trueGuard = guardToActivityMap.keySet().stream()
-                .filter(guard -> isTrueGuard(context, guard))
-                .findAny().orElseThrow(() -> new IllegalStateException("Cannot find the next activity because all links from current activity evaluate to FALSE"));
-        Activity nextActivity = guardToActivityMap.get(trueGuard);
-        return nextActivity;
+        List<String> guards = guardToActivityMap.keySet().stream()
+                .sorted(CompoundTask::compareGuard).collect(Collectors.toList());
+        for (String guard : guards) {
+            if (isTrueGuard(context, guard)) {
+                return guardToActivityMap.get(guard);
+            }
+        }
+        throw new IllegalStateException("Cannot find the next activity because all links from current activity evaluate to FALSE");
     }
 
     private boolean isTrueGuard(ParamContext context, String guard) {
-        if (BLANK_GUARD_EXP.equals(guard)) {
+        if (BLANK_GUARD_EXP.equals(guard) || OTHERWISE_GUARD_EXP.equals(guard)) {
             return true;
         }
         JsonNode evaluationResult = context.transform(guard);
@@ -162,6 +180,14 @@ public class CompoundTask extends Task implements ContainerActivity {
             throw new IllegalArgumentException("Guard '" + guard + "' already been added for activity '" + from.getName() + "'");
         }
         guardToActivityMap.put(guard, to);
+    }
+
+    public void linkFromStart(Activity activity, String guard) {
+        linkActivities(startActivity, activity, guard);
+    }
+
+    public void linkToEnd(Activity activity) {
+        linkActivities(activity, endActivity, null);
     }
 
     public void setOutputMapping(String outputMapping) {
