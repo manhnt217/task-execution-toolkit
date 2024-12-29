@@ -10,7 +10,6 @@ import io.github.manhnt217.task.task_engine.exception.inner.TransformException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * @author manhnguyen
@@ -24,7 +23,7 @@ public abstract class AbstractActivityContext implements ActivityContext {
     protected final ObjectNode contextParams; // root object to evaluate JSLT expression
 
     protected AbstractActivityContext() {
-        this.contextParams = JSONUtil.OBJECT_MAPPER.createObjectNode();
+        this.contextParams = JSONUtil.createObjectNode();
     }
 
     @Override
