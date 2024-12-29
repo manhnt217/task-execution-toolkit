@@ -10,7 +10,7 @@ import io.github.manhnt217.task.task_engine.exception.ActivityException;
 import io.github.manhnt217.task.task_engine.activity.OutboundMessage;
 import io.github.manhnt217.task.task_engine.activity.impl.DefaultActivityLogger;
 import io.github.manhnt217.task.task_engine.activity.impl.SimpleInboundMessage;
-import io.github.manhnt217.task.task_engine.context.ActivityContext;
+import io.github.manhnt217.task.task_engine.context.BasicActivityContext;
 import io.github.manhnt217.task.task_engine.task.PluginTask;
 import io.github.manhnt217.task.task_engine.task.Task;
 
@@ -31,7 +31,7 @@ public class TestUtil {
 
     public static JsonNode executeActivity(Activity activity, JsonNode props, DefaultActivityLogger logger, String executionId) throws ActivityException {
 
-        ActivityContext context = new ActivityContext(executionId, props);
+        BasicActivityContext context = new BasicActivityContext(executionId, props);
 
         JsonNode inputAfterTransform;
         try {
