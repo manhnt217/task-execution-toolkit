@@ -18,6 +18,7 @@ import io.github.manhnt217.task.task_engine.persistence.builder.ActivityBuilder;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -38,16 +39,18 @@ public class GroupActivityTest {
      * @throws ConfigurationException
      */
     @Test
-    public void testGroupSimple() throws ConfigurationException, TaskException {
+    public void testGroupSimple() throws ConfigurationException, TaskException, IOException {
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
         TaskBasedActivity task1 = ActivityBuilder
-                .task("task1", ActivityBuilder.plugin(LogTask.class.getName()).build())
+                .task("task1")
+                .taskName(LogTask.class.getName())
                 .inputMapping("{\"severity\": \"INFO\",\"message\": .START.task1Log}")
                 .build();
 
         TaskBasedActivity task2 = ActivityBuilder
-                .task("task2", ActivityBuilder.plugin(LogTask.class.getName()).build())
+                .task("task2")
+                .taskName(LogTask.class.getName())
                 .inputMapping("{\"severity\": \"INFO\",\"message\": .g1Start.START.task2Log}")
                 .build();
 
@@ -82,7 +85,8 @@ public class GroupActivityTest {
     public void testAddActivityToTwoGroups() {
 
         TaskBasedActivity task1 = ActivityBuilder
-                .task("taskA", ActivityBuilder.plugin(CurlTask.class.getName()).build())
+                .task("taskA")
+                .taskName(CurlTask.class.getName())
                 .inputMapping("{\"method\": \"GET\",\"url\": \"example.com\"}")
                 .build();
 
@@ -105,12 +109,14 @@ public class GroupActivityTest {
         final String TASK_NAME = "taskA";
 
         TaskBasedActivity task1 = ActivityBuilder
-                .task(TASK_NAME, ActivityBuilder.plugin(CurlTask.class.getName()).build())
+                .task(TASK_NAME)
+                .taskName(CurlTask.class.getName())
                 .inputMapping("{\"method\": \"GET\",\"url\": \"https://example.com\"}")
                 .build();
 
         TaskBasedActivity task2 = ActivityBuilder
-                .task(TASK_NAME, ActivityBuilder.plugin(CurlTask.class.getName()).build())
+                .task(TASK_NAME)
+                .taskName(CurlTask.class.getName())
                 .inputMapping("{\"method\": \"GET\",\"url\": \"https://example.com\"}")
                 .build();
 
