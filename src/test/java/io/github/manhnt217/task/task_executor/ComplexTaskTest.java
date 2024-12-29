@@ -52,7 +52,7 @@ public class ComplexTaskTest {
         task3.setInputMapping("{\"sql\":\"" + SQL + "\"} + ._PROPS_");
 
         TaskBasedActivity complexTask = new TaskBasedActivity("complexTask");
-        complexTask.setTask(new CompositeTask("doesntMatterNow", Lists.newArrayList(task1, task2, task3)));
+        complexTask.setTask(new LinearCompositeTask("doesntMatterNow", Lists.newArrayList(task1, task2, task3)));
 
         Map<String, Object> input = ImmutableMap.of(
                 "url", "https://example.com",
@@ -96,7 +96,7 @@ public class ComplexTaskTest {
         task1.setTask(TestUtil.loadTask("CurlTask"));
 
         TaskBasedActivity complexTask = new TaskBasedActivity("complexTask");
-        complexTask.setTask(new CompositeTask("c1", Lists.newArrayList(task1)));
+        complexTask.setTask(new LinearCompositeTask("c1", Lists.newArrayList(task1)));
         complexTask.setInputMapping("{\"request\": ._PROPS_.url}");
 
         Map<String, Object> input = ImmutableMap.of("url", "https://example.com");

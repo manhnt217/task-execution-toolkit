@@ -5,10 +5,9 @@ import io.github.manhnt217.task.task_executor.activity.ActivityException;
 import io.github.manhnt217.task.task_executor.activity.ActivityExecutionException;
 import io.github.manhnt217.task.task_executor.activity.impl.DefaultActivityLogger;
 import io.github.manhnt217.task.task_executor.activity.impl.ExecutionLog;
-import io.github.manhnt217.task.task_executor.activity.impl.TaskBasedActivity;
 import io.github.manhnt217.task.task_executor.activity.impl.LinkBasedActivityGroup;
+import io.github.manhnt217.task.task_executor.activity.impl.TaskBasedActivity;
 import io.github.manhnt217.task.task_executor.task.CompositeTask;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -17,6 +16,8 @@ import java.util.UUID;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author manhnguyen
@@ -25,6 +26,7 @@ public class GuardTest {
 
     /**
      * <img src="{@docRoot}/doc-files/images/testSimpleGuard.png">
+     *
      * @throws ActivityExecutionException
      */
     @Test
@@ -63,6 +65,7 @@ public class GuardTest {
 
     /**
      * <img src="{@docRoot}/doc-files/images/testOtherwise.png">
+     *
      * @throws ActivityExecutionException
      */
     @Test
@@ -121,13 +124,41 @@ public class GuardTest {
         compositeTask.addActivity(task1);
         compositeTask.addActivity(task2);
 
-        Assertions.assertDoesNotThrow(
+        assertDoesNotThrow(
                 () -> compositeTask.linkFromStart(task1, "3 > 5")
         );
 
-        IllegalArgumentException ex = Assertions.assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> compositeTask.linkFromStart(task2, "3 > 5")
         );
         assertThat(ex.getMessage(), containsString("already been added for activity"));
+    }
+
+    @Test
+    public void testNoTrueGuard() throws ActivityExecutionException {
+        DefaultActivityLogger logHandler = new DefaultActivityLogger();
+
+        TaskBasedActivity task1 = new TaskBasedActivity("task1");
+        task1.setInputMapping("{\"severity\": \"INFO\",\"message\": \"task1\"}");
+        task1.setTask(TestUtil.loadTask("LogTask"));
+
+        TaskBasedActivity task2 = new TaskBasedActivity("task2");
+        task2.setInputMapping("{\"severity\": \"INFO\",\"message\": \"task2\"}");
+        task2.setTask(TestUtil.loadTask("LogTask"));
+
+
+        CompositeTask compositeTask = new CompositeTask("c1");
+
+        compositeTask.addActivity(task1);
+        compositeTask.addActivity(task2);
+
+        compositeTask.linkFromStart(task1, "3 > 5");
+        compositeTask.linkFromStart(task2, "10 / 7 == 1");
+
+
+        TaskBasedActivity complexTask = new TaskBasedActivity("complexTask", compositeTask);
+
+        assertThrows(IllegalStateException.class, () ->
+                TestUtil.executeActivity(complexTask, null, logHandler, UUID.randomUUID().toString()));
     }
 }
