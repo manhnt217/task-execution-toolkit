@@ -41,7 +41,7 @@ public class Main {
 
 		TemplateTask task1 = new TemplateTask();
 		task1.setId(TASK_1);
-		task1.setProcessClassName("CurlTemplate");
+		task1.setTemplateName("CurlTemplate");
 		task1.setInputMappingExpression(TaskExecutionContext.EXP_INIT_PARAMS);
 		task1.setInputType(Task.InputType.CONTEXT);
 		task1.setOutputMappingExpression(".statusCode");
@@ -49,14 +49,14 @@ public class Main {
 
 		TemplateTask task2 = new TemplateTask();
 		task2.setId(TASK_2);
-		task2.setProcessClassName("LogTemplate");
+		task2.setTemplateName("LogTemplate");
 		task2.setInputType(Task.InputType.PREVIOUS_TASK);
 		task2.setInputMappingExpression("{\"severity\": \"INFO\", \"message\": \"Status code is \" + .}");
 		task2.setDependencies(Collections.singletonList(TASK_1));
 
 		TemplateTask task3 = new TemplateTask();
 		task3.setId("task3");
-		task3.setProcessClassName("SqlTemplate");
+		task3.setTemplateName("SqlTemplate");
 		task3.setInputType(Task.InputType.CONTEXT);
 		task3.setInputMappingExpression("{\"sql\":\"" + SQL + "\",\"dataSource\":\"abdc\"}");
 
