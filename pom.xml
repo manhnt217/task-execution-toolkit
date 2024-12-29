@@ -20,17 +20,12 @@
         <module>persistence</module>
         <module>plugin</module>
         <module>sample-project</module>
-	    <module>play-ground</module>
+	      <module>play-ground</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
 
-            <dependency>
-                <groupId>com.schibsted.spt.data</groupId>
-                <artifactId>jslt</artifactId>
-                <version>0.1.14</version>
-            </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
@@ -40,16 +35,6 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>1.18.34</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>2.13.4.2</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>2.13.4</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -65,6 +50,14 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>33.2.1-jre</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>3.4.1</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

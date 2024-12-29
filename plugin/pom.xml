@@ -15,12 +15,12 @@
         <dependency>
             <groupId>io.github.manhnt217.task</groupId>
             <artifactId>core</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.manhnt217.task</groupId>
             <artifactId>persistence</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
