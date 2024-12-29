@@ -29,12 +29,7 @@ public class PluginActivity extends AbstractActivity {
     public OutboundMessage process(InboundMessage in, ActivityContext context) throws ActivityException {
         JsonNode input = in.getContent();
         try {
-            Class<? extends Plugin> clazz = context.getRepo().resolveFunctionPluginClass(pluginName);
-            if (clazz == null) {
-                throw new PluginException(pluginName, "Plugin not found");
-            }
-
-            Plugin plugin = ClassUtil.newPluginInstance(clazz);
+            Plugin plugin = createPluginInstance(context);
             plugin.setName(pluginName);
             JsonNode result = plugin.run(input, new PluginContext(context.getCurrentTaskName(), this.getName(), context));
             return SimpleOutboundMessage.of(result);
@@ -43,5 +38,15 @@ public class PluginActivity extends AbstractActivity {
         } catch (Exception e) {
             throw new ActivityException(this, new PluginException(pluginName, input, null, e));
         }
+    }
+
+    private Plugin createPluginInstance(ActivityContext context) throws PluginException {
+        Class<? extends Plugin> clazz = context.getRepo().resolvePluginClass(pluginName);
+        if (clazz == null) {
+            throw new PluginException(pluginName, "Plugin not found");
+        }
+
+        Plugin plugin = ClassUtil.newPluginInstance(clazz);
+        return plugin;
     }
 }

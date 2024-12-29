@@ -1,7 +1,6 @@
 package io.github.manhnt217.task.sample;
 
 import io.github.manhnt217.task.core.ClassUtil;
-import io.github.manhnt217.task.core.event.source.EventSource;
 import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.task.event.EventSourceConfig;
 import io.github.manhnt217.task.core.task.function.Function;
@@ -21,13 +20,13 @@ public class SimpleEngineRepository implements EngineRepository {
 
     protected final Map<String, Function> functions;
     protected final Map<String, Handler> handlers;
-    protected final Map<String, Class<? extends Plugin>> functionPluginClasses;
+    protected final Map<String, Class<? extends Plugin>> pluginClasses;
     protected final Map<String, EventSourceConfig> eventSources;
 
     public SimpleEngineRepository() {
         functions = new HashMap<>();
         handlers = new HashMap<>();
-        functionPluginClasses = new HashMap<>();
+        pluginClasses = new HashMap<>();
         eventSources = new HashMap<>();
     }
 
@@ -39,8 +38,8 @@ public class SimpleEngineRepository implements EngineRepository {
         handlers.put(handler.getName(), handler);
     }
 
-    public void registerFunctionPlugin(PluginDto pluginDto) {
-        functionPluginClasses.put(pluginDto.getName(), ClassUtil.findPlugin(pluginDto.getClassName(), Plugin.class));
+    public void registerPlugin(PluginDto pluginDto) {
+        pluginClasses.put(pluginDto.getName(), ClassUtil.findPlugin(pluginDto.getClassName(), Plugin.class));
     }
 
     public void registerEventSource(EventSourceConfig eventSourceConfig) {
@@ -54,8 +53,8 @@ public class SimpleEngineRepository implements EngineRepository {
     }
 
     @Override
-    public Class<? extends Plugin> resolveFunctionPluginClass(String pluginName) {
-        return functionPluginClasses.get(pluginName);
+    public Class<? extends Plugin> resolvePluginClass(String pluginName) {
+        return pluginClasses.get(pluginName);
     }
 
     @Override

@@ -9,8 +9,8 @@ public class ActivityBuilder {
         return new ForEachActivityBuilder();
     }
 
-    public static GroupActivityBuilder group() {
-        return new GroupActivityBuilder();
+    public static GroupActivityBuilder group(boolean synced) {
+        return new GroupActivityBuilder(synced);
     }
 
     public static FunctionCallActivityBuilder funcCall(String name) {

@@ -19,6 +19,7 @@ public class ActivityDto {
     private String pluginName;
     private String sourceName;
     private Type type;
+    private boolean syncGroup = false;
 
     private ActivityGroupDto group;
 
