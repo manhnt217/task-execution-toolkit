@@ -1,14 +1,18 @@
 package io.github.manhnt217.task.task_executor.context;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import io.github.manhnt217.task.task_executor.activity.Activity;
 import io.github.manhnt217.task.task_executor.activity.ActivityContextException;
 import io.github.manhnt217.task.task_executor.activity.OutboundMessage;
+import io.github.manhnt217.task.task_executor.activity.impl.EndActivity;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
@@ -18,7 +22,7 @@ import java.text.SimpleDateFormat;
  */
 public class ActivityContext {
 
-    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     static {
         OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -54,8 +58,7 @@ public class ActivityContext {
     }
 
     public void saveOutput(Activity activity, OutboundMessage output) throws ActivityContextException {
-        if (activity.registerOutput() && !output.isEmpty()) {
-
+        if (activity.registerOutput() && output != null && !output.isEmpty()) {
             if (contextParams.get(activity.getName()) != null) {
                 throw new ActivityContextException("Output of activity '" + activity.getName() + "' has already existed in the context");
             }
@@ -64,7 +67,7 @@ public class ActivityContext {
     }
 
     public JsonNode transformInput(Activity activity) {
-        return JSLTUtil.applyTransform(StringUtils.defaultIfBlank(activity.getInputMapping(), ALL_SUBTASKS_JSLT), contextParams);
+        return JSLTUtil.applyTransform(activity.getInputMapping(), contextParams);
     }
 
     public JsonNode evaluate(String jslt) {
@@ -73,5 +76,21 @@ public class ActivityContext {
 
     public String getExecutionId() {
         return executionId;
+    }
+
+    public ArrayNode createArrayNode() {
+        return OBJECT_MAPPER.createArrayNode();
+    }
+
+    public ObjectNode createObjectNode() {
+        return OBJECT_MAPPER.createObjectNode();
+    }
+
+    public <T> T treeToValue(TreeNode n, Class<T> valueType) throws IllegalArgumentException, JsonProcessingException {
+        return OBJECT_MAPPER.treeToValue(n, valueType);
+    }
+
+    public <T extends JsonNode> T valueToTree(Object fromValue) throws IllegalArgumentException {
+        return OBJECT_MAPPER.valueToTree(fromValue);
     }
 }

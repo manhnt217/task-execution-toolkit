@@ -16,7 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static io.github.manhnt217.task.task_executor.context.ActivityContext.OBJECT_MAPPER;
+import static io.github.manhnt217.task.task_executor.TestUtil.OM;
+import static io.github.manhnt217.task.task_executor.context.ActivityContext.ALL_SUBTASKS_JSLT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -25,6 +26,12 @@ import static org.hamcrest.Matchers.is;
  */
 public class GroupTest {
 
+    /**
+     * <img src="{@docRoot}/doc-files/images/testGroup.png">
+     *
+     * @throws ActivityException
+     * @throws ConfigurationException
+     */
     @Test
     public void testGroupSimple() throws ActivityException, ConfigurationException {
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
@@ -38,6 +45,7 @@ public class GroupTest {
         task2.setTask(TestUtil.loadTask("LogTask"));
 
         Group group1 = new Group("g1", "g1Start", "g1End");
+        group1.setInputMapping(ALL_SUBTASKS_JSLT);
         group1.addActivity(task1);
         group1.addActivity(task2);
 
@@ -45,12 +53,12 @@ public class GroupTest {
         group1.linkActivities(task1, task2, null);
         group1.linkToEnd(task2);
 
-        JsonNode props = OBJECT_MAPPER.valueToTree(ImmutableMap.of(
+        JsonNode props = OM.valueToTree(ImmutableMap.of(
                 "log", "log for task number "
         ));
 
-        TaskBasedActivity complexTask = new TaskBasedActivity(
-                "complexTask",
+        TaskBasedActivity testActivity = new TaskBasedActivity(
+                "testActivity",
                 new LinearCompositeTask("c1", Collections.singletonList(group1)));
 
         /** This will produce
@@ -60,9 +68,9 @@ public class GroupTest {
          * }
          * for the input
          */
-        complexTask.setInputMapping("zip((._PROPS_.log | [.,.]), [1, 2]) | {for(.) \"task\" + string(.[1]) + \"Log\" : .[0] + .[1]}");
+        testActivity.setInputMapping("zip((._PROPS_.log | [.,.]), [1, 2]) | {for(.) \"task\" + string(.[1]) + \"Log\" : .[0] + .[1]}");
 
-        TestUtil.executeActivity(complexTask, props, logHandler, UUID.randomUUID().toString());
+        TestUtil.executeActivity(testActivity, props, logHandler, UUID.randomUUID().toString());
 
         List<ExecutionLog> logs = logHandler.getLogs();
 

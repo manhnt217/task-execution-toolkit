@@ -5,19 +5,25 @@ import io.github.manhnt217.task.task_executor.activity.*;
 import io.github.manhnt217.task.task_executor.context.ActivityContext;
 import io.github.manhnt217.task.task_executor.context.GroupContext;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author manhnguyen
  */
 @Getter
+@Setter
 public class Group extends LinkBasedActivityGroup implements Activity {
 
     private final String name;
     private String inputMapping;
 
-    public Group(String name, String startActivityName, String endActivityName) {
-        super(startActivityName, endActivityName);
+    public Group(String name, String startActivityName, String endActivityName, String outputMapping) {
+        super(startActivityName, endActivityName, outputMapping);
         this.name = name;
+    }
+
+    public Group(String name, String startActivityName, String endActivityName) {
+        this(name, startActivityName, endActivityName, null);
     }
 
     @Override
