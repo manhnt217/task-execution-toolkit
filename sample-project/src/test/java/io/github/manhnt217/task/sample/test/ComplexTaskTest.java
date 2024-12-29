@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import io.github.manhnt217.task.sample.JsonBasedTaskResolver;
 import io.github.manhnt217.task.sample.LinearCompositeTask;
 import io.github.manhnt217.task.sample.SimpleTaskResolver;
 import io.github.manhnt217.task.sample.TestUtil;
@@ -19,7 +18,6 @@ import io.github.manhnt217.task.task_engine.context.ActivityContext;
 import io.github.manhnt217.task.task_engine.exception.TaskException;
 import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.task_engine.persistence.builder.ActivityBuilder;
-import io.github.manhnt217.task.task_engine.persistence.builder.TaskBasedActivityBuilder;
 import io.github.manhnt217.task.task_engine.task.CompositeTask;
 import org.junit.jupiter.api.Test;
 
@@ -130,7 +128,7 @@ public class ComplexTaskTest {
         String taskName = "r1";
         TaskBasedActivity callr1Activity = ActivityBuilder
                 .task("callr1")
-                .taskName(taskName)
+                .taskName(taskName) // recursive call
                 .inputMapping(".START | {\"n\": .n - 1, \"acc\": .acc * .n}")
                 .build();
         CompositeTask r1 = ActivityBuilder

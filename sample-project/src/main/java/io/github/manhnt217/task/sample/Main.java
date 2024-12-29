@@ -38,26 +38,26 @@ public class Main {
 
         TaskBasedActivity task1 = ActivityBuilder
                 .task("task1")
-.taskName(CurlTask.class.getName())
+                .taskName(CurlTask.class.getName())
                 .inputMapping(ActivityContext.FROM_PROPS)
                 .build();
 
         TaskBasedActivity task2 = ActivityBuilder
                 .task("task2")
-.taskName(LogTask.class.getName())
+                .taskName(LogTask.class.getName())
                 .inputMapping("{\"severity\": \"INFO\", \"message\": \"Status code is \" + .task1.statusCode}")
                 .build();
 
         TaskBasedActivity task3 = ActivityBuilder
                 .task("task3")
-.taskName(SqlTask.class.getName())
+                .taskName(SqlTask.class.getName())
                 .inputMapping("{\"sql\":\"" + SQL + "\"} + " + ActivityContext.FROM_PROPS)
                 .build();
 
 
         LinearCompositeTask task = new LinearCompositeTask("doesntMatterNow", Lists.newArrayList(task1, task2, task3));
 
-        Map<String, Object> input = ImmutableMap.of(
+        Map<String, Object> props = ImmutableMap.of(
                 "url", "https://example.com",
                 "method", "GET",
                 "dataSource", "foo",
@@ -67,7 +67,7 @@ public class Main {
                     put("hibernate.hikari.connectionTimeout", "20000");
                     put("hibernate.hikari.idleTimeout", "30000");
                     put("hibernate.connection.url", "jdbc:oracle:thin:@vm:1521/FORTNAWCS");
-                    put("hibernate.connection.username", "foo1");
+                    put("hibernate.connection.username", "foo");
                     put("hibernate.connection.password", "foo");
                     put("hibernate.hikari.minimumIdle", "2");
                     put("hibernate.hikari.maximumPoolSize", "5");
@@ -76,7 +76,7 @@ public class Main {
 
         String executionId = UUID.randomUUID().toString();
         try {
-            TestUtil.executeTask(task, null, TestUtil.OM.valueToTree(input), logHandler, executionId);
+            TestUtil.executeTask(task, TestUtil.OM.valueToTree(props), null, logHandler, executionId);
         } catch (TaskException e) {
             logHandler.error(executionId, "doesntmatter", "Failed to execute activity", e);
         }

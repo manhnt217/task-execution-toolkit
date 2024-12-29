@@ -1,6 +1,7 @@
 package io.github.manhnt217.task.task_engine.activity.group;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.github.manhnt217.task.task_engine.activity.AbstractGroupActivity;
 import io.github.manhnt217.task.task_engine.activity.Activity;
 import io.github.manhnt217.task.task_engine.activity.ActivityLogger;
 import io.github.manhnt217.task.task_engine.activity.InboundMessage;
@@ -15,12 +16,10 @@ import io.github.manhnt217.task.task_engine.exception.GroupException;
 /**
  * @author manhnguyen
  */
-public class GroupActivity extends AbstractActivity implements Activity {
+public class GroupActivity extends AbstractGroupActivity {
 
-    private final Group activityGroup;
     public GroupActivity(String name, Group activityGroup) {
-        super(name);
-        this.activityGroup = activityGroup;
+        super(name, activityGroup);
     }
 
     @Override
