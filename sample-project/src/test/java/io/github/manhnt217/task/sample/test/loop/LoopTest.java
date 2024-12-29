@@ -5,8 +5,8 @@ import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
 import io.github.manhnt217.task.core.exception.TaskException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.task.TaskContext;
+import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
-import io.github.manhnt217.task.sample.LinearFunction;
 import io.github.manhnt217.task.sample.TestUtil;
 import io.github.manhnt217.task.sample.plugin.Log;
 import io.github.manhnt217.task.sample.test.AbstractEngineTest;
@@ -16,10 +16,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static io.github.manhnt217.task.core.context.ActivityContext.ALL_SUBTASKS_JSLT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
@@ -60,7 +60,7 @@ public class LoopTest extends AbstractEngineTest {
                 .outputMapping(".f1Start.item + .f1Start.index")
                 .build();
 
-        LinearFunction<Object, Map> func = new LinearFunction<>("c1", Collections.singletonList(loop1), Object.class, Map.class);
+        Function<Object, Map> func = buildLinearFunc("c1", Object.class, Map.class, ALL_SUBTASKS_JSLT, loop1);
         TaskContext context = new TaskContext(func.getName(), null, repo, logger);
         Map<String, Object> out = func.exec(null, context);
 
