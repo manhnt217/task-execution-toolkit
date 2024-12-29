@@ -35,7 +35,7 @@ public class Handler implements Task {
     }
 
     public JsonNode handle(JsonNode input, TaskContext context) throws TaskException {
-        context.setTaskName(this.name);
+        context.setTaskName(name);
         try {
             return activityGroup.execute(input, context);
         } catch (GroupException e) {

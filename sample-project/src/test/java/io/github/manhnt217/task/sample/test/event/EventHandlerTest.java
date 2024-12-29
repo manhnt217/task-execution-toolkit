@@ -13,6 +13,7 @@ import io.github.manhnt217.task.core.task.event.EventSourceConfig;
 import io.github.manhnt217.task.core.task.handler.Handler;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.sample.TestUtil;
+import io.github.manhnt217.task.sample.test.AbstractEngineTest;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,15 +24,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.any;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("ALL")
 @Slf4j
 @ExtendWith(MockitoExtension.class)
-public class EventHandlerTest {
+public class EventHandlerTest extends AbstractEngineTest {
 
     @Captor
     private ArgumentCaptor<EventSource> eventSourceCaptor;
@@ -40,7 +40,7 @@ public class EventHandlerTest {
     private ArgumentCaptor<JsonNode> inputCaptor;
 
     @Test
-    public void testSimpleHandler(@Mock EngineRepository repo) throws ContainerException, TaskException, ConfigurationException, InterruptedException {
+    public void testSimpleHandler() throws ContainerException, TaskException, ConfigurationException, InterruptedException {
         String sourceName = "simpleEventSource";
 
         ObjectNode props = TestUtil.OM.createObjectNode();

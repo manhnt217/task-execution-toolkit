@@ -25,8 +25,20 @@ public class ActivityBuilder {
         return new FromSourceBuilder(name, sourceName);
     }
 
-    public static FunctionBuilder function(String name) {
-        return new FunctionBuilder(name);
+    public static  <P, R> FunctionBuilder<P, R> function(String name, Class<? extends P> inputClass, Class<? extends R> outputClass) {
+        return new FunctionBuilder<>(name, inputClass, outputClass);
+    }
+
+    public static <P> FunctionBuilder<P, Void> consumer(String name, Class<? extends P> inputClass) {
+        return new FunctionBuilder<>(name, inputClass, null);
+    }
+
+    public static <R> FunctionBuilder<Void, R> producer(String name, Class<? extends R> outputClass) {
+        return new FunctionBuilder<>(name, null, outputClass);
+    }
+
+    public static FunctionBuilder<Void, Void> routine(String name) {
+        return new FunctionBuilder<>(name, null, null);
     }
 
     public static HandlerBuilder handler(String name) {
