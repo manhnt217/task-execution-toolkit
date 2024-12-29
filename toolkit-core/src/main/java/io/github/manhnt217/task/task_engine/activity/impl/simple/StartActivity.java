@@ -2,10 +2,11 @@
  * @author manh nguyen
  */
 
-package io.github.manhnt217.task.task_engine.activity.impl;
+package io.github.manhnt217.task.task_engine.activity.impl.simple;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.task_engine.activity.*;
+import io.github.manhnt217.task.task_engine.activity.impl.SimpleOutboundMessage;
 import io.github.manhnt217.task.task_engine.context.ActivityContext;
 import lombok.Getter;
 import lombok.Setter;

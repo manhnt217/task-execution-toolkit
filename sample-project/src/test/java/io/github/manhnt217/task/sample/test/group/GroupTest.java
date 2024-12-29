@@ -6,14 +6,12 @@ import io.github.manhnt217.task.sample.LinearCompositeTask;
 import io.github.manhnt217.task.sample.LinearGroup;
 import io.github.manhnt217.task.sample.TestUtil;
 import io.github.manhnt217.task.task_engine.context.ActivityContext;
-import io.github.manhnt217.task.task_engine.exception.ActivityException;
 import io.github.manhnt217.task.task_engine.exception.TaskException;
 import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.task_engine.activity.impl.DefaultActivityLogger;
 import io.github.manhnt217.task.task_engine.activity.impl.ExecutionLog;
-import io.github.manhnt217.task.task_engine.activity.impl.Group;
-import io.github.manhnt217.task.task_engine.activity.impl.TaskBasedActivity;
-import org.junit.jupiter.api.Assertions;
+import io.github.manhnt217.task.task_engine.activity.impl.group.Group;
+import io.github.manhnt217.task.task_engine.activity.impl.task.TaskBasedActivity;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
