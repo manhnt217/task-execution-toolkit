@@ -8,5 +8,5 @@ import io.github.manhnt217.task.task_executor.context.ActivityContext;
 public interface ActivityGroup<P, Q> {
     void addActivity(Activity activity);
 
-    Q execute(P input, ActivityLogger activityLogger, ActivityContext context) throws ActivityExecutionException;
+    Q execute(P input, ActivityLogger activityLogger, ActivityContext context) throws ExecutionException;
 }

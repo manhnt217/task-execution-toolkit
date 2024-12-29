@@ -3,10 +3,9 @@ package io.github.manhnt217.task.task_executor.guard;
 import io.github.manhnt217.task.task_executor.TestUtil;
 import io.github.manhnt217.task.task_executor.activity.ActivityException;
 import io.github.manhnt217.task.task_executor.activity.ActivityExecutionException;
-import io.github.manhnt217.task.task_executor.activity.impl.DefaultActivityLogger;
-import io.github.manhnt217.task.task_executor.activity.impl.ExecutionLog;
-import io.github.manhnt217.task.task_executor.activity.impl.LinkBasedActivityGroup;
-import io.github.manhnt217.task.task_executor.activity.impl.TaskBasedActivity;
+import io.github.manhnt217.task.task_executor.activity.ConfigurationException;
+import io.github.manhnt217.task.task_executor.activity.ExecutionException;
+import io.github.manhnt217.task.task_executor.activity.impl.*;
 import io.github.manhnt217.task.task_executor.task.CompositeTask;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +29,7 @@ public class GuardTest {
      * @throws ActivityExecutionException
      */
     @Test
-    public void testSimpleGuard() throws ActivityException {
+    public void testSimpleGuard() throws ActivityException, ConfigurationException {
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
         TaskBasedActivity task1 = new TaskBasedActivity("task1");
@@ -69,7 +68,7 @@ public class GuardTest {
      * @throws ActivityExecutionException
      */
     @Test
-    public void testOtherwise() throws ActivityException {
+    public void testOtherwise() throws ActivityException, ConfigurationException {
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
         TaskBasedActivity task1 = new TaskBasedActivity("task1");
@@ -128,14 +127,14 @@ public class GuardTest {
                 () -> compositeTask.linkFromStart(task1, "3 > 5")
         );
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+        ConfigurationException ex = assertThrows(ConfigurationException.class,
                 () -> compositeTask.linkFromStart(task2, "3 > 5")
         );
-        assertThat(ex.getMessage(), containsString("already been added for activity"));
+        assertThat(ex.getMessage(), is("Configuration failed. Message = Guard '3 > 5' already been added for activity '" + CompositeTask.START_ACTIVITY_NAME + "'"));
     }
 
     @Test
-    public void testNoTrueGuard() throws ActivityExecutionException {
+    public void testNoTrueGuard() throws ConfigurationException {
         DefaultActivityLogger logHandler = new DefaultActivityLogger();
 
         TaskBasedActivity task1 = new TaskBasedActivity("task1");
@@ -158,7 +157,7 @@ public class GuardTest {
 
         TaskBasedActivity complexTask = new TaskBasedActivity("complexTask", compositeTask);
 
-        assertThrows(IllegalStateException.class, () ->
+        assertThrows(ActivityExecutionException.class, () ->
                 TestUtil.executeActivity(complexTask, null, logHandler, UUID.randomUUID().toString()));
     }
 }
