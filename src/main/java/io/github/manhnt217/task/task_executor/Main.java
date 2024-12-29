@@ -1,8 +1,10 @@
 package io.github.manhnt217.task.task_executor;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+import io.github.manhnt217.task.task_executor.executor.JSLTUtil;
 import io.github.manhnt217.task.task_executor.executor.TaskExecutor;
 import io.github.manhnt217.task.task_executor.task.CompoundTask;
 import io.github.manhnt217.task.task_executor.task.Task;
@@ -22,19 +24,52 @@ public class Main {
 			"END;";
 
 	public static void main(String[] args) throws IOException {
+		System.out.println(" ---------------------- TEST 1 ---------------------- ");
+
+		executeSimpleTask();
+
+		System.out.println();
+		System.out.println();
+		System.out.println();
+		System.out.println(" ---------------------- TEST 2 ---------------------- ");
+
+		executeComplexTask();
+	}
+
+	private static void executeSimpleTask() throws JsonProcessingException {
+		Map<String, Object> input = ImmutableMap.of(
+				"address", "https://example.com",
+				"http-method", "GET"
+		);
 
 		TemplateTask task1 = new TemplateTask();
 		task1.setId("task1");
 		task1.setTemplateName("CurlTemplate");
 		task1.setInputType(Task.InputType.PARENT);
-		task1.setOutputMappingExpression(".statusCode");
+		task1.setEndLogExpression("\"Finish task 1\"");
+		task1.setInputMappingExpression("{\"url\": .address, \"method\": .\"http-method\"}");
+
+		JsonNode taskInput = JSLTUtil.applyTransform(task1.getInputMappingExpression(), TaskExecutor.om.valueToTree(input));
+		TaskExecutor executor = TaskExecutor.getTaskExecutor(task1);
+		JsonNode output = executor.execute(task1, taskInput);
+		System.out.println("Task output:");
+		System.out.println(TaskExecutor.om.writerWithDefaultPrettyPrinter().writeValueAsString(output));
+		System.out.println("Task logs");
+		System.out.println(TaskExecutor.om.writerWithDefaultPrettyPrinter().writeValueAsString(executor.getLogs()));
+	}
+
+	private static void executeComplexTask() throws JsonProcessingException {
+		TemplateTask task1 = new TemplateTask();
+		task1.setId("task1");
+		task1.setTemplateName("CurlTemplate");
+		task1.setInputType(Task.InputType.PARENT);
 		task1.setEndLogExpression("\"Finish task 1\"");
 
 		TemplateTask task2 = new TemplateTask();
 		task2.setId("task2");
 		task2.setTemplateName("LogTemplate");
 		task2.setInputType(Task.InputType.PREVIOUS_TASK);
-		task2.setInputMappingExpression("{\"severity\": \"INFO\", \"message\": \"Status code is \\n\" + .}");
+		task2.setInputMappingExpression("{\"severity\": \"INFO\", \"message\": \"Status code is \\n\" + .statusCode}");
 
 		TemplateTask task3 = new TemplateTask();
 		task3.setId("task3");
@@ -54,11 +89,6 @@ public class Main {
 		compoundTask2.setInputType(Task.InputType.PARENT);
 
 		CompoundTask mainTask = new CompoundTask(Sets.newHashSet(compoundTask1, compoundTask2));
-
-		// FIXME: If a task executed more than once, the logs will add up.
-//		mainTask.setOutputMappingExpression("{\"out_1\": .task1.out, \"out_2\": .task2.out}");
-		mainTask.setOutputMappingExpression("{}");
-
 
 		Map<String, Object> input = ImmutableMap.of(
 				"url", "https://example.com",
