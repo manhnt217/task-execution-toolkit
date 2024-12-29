@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 public class Log extends Plugin<Log.LogDto, Object> {
 
     @Override
-    protected Class<? extends LogDto> getInputType() {
+    public Class<? extends LogDto> getInputType() {
         return LogDto.class;
     }
 

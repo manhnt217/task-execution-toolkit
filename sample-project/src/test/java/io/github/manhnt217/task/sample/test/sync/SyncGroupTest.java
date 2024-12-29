@@ -14,6 +14,7 @@ import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
+import io.github.manhnt217.task.sample.test.AbstractEngineTest;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -38,11 +39,11 @@ import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class SyncGroupTest {
+public class SyncGroupTest extends AbstractEngineTest {
 
     @Order(1)
     @Test
-    public void testSyncGroup() throws InterruptedException, ConfigurationException, InstantiationException, IllegalAccessException, ActivityException {
+    public void testSyncGroup() throws InterruptedException, ConfigurationException, ActivityException {
         ConcurrentLinkedQueue<Integer> result = setUp(true);
         assertThat(result, hasSize(2));
         assertThat(result, contains(1, 2));
@@ -50,7 +51,7 @@ public class SyncGroupTest {
 
     @Order(2)
     @Test
-    public void testAsyncGroup() throws InterruptedException, ConfigurationException, InstantiationException, IllegalAccessException, ActivityException {
+    public void testAsyncGroup() throws InterruptedException, ConfigurationException, ActivityException {
         ConcurrentLinkedQueue<Integer> result = setUp(false);
         assertThat(result, hasSize(2));
         assertThat(result, contains(2, 2));

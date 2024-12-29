@@ -28,19 +28,14 @@ class ObjectRefTest extends AbstractEngineTest {
     @Test
     public void testSimpleObjectRef() throws ConfigurationException {
 
-        PluginActivity act1 = ActivityBuilder
-                .plugin("act1", ObjectRefProducer.class.getSimpleName())
-                .build();
+        PluginActivity act1 = buildPluginActivity("act1", ObjectRefProducer.class.getSimpleName(), null);
 
-        PluginActivity act2 = ActivityBuilder
-                .plugin("act2", ObjectRefConsumer.class.getSimpleName())
-                .inputMapping(".act1")
-                .build();
+        PluginActivity act2 = buildPluginActivity("act2", ObjectRefConsumer.class.getSimpleName(), ".act1");
 
         LinearFunction<Void, Void> func = new LinearFunction<>("c1", Arrays.asList(act1, act2), Void.class, Void.class);
 
         assertDoesNotThrow(() -> {
-            TaskContext context = new TaskContext(null, repo, logger);
+            TaskContext context = new TaskContext(func.getName(), null, repo, logger);
             func.exec(null, context);
         });
     }

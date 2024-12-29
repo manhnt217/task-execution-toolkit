@@ -54,7 +54,7 @@ public class GuardTest extends AbstractEngineTest {
                 .linkToEnd(p2)
                 .build();
 
-        TaskContext context = new TaskContext(null, repo, logger);
+        TaskContext context = new TaskContext(func.getName(), null, repo, logger);
         func.exec(null, context);
 
         verify(logger).info(any(), any(), any(), eq("p2"));
@@ -80,7 +80,7 @@ public class GuardTest extends AbstractEngineTest {
                 .inputMapping("{\"severity\": \"INFO\",\"message\": \"task3\"}")
                 .build();
 
-        Function<Void, Void> compositeTask = ActivityBuilder
+        Function<Void, Void> func = ActivityBuilder
                 .routine("c1")
                 .linkFromStart(task1, "3 > 5")
                 .linkFromStart(task2, Group.OTHERWISE_GUARD_EXP)
@@ -90,7 +90,7 @@ public class GuardTest extends AbstractEngineTest {
                 .linkToEnd(task3, null)
                 .build();
 
-        compositeTask.exec(null, new TaskContext(null, repo, logger));
+        func.exec(null, new TaskContext(func.getName(), null, repo, logger));
         verify(logger).info(any(), any(), any(), eq("task3"));
     }
 
@@ -139,6 +139,6 @@ public class GuardTest extends AbstractEngineTest {
                 .linkToEnd(p2, null)
                 .build();
 
-        assertThrows(TaskException.class, () -> func.exec(null, new TaskContext(null, repo, logger)));
+        assertThrows(TaskException.class, () -> func.exec(null, new TaskContext(func.getName(), null, repo, logger)));
     }
 }

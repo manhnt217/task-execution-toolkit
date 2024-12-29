@@ -64,7 +64,7 @@ public class GroupActivityTest extends AbstractEngineTest {
 
         LinearFunction<Object, Object> func = new LinearFunction<>("c1", Collections.singletonList(group1), Object.class, Object.class);
 
-        TaskContext context = new TaskContext(null, repo, logger);
+        TaskContext context = new TaskContext(func.getName(), null, repo, logger);
         func.exec(ImmutableMap.of(
                 "p1Log", "log for plugin number 1",
                 "p2Log", "log for plugin number 2"

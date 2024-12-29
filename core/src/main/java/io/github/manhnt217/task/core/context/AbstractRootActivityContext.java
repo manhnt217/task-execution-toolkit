@@ -1,6 +1,6 @@
 package io.github.manhnt217.task.core.context;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.exception.inner.ContextException;
 import io.github.manhnt217.task.core.repo.EngineRepository;
@@ -12,7 +12,7 @@ import java.util.UUID;
 /**
  * @author manh nguyen
  */
-public class RootActivityContext extends AbstractActivityContext {
+public abstract class AbstractRootActivityContext extends AbstractActivityContext {
 
     // TODO: Consider using @org.apache.commons.collections.bidimap.DualHashBidiMap for faster lookup
     private final Map<String, Object> objectSpace;
@@ -20,13 +20,11 @@ public class RootActivityContext extends AbstractActivityContext {
     private final EngineRepository repo;
     private final TaskLogger logger;
 
-    public RootActivityContext(String executionId, JsonNode props, EngineRepository repo, TaskLogger logger) {
+    public AbstractRootActivityContext(String executionId, ObjectNode props, EngineRepository repo, TaskLogger logger) {
+        super(props);
         this.executionId = executionId;
         this.repo = repo;
         this.logger = logger;
-        if (props != null) {
-            this.contextParams.set(KEY_PROPS, props);
-        }
         this.objectSpace = new HashMap<>();
     }
 
