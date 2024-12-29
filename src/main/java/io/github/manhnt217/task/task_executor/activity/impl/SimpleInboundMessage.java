@@ -3,6 +3,9 @@ package io.github.manhnt217.task.task_executor.activity.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.task_executor.activity.InboundMessage;
 
+/**
+ * @author manhnguyen
+ */
 public class SimpleInboundMessage implements InboundMessage {
 
     private final JsonNode input;

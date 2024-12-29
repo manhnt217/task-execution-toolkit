@@ -1,10 +1,10 @@
-package io.github.manhnt217.task.task_executor.template.builtin;
+package io.github.manhnt217.task.task_executor.task.builtin;
 
 import io.github.manhnt217.task.task_executor.common.sql.DataSource;
 import io.github.manhnt217.task.task_executor.common.sql.DataSourceConfig;
 import io.github.manhnt217.task.task_executor.common.sql.DataSourceConnector;
-import io.github.manhnt217.task.task_executor.template.Template;
-import io.github.manhnt217.task.task_executor.activity.impl.task.TemplateLogger;
+import io.github.manhnt217.task.task_executor.task.ClassBasedTask;
+import io.github.manhnt217.task.task_executor.task.TaskLogger;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +20,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+/**
+ * @author manhnguyen
+ */
 @Slf4j
-public class SqlTemplate extends Template<SqlTemplate.Input, Object> {
+public class SqlTask extends ClassBasedTask<SqlTask.Input, Object> {
+
+    public SqlTask(String name) {
+        super(name);
+    }
 
     @Override
     protected Class<? extends Input> getInputClass() {
@@ -29,13 +36,13 @@ public class SqlTemplate extends Template<SqlTemplate.Input, Object> {
     }
 
     @Override
-    public Object exec(Input input, TemplateLogger logger) throws Exception {
+    public Object exec(Input input, TaskLogger taskLogger) throws Exception {
 
         DataSourceConnector dataSourceConnector = null;
         try {
             DataSource dataSource = getDataSource(input);
             dataSourceConnector = new DataSourceConnector(dataSource);
-            dataSourceConnector.executeTransation(session -> this.execute(session, input.getSql(), logger));
+            dataSourceConnector.executeTransation(session -> this.execute(session, input.getSql(), taskLogger));
         } catch (Exception e) {
             throw new Exception("Cannot execute following SQL script: [" + input.getSql() + "]", e);
         } finally {
@@ -47,7 +54,7 @@ public class SqlTemplate extends Template<SqlTemplate.Input, Object> {
         return new Object();
     }
 
-    private void execute(Session session, String sql, TemplateLogger log) {
+    private void execute(Session session, String sql, TaskLogger log) {
         try {
             enabledDBMSOutput(session);
 
@@ -60,7 +67,7 @@ public class SqlTemplate extends Template<SqlTemplate.Input, Object> {
         }
     }
 
-    private static void logOutput(TemplateLogger log, Connection connection) {
+    private static void logOutput(TaskLogger log, Connection connection) {
         try (CallableStatement call = connection.prepareCall(
                 "declare "
                         + " num integer := 1000;"
@@ -82,8 +89,7 @@ public class SqlTemplate extends Template<SqlTemplate.Input, Object> {
                 if (array != null)
                     array.free();
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
