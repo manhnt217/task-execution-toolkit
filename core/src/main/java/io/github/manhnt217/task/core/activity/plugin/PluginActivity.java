@@ -7,10 +7,10 @@ import io.github.manhnt217.task.core.activity.InboundMessage;
 import io.github.manhnt217.task.core.activity.OutboundMessage;
 import io.github.manhnt217.task.core.activity.SimpleOutboundMessage;
 import io.github.manhnt217.task.core.context.ActivityContext;
-import io.github.manhnt217.task.core.task.plugin.PluginContext;
 import io.github.manhnt217.task.core.exception.ActivityException;
 import io.github.manhnt217.task.core.exception.PluginException;
 import io.github.manhnt217.task.core.task.plugin.Plugin;
+import io.github.manhnt217.task.core.task.plugin.PluginContext;
 
 /**
  * @author manh nguyen

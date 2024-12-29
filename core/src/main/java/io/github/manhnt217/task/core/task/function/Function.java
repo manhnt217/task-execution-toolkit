@@ -2,13 +2,11 @@ package io.github.manhnt217.task.core.task.function;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.NullNode;
 import io.github.manhnt217.task.core.activity.group.Group;
 import io.github.manhnt217.task.core.context.JSONUtil;
 import io.github.manhnt217.task.core.exception.ActivityException;
 import io.github.manhnt217.task.core.exception.GroupException;
 import io.github.manhnt217.task.core.exception.TaskException;
-import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.task.TaskContext;
 import lombok.Getter;
 

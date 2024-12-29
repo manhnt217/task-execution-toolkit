@@ -1,7 +1,5 @@
 package io.github.manhnt217.task.sample.test.guard;
 
-import io.github.manhnt217.task.core.activity.DefaultTaskLogger;
-import io.github.manhnt217.task.core.activity.ExecutionLog;
 import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.activity.group.Group;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
@@ -11,7 +9,6 @@ import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
-import io.github.manhnt217.task.sample.TestUtil;
 import io.github.manhnt217.task.sample.plugin.Log;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,14 +16,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.UUID;
 
-import static io.github.manhnt217.task.core.task.function.Function.*;
+import static io.github.manhnt217.task.core.task.function.Function.START_ACTIVITY_NAME;
 import static io.github.manhnt217.task.sample.test.ComplexFunctionTest.mockBuiltInRepo;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 /**
@@ -128,8 +123,6 @@ public class GuardTest {
 
     @Test
     public void testNoTrueGuard(@Mock EngineRepository repo, @Mock TaskLogger logger) throws ConfigurationException {
-        DefaultTaskLogger logHandler = new DefaultTaskLogger();
-
         PluginActivity p1 = ActivityBuilder
                 .plugin("p1", Log.class.getSimpleName())
                 .inputMapping("{\"severity\": \"INFO\",\"message\": \"p1\"}")

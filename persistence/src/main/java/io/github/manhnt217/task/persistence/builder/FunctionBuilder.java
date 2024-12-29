@@ -2,9 +2,9 @@ package io.github.manhnt217.task.persistence.builder;
 
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.task.function.Function;
-import org.apache.commons.lang3.ObjectUtils;
 
-import static io.github.manhnt217.task.core.task.function.Function.*;
+import static io.github.manhnt217.task.core.task.function.Function.END_ACTIVITY_NAME;
+import static io.github.manhnt217.task.core.task.function.Function.START_ACTIVITY_NAME;
 
 /**
  * @author manh nguyen

@@ -1,7 +1,5 @@
 package io.github.manhnt217.task.persistence.builder;
 
-import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
-
 /**
  * @author manh nguyen
  */

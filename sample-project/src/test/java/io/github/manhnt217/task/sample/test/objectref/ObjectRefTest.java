@@ -1,6 +1,5 @@
 package io.github.manhnt217.task.sample.test.objectref;
 
-import io.github.manhnt217.task.core.activity.DefaultTaskLogger;
 import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
@@ -8,7 +7,6 @@ import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.sample.LinearFunction;
-import io.github.manhnt217.task.sample.TestUtil;
 import io.github.manhnt217.task.sample.plugin.ObjectRefConsumer;
 import io.github.manhnt217.task.sample.plugin.ObjectRefProducer;
 import org.junit.jupiter.api.Test;
@@ -19,13 +17,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
-import java.util.UUID;
 
 import static io.github.manhnt217.task.sample.test.ComplexFunctionTest.mockBuiltInRepo;
-import static org.junit.jupiter.api.Assertions.*;
-
-
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * @author manh nguyen
