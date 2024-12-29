@@ -8,9 +8,13 @@ import io.github.manhnt217.task.core.activity.AbstractActivity;
 import io.github.manhnt217.task.core.activity.InboundMessage;
 import io.github.manhnt217.task.core.activity.OutboundMessage;
 import io.github.manhnt217.task.core.activity.SimpleOutboundMessage;
+import io.github.manhnt217.task.core.activity.future.exception.WaitActivityException;
 import io.github.manhnt217.task.core.context.ActivityContext;
 import io.github.manhnt217.task.core.context.JSONUtil;
+import io.github.manhnt217.task.core.activity.future.exception.WaitCancelledException;
 import io.github.manhnt217.task.core.exception.ActivityException;
+import io.github.manhnt217.task.core.activity.future.exception.WaitRuntimeException;
+import io.github.manhnt217.task.core.activity.future.exception.WaitTimeoutException;
 import io.github.manhnt217.task.core.exception.CancelException;
 import io.github.manhnt217.task.core.exception.TimeoutException;
 import io.github.manhnt217.task.core.type.Future;
@@ -29,7 +33,7 @@ public class WaitActivity extends AbstractActivity {
     }
 
     @Override
-    public OutboundMessage process(InboundMessage in, ActivityContext context) throws ActivityException {
+    public OutboundMessage process(InboundMessage in, ActivityContext context) throws WaitActivityException {
         Input input;
         Future<JsonNode> future;
         Long timeout;
@@ -42,9 +46,9 @@ public class WaitActivity extends AbstractActivity {
             silentTimeout = input.isSilentTimeout();
             silentCancel = input.isSilentCancel();
         } catch (JsonProcessingException e) {
-            throw new ActivityException(this, "Cannot deserialize input", e);
+            throw new WaitActivityException(context.getCurrentTaskName(), this.getName(), "Cannot deserialize input", e);
         } catch (ClassCastException e) {
-            throw new ActivityException(this, "Given input is not an instance of " + Future.class.getName(), e);
+            throw new WaitActivityException(context.getCurrentTaskName(), this.getName(), "Given input is not an instance of " + Future.class.getName());
         }
 
         try {
@@ -54,16 +58,16 @@ public class WaitActivity extends AbstractActivity {
             if (silentTimeout) {
                 return SimpleOutboundMessage.of(NullNode.getInstance());
             } else {
-                throw new ActivityException(this, "Wait timed out", e);
+                throw new WaitTimeoutException(this, context.getCurrentTaskName());
             }
         } catch (CancelException e) {
             if (silentCancel) {
                 return SimpleOutboundMessage.of(NullNode.getInstance());
             } else {
-                throw new ActivityException(this, "Future has been cancelled", e);
+                throw new WaitCancelledException(this, context.getCurrentTaskName());
             }
         } catch (Exception e) {
-            throw new ActivityException(this, "Exception while waiting for the result", e);
+            throw new WaitRuntimeException(this, context.getCurrentTaskName(), e);
         }
     }
 

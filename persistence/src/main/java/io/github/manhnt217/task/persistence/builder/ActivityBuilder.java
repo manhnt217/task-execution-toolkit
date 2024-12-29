@@ -29,6 +29,14 @@ public class ActivityBuilder {
         return new WaitBuilder(name);
     }
 
+    public static RethrowBuilder rethrow(String name) {
+        return new RethrowBuilder (name);
+    }
+
+    public static TrialActivityBuilder trial(String name, Class<? extends Throwable> ex, boolean catchRootCause) {
+        return new TrialActivityBuilder(name, ex, catchRootCause);
+    }
+
     public static FromSourceBuilder fromSource(String name, String sourceName) {
         return new FromSourceBuilder(name, sourceName);
     }

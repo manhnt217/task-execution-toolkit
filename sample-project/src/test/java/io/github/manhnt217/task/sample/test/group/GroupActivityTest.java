@@ -5,9 +5,10 @@ import com.google.common.collect.ImmutableMap;
 import io.github.manhnt217.task.core.activity.group.GroupActivity;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
 import io.github.manhnt217.task.core.context.ActivityContext;
-import io.github.manhnt217.task.core.exception.TaskException;
+import io.github.manhnt217.task.core.exception.ActivityException;
+import io.github.manhnt217.task.core.task.RootContext;
+import io.github.manhnt217.task.core.task.TaskException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
-import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.plugin.Log;
@@ -36,7 +37,7 @@ public class GroupActivityTest extends AbstractEngineTest {
      * @throws ConfigurationException
      */
     @Test
-    public void testGroupSimple() throws ConfigurationException, TaskException {
+    public void testGroupSimple() throws ConfigurationException, TaskException, ActivityException {
 
         PluginActivity p1 = buildPluginActivity(
                 "p1",
@@ -57,7 +58,7 @@ public class GroupActivityTest extends AbstractEngineTest {
 
         Function<Map, Void> func = buildLinearFunc("c1", Map.class, Void.class, null, group1);
 
-        TaskContext context = new TaskContext(func.getName(), null, repo, futureProcessor, logger);
+        RootContext context = new RootContext(null, repo, logger);
         func.exec(ImmutableMap.of(
                 "p1Log", "log for plugin number 1",
                 "p2Log", "log for plugin number 2"

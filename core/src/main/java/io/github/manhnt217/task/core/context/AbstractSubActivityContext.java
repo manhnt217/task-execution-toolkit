@@ -61,8 +61,8 @@ public abstract class AbstractSubActivityContext extends AbstractActivityContext
     }
 
     @Override
-    public String getCurrentTaskName() {
-        return parent.getCurrentTaskName();
+    public Callstack getCallStack() {
+        return parent.getCallStack();
     }
 
     @Override

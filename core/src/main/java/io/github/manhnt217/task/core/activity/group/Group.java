@@ -5,11 +5,13 @@ import io.github.manhnt217.task.core.activity.Activity;
 import io.github.manhnt217.task.core.activity.InboundMessage;
 import io.github.manhnt217.task.core.activity.OutboundMessage;
 import io.github.manhnt217.task.core.activity.SimpleInboundMessage;
+import io.github.manhnt217.task.core.exception.ActivityInputException;
+import io.github.manhnt217.task.core.exception.ActivityOutputException;
+import io.github.manhnt217.task.core.activity.group.exception.ActivityTransitionException;
 import io.github.manhnt217.task.core.activity.simple.EndActivity;
 import io.github.manhnt217.task.core.activity.simple.StartActivity;
 import io.github.manhnt217.task.core.context.ActivityContext;
 import io.github.manhnt217.task.core.exception.ActivityException;
-import io.github.manhnt217.task.core.exception.GroupException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.exception.inner.ContextException;
 import io.github.manhnt217.task.core.exception.inner.TransformException;
@@ -72,12 +74,34 @@ public class Group implements LinkedActivityGroup<JsonNode, JsonNode> {
         this.links = new HashMap<>();
     }
 
-    private static void saveOutput(ActivityContext context, Activity currentActivity, OutboundMessage out) throws GroupException {
+    private static OutboundMessage executeActivity(ActivityContext context, Activity currentActivity) throws ActivityException {
+        InboundMessage inboundMessage;
+        JsonNode taskInput;
+        try {
+            taskInput = context.transformInput(currentActivity);
+        } catch (TransformException e) {
+            throw new ActivityInputException(context.getCurrentTaskName(), currentActivity.getName(), e);
+        }
+        inboundMessage = SimpleInboundMessage.of(taskInput);
+        OutboundMessage out = currentActivity.process(inboundMessage, context);
         try {
             context.saveOutput(currentActivity, out);
         } catch (ContextException e) {
-            throw new GroupException("Error while saving output for activity '" + currentActivity.getName() + "'", e);
+            throw new ActivityOutputException(context.getCurrentTaskName(), currentActivity.getName(), e);
         }
+        return out;
+    }
+
+    /**
+     * {@link #BLANK_GUARD_EXP} should always be checked first
+     * {@link #OTHERWISE_GUARD_EXP} should always be checked last
+     */
+    private static int compareGuard(String g1, String g2) {
+        if (g1.equals(BLANK_GUARD_EXP)) return -1;
+        if (g2.equals(BLANK_GUARD_EXP)) return 1;
+        if (g1.equals(OTHERWISE_GUARD_EXP)) return 1;
+        if (g2.equals(OTHERWISE_GUARD_EXP)) return -1;
+        else return 0;
     }
 
     private void validateBeforeAdding(Activity activity) throws ConfigurationException {
@@ -130,13 +154,12 @@ public class Group implements LinkedActivityGroup<JsonNode, JsonNode> {
     }
 
     @Override
-    public JsonNode execute(JsonNode input, ActivityContext context) throws GroupException, ActivityException {
+    public JsonNode execute(JsonNode input, ActivityContext context) throws ActivityException {
         startActivity.setOutput(input);
         Activity currentActivity = startActivity;
 
         while (true) {
-            OutboundMessage out = executeActivity(currentActivity, context);
-            saveOutput(context, currentActivity, out);
+            OutboundMessage out = executeActivity(context, currentActivity);
             Activity nextActivity = getNextActivity(currentActivity, context);
             if (nextActivity == null) {
                 // end the process execution
@@ -174,25 +197,13 @@ public class Group implements LinkedActivityGroup<JsonNode, JsonNode> {
         linkActivities(startActivity, endActivity, guard);
     }
 
-    protected final OutboundMessage executeActivity(Activity activity, ActivityContext context) throws ActivityException {
-        InboundMessage inboundMessage;
-        JsonNode taskInput;
-        try {
-            taskInput = context.transformInput(activity);
-        } catch (TransformException e) {
-            throw new ActivityException(activity, "Cannot transform the input for activity", e);
-        }
-        inboundMessage = SimpleInboundMessage.of(taskInput);
-        return activity.process(inboundMessage, context);
-    }
-
-    protected final Activity getNextActivity(Activity activity, ActivityContext context) throws GroupException {
+    protected final Activity getNextActivity(Activity activity, ActivityContext context) throws ActivityException {
         if (activity == endActivity) {
             return null;
         }
         Map<String, Activity> guardToActivityMap = getConnectedLinks(activity);
         if (guardToActivityMap == null) {
-            throw new GroupException("Activity '" + activity.getName() + "' link to no where. Process stops");
+            throw new ActivityTransitionException(context.getCurrentTaskName(), activity.getName(), "Activity '" + activity.getName() + "' link to no where. Process stops");
         }
         List<String> guards = guardToActivityMap.keySet().stream()
                 .sorted(Group::compareGuard).collect(Collectors.toList());
@@ -202,26 +213,15 @@ public class Group implements LinkedActivityGroup<JsonNode, JsonNode> {
                     return guardToActivityMap.get(guard);
                 }
             } catch (TransformException e) {
-                throw new GroupException("Cannot evaluate guard due to an exception was thrown", e);
+                throw new ActivityTransitionException(context.getCurrentTaskName(), activity.getName(), "Cannot evaluate guard '" + guard + "' due to an exception was thrown", e);
             }
         }
-        throw new GroupException("Cannot find the next activity because all links from current activity (name = '" + activity.getName() + "') evaluate to FALSE");
+        throw new ActivityTransitionException(context.getCurrentTaskName(),
+                activity.getName(), "Cannot find the next activity because all links from current activity '" + activity.getName() + "' evaluate to FALSE");
     }
 
     protected final Map<String, Activity> getConnectedLinks(Activity fromActivity) {
         return links.get(fromActivity);
-    }
-
-    /**
-     * {@link #BLANK_GUARD_EXP} should always be checked first
-     * {@link #OTHERWISE_GUARD_EXP} should always be checked last
-     */
-    private static int compareGuard(String g1, String g2) {
-        if (g1.equals(BLANK_GUARD_EXP)) return -1;
-        if (g2.equals(BLANK_GUARD_EXP)) return 1;
-        if (g1.equals(OTHERWISE_GUARD_EXP)) return 1;
-        if (g2.equals(OTHERWISE_GUARD_EXP)) return -1;
-        else return 0;
     }
 
     private boolean isTrueGuard(ActivityContext context, String guard) throws TransformException {

@@ -5,8 +5,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.manhnt217.task.core.activity.source.FromSourceActivity;
 import io.github.manhnt217.task.core.container.TaskContainer;
 import io.github.manhnt217.task.core.event.source.EventSource;
-import io.github.manhnt217.task.core.exception.ContainerException;
-import io.github.manhnt217.task.core.exception.TaskException;
+import io.github.manhnt217.task.core.exception.ActivityException;
+import io.github.manhnt217.task.core.container.exception.ContainerException;
+import io.github.manhnt217.task.core.task.TaskException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.task.event.EventSourceConfig;
 import io.github.manhnt217.task.core.task.handler.Handler;
@@ -39,7 +40,7 @@ public class EventHandlerTest extends AbstractEngineTest {
     private ArgumentCaptor<JsonNode> inputCaptor;
 
     @Test
-    public void testSimpleHandler() throws ContainerException, TaskException, ConfigurationException, InterruptedException {
+    public void testSimpleHandler() throws ContainerException, TaskException, ConfigurationException, InterruptedException, ActivityException {
         String sourceName = "simpleEventSource";
 
         ObjectNode props = TestUtil.OM.createObjectNode();
