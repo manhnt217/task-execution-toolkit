@@ -10,7 +10,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>toolkit-core</module>
+        <module>core</module>
         <module>sample-project</module>
+        <module>persistence</module>
     </modules>
 </project>
