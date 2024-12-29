@@ -28,28 +28,35 @@ public class Main {
 	}
 
 	public static void main(String[] args) throws IOException {
-		TemplateTask task1 = new TemplateTask();
 		String TASK_1 = "task1";
 		String TASK_2 = "task2";
 
+		TemplateTask task1 = new TemplateTask();
 		task1.setId(TASK_1);
-		task1.setProcessClassName("task_executor.process.CurlTemplate");
+		task1.setProcessClassName("CurlTemplate");
 		task1.setInputMappingExpression(TaskExecutionContext.EXP_INIT_PARAMS);
 		task1.setOutputMappingExpression(".statusCode");
 		task1.setEndLogExpression("\"Finish task 1\"");
 
 		TemplateTask task2 = new TemplateTask();
 		task2.setId(TASK_2);
-		task2.setProcessClassName("task_executor.process.LogTemplate");
+		task2.setProcessClassName("LogTemplate");
 		task2.setInputMappingExpression("{\"severity\": \"INFO\", \"message\": \"Status code is \" + .}");
 		task2.setDependencies(Collections.singletonList(TASK_1));
+
+		TemplateTask task3 = new TemplateTask();
+		task3.setId("task3");
+		task3.setProcessClassName("SqlTemplate");
+		task3.setInputMappingExpression("\"Select * from dual\"");
 
 		Map<String, Object> input = ImmutableMap.of(
 													"url", "https://example.com",
 													"method", "GET"
 													);
 
-		CompoundTask mainTask = new CompoundTask(Sets.newHashSet(task1, task2));
+		CompoundTask mainTask = new CompoundTask(Sets.newHashSet(task1, task2, task3));
+
+
 		//		mainTask.setOutputMappingExpression("{\"out_1\": .task1.out, \"out_2\": .task2.out}");
 		mainTask.setOutputMappingExpression("{}");
 		JsonNode output = mainTask.process(Main.om.valueToTree(input));
