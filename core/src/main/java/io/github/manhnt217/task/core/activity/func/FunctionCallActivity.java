@@ -1,11 +1,14 @@
 package io.github.manhnt217.task.core.activity.func;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.core.activity.AbstractActivity;
 import io.github.manhnt217.task.core.activity.InboundMessage;
 import io.github.manhnt217.task.core.activity.OutboundMessage;
 import io.github.manhnt217.task.core.activity.SimpleOutboundMessage;
 import io.github.manhnt217.task.core.context.ActivityContext;
+import io.github.manhnt217.task.core.context.JSONUtil;
+import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.exception.ActivityException;
 import io.github.manhnt217.task.core.exception.TaskException;
@@ -25,18 +28,33 @@ public class FunctionCallActivity extends AbstractActivity {
         this.functionName = functionName;
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public OutboundMessage process(InboundMessage in, ActivityContext context) throws ActivityException {
         JsonNode input = in.getContent();
+        Function function;
         try {
-            Function function = context.getRepo().getFunction(functionName);
+            function = context.getRepo().getFunction(functionName);
             if (function == null) {
-                throw new TaskException(functionName, "Function not found");
+                throw new ConfigurationException("Function is null");
             }
-            JsonNode output = function.call(input, new TaskContext(context));
-            return SimpleOutboundMessage.of(output);
+        } catch (Exception e) {
+            throw new ActivityException(this, "Cannot resolve function '" + functionName + "' from repository", e);
+        }
+
+        Object funcIn;
+        try {
+            funcIn = JSONUtil.treeToValue(input, function.getInputType(), context);
+        } catch (JsonProcessingException e) {
+            throw new ActivityException(this, "Exception while converting input for function '" + functionName + "'. Input = " + input + ". InputType = " + function.getInputType(), e);
+        }
+
+        Object output;
+        try {
+            output = function.exec(funcIn, new TaskContext(context));
         } catch (TaskException e) {
             throw new ActivityException(this, e);
         }
+        return SimpleOutboundMessage.of(JSONUtil.valueToTree(output, context));
     }
 }

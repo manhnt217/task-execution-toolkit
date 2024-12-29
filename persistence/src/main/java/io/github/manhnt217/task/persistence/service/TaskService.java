@@ -28,9 +28,30 @@ public class TaskService {
     }
 
     public Function buildFunction(FunctionDto functionDto) throws ConfigurationException {
-        FunctionBuilder functionBuilder = ActivityBuilder
-                .function(functionDto.getName())
-                .outputMapping(functionDto.getOutputMapping());
+        FunctionBuilder functionBuilder;
+        try {
+            if (functionDto.getInputClass() == null) {
+                if (functionDto.getOutputClass() == null) {
+                    functionBuilder = ActivityBuilder
+                            .routine(functionDto.getName());
+                } else {
+                    functionBuilder = ActivityBuilder
+                            .producer(functionDto.getName(), Class.forName(functionDto.getOutputClass()));
+                }
+            } else {
+                if (functionDto.getOutputClass() == null) {
+                    functionBuilder = ActivityBuilder
+                            .consumer(functionDto.getName(), Class.forName(functionDto.getInputClass()));
+                } else {
+                    functionBuilder = ActivityBuilder
+                            .function(functionDto.getName(), Class.forName(functionDto.getInputClass()), Class.forName(functionDto.getOutputClass()));
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            throw new ConfigurationException("Input/Output class not found for function '" + functionDto.getName() + "'", e);
+        }
+
+        functionBuilder.outputMapping(functionDto.getOutputMapping());
 
         activityService.buildGroupBuilder(functionBuilder, functionDto.getGroup());
 

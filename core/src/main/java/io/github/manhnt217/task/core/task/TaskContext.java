@@ -7,6 +7,8 @@ import io.github.manhnt217.task.core.context.RootActivityContext;
 import io.github.manhnt217.task.core.context.AbstractSubActivityContext;
 import io.github.manhnt217.task.core.repo.EngineRepository;
 
+import java.util.UUID;
+
 /**
  * @author manh nguyen
  */
@@ -20,6 +22,10 @@ public class TaskContext extends AbstractSubActivityContext {
 
     public TaskContext(String executionId, JsonNode props, EngineRepository repo, TaskLogger logger) {
         this(new RootActivityContext(executionId, props, repo, logger));
+    }
+
+    public TaskContext(JsonNode props, EngineRepository repo, TaskLogger logger) {
+        this(UUID.randomUUID().toString(), props, repo, logger);
     }
 
     @Override

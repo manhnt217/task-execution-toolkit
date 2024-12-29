@@ -2,36 +2,45 @@ package io.github.manhnt217.task.sample.test.guard;
 
 import io.github.manhnt217.task.core.activity.DefaultTaskLogger;
 import io.github.manhnt217.task.core.activity.ExecutionLog;
+import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.activity.group.Group;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
 import io.github.manhnt217.task.core.exception.TaskException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
+import io.github.manhnt217.task.core.repo.EngineRepository;
+import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.sample.TestUtil;
 import io.github.manhnt217.task.sample.plugin.Log;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
 import static io.github.manhnt217.task.core.task.function.Function.*;
+import static io.github.manhnt217.task.sample.test.ComplexFunctionTest.mockBuiltInRepo;
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 /**
  * @author manh nguyen
  */
+@ExtendWith(MockitoExtension.class)
 public class GuardTest {
 
     /**
      * <img src="{@docRoot}/doc-files/images/testSimpleGuard.png">
      */
     @Test
-    public void testSimpleGuard() throws ConfigurationException, TaskException, IOException {
-        DefaultTaskLogger logHandler = new DefaultTaskLogger();
+    public void testSimpleGuard(@Mock EngineRepository repo, @Mock TaskLogger logger) throws ConfigurationException, TaskException, IOException {
+        mockBuiltInRepo(repo);
 
         PluginActivity p1 = ActivityBuilder
                 .plugin("p1", Log.class.getSimpleName())
@@ -43,28 +52,26 @@ public class GuardTest {
                 .inputMapping("{\"severity\": \"INFO\",\"message\": \"p2\"}")
                 .build();
 
-        Function func = ActivityBuilder
-                .function("c1")
+        Function<Void, Void> func = ActivityBuilder
+                .routine("c1")
                 .linkFromStart(p1, "3 > 5")
                 .linkFromStart(p2, "10 - 3 == 7")
                 .linkToEnd(p1)
                 .linkToEnd(p2)
                 .build();
 
-        TestUtil.executeFunc(func, null, null, logHandler, UUID.randomUUID().toString());
-        List<ExecutionLog> logs = logHandler.getLogs();
+        TaskContext context = new TaskContext(null, repo, logger);
+        func.exec(null, context);
 
-        assertThat(logs.size(), is(1));
-        assertThat(logs.get(0).getContent(), is("p2"));
+        verify(logger).info(any(), any(), any(), eq("p2"));
     }
 
     /**
      * <img src="{@docRoot}/doc-files/images/testOtherwise.png">
      */
     @Test
-    public void testOtherwise() throws ConfigurationException, TaskException, IOException {
-        DefaultTaskLogger logHandler = new DefaultTaskLogger();
-
+    public void testOtherwise(@Mock EngineRepository repo, @Mock TaskLogger logger) throws ConfigurationException, TaskException, IOException {
+        mockBuiltInRepo(repo);
         PluginActivity task1 = ActivityBuilder
                 .plugin("task1", Log.class.getSimpleName())
                 .inputMapping("{\"severity\": \"INFO\",\"message\": \"task1\"}")
@@ -80,8 +87,8 @@ public class GuardTest {
                 .inputMapping("{\"severity\": \"INFO\",\"message\": \"task3\"}")
                 .build();
 
-        Function compositeTask = ActivityBuilder
-                .function("c1")
+        Function<Void, Void> compositeTask = ActivityBuilder
+                .routine("c1")
                 .linkFromStart(task1, "3 > 5")
                 .linkFromStart(task2, Group.OTHERWISE_GUARD_EXP)
                 .linkFromStart(task3, "3 == 3")
@@ -90,11 +97,8 @@ public class GuardTest {
                 .linkToEnd(task3, null)
                 .build();
 
-        TestUtil.executeFunc(compositeTask, null, null, logHandler, UUID.randomUUID().toString());
-        List<ExecutionLog> logs = logHandler.getLogs();
-
-        assertThat(logs.size(), is(1));
-        assertThat(logs.get(0).getContent(), is("task3"));
+        compositeTask.exec(null, new TaskContext(null, repo, logger));
+        verify(logger).info(any(), any(), any(), eq("task3"));
     }
 
     @Test
@@ -112,7 +116,7 @@ public class GuardTest {
 
         ConfigurationException ex = assertThrows(ConfigurationException.class,
                 () -> ActivityBuilder
-                        .function("c1")
+                        .routine("c1")
                         .linkFromStart(p1, "3 > 5")
                         .linkFromStart(p2, "3 > 5")
                         .linkToEnd(p1, null)
@@ -123,7 +127,7 @@ public class GuardTest {
     }
 
     @Test
-    public void testNoTrueGuard() throws ConfigurationException {
+    public void testNoTrueGuard(@Mock EngineRepository repo, @Mock TaskLogger logger) throws ConfigurationException {
         DefaultTaskLogger logHandler = new DefaultTaskLogger();
 
         PluginActivity p1 = ActivityBuilder
@@ -136,15 +140,14 @@ public class GuardTest {
                 .inputMapping("{\"severity\": \"INFO\",\"message\": \"p2\"}")
                 .build();
 
-        Function func = ActivityBuilder
-                .function("c1")
+        Function<Void, Void> func = ActivityBuilder
+                .routine("c1")
                 .linkFromStart(p1, "3 > 5")
                 .linkFromStart(p2, "10 / 7 == 1")
                 .linkToEnd(p1, null)
                 .linkToEnd(p2, null)
                 .build();
 
-        assertThrows(TaskException.class, () ->
-                TestUtil.executeFunc(func, null, null, logHandler, UUID.randomUUID().toString()));
+        assertThrows(TaskException.class, () -> func.exec(null, new TaskContext(null, repo, logger)));
     }
 }

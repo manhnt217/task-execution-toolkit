@@ -15,9 +15,9 @@ import java.util.List;
  * Helper class to create a simplified version of @{@link Function}
  * @author manh nguyen
  */
-public class LinearFunction extends Function {
-    public LinearFunction(String name, List<Activity> childActivities) throws ConfigurationException {
-        super(name, buildGroup(childActivities));
+public class LinearFunction<P, R> extends Function<P, R> {
+    public LinearFunction(String name, List<Activity> childActivities, Class<? extends P> inputType, Class<? extends R> outputType) throws ConfigurationException {
+        super(name, buildGroup(childActivities), inputType, outputType);
     }
 
     private static Group buildGroup(List<Activity> childActivities) throws ConfigurationException {
