@@ -1,16 +1,15 @@
 package io.github.manhnt217.task.core.activity.func;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.core.activity.AbstractActivity;
 import io.github.manhnt217.task.core.activity.InboundMessage;
 import io.github.manhnt217.task.core.activity.OutboundMessage;
 import io.github.manhnt217.task.core.activity.SimpleOutboundMessage;
 import io.github.manhnt217.task.core.context.ActivityContext;
+import io.github.manhnt217.task.core.context.Callstack;
 import io.github.manhnt217.task.core.context.JSONUtil;
 import io.github.manhnt217.task.core.exception.ActivityException;
-import io.github.manhnt217.task.core.exception.TaskException;
-import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
+import io.github.manhnt217.task.core.task.TaskException;
 import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
 import lombok.Setter;
@@ -35,26 +34,31 @@ public class FunctionCallActivity extends AbstractActivity {
         Function function;
         try {
             function = context.getRepo().getFunction(functionName);
-            if (function == null) {
-                throw new ConfigurationException("Function is null");
-            }
         } catch (Exception e) {
-            throw new ActivityException(this, "Cannot resolve function '" + functionName + "' from repository", e);
+            throw new FunctionCallActivityException(context.getCurrentTaskName(), this.getName(), "Cannot resolve function '" + functionName + "'", e);
+        }
+        if (function == null) {
+            throw new FunctionCallActivityException(context.getCurrentTaskName(), this.getName(), "Function '" + functionName + "' is not found", null);
         }
 
         Object funcIn;
         try {
             funcIn = JSONUtil.treeToValue(input, function.getInputType(), context);
-        } catch (JsonProcessingException e) {
-            throw new ActivityException(this, "Exception while converting input for function '" + functionName + "'. Input = " + input + ". InputType = " + function.getInputType(), e);
+        } catch (Exception e) {
+            throw new FunctionCallActivityException(context.getCurrentTaskName(), this.getName(), "Exception while converting input for function '" + functionName + "'. Input = " + input, e);
         }
 
         Object output;
         try {
-            output = function.exec(funcIn, new TaskContext(context.getExecutionId(), context.getProps(), context.getRepo(), context.getFutureProcessor(), context.getLogger()));
+            output = function.exec(funcIn, context);
         } catch (TaskException e) {
-            throw new ActivityException(this, e);
+            throw new FunctionCallActivityException(e.getTaskName(), this.getName(), "Activity '" + this.getName() + "' cannot be executed because: An exception was thrown in function '" + e.getTaskName() + "'", e);
         }
-        return SimpleOutboundMessage.of(JSONUtil.valueToTree(output, context));
+
+        try {
+            return SimpleOutboundMessage.of(JSONUtil.valueToTree(output, context));
+        } catch (Exception e) {
+            throw new FunctionCallActivityException(context.getCurrentTaskName(), this.getName(),  "Exception while converting output for function '" + functionName + "'", e);
+        }
     }
 }

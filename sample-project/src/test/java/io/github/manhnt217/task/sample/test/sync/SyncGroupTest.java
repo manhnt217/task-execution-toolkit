@@ -8,10 +8,10 @@ import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.activity.plugin.PluginActivity;
 import io.github.manhnt217.task.core.context.ActivityContext;
 import io.github.manhnt217.task.core.exception.ActivityException;
-import io.github.manhnt217.task.core.exception.TaskException;
+import io.github.manhnt217.task.core.task.RootContext;
+import io.github.manhnt217.task.core.task.TaskException;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.repo.EngineRepository;
-import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.sample.test.AbstractEngineTest;
@@ -87,10 +87,10 @@ public class SyncGroupTest extends AbstractEngineTest {
                 });
 
         Runnable task = () -> {
-            TaskContext syncContext = new TaskContext( null, mock(EngineRepository.class), null, mock(TaskLogger.class));
+            RootContext syncContext = new RootContext( null, mock(EngineRepository.class), mock(TaskLogger.class));
             try {
                 testSyncGroup.exec(null, syncContext);
-            } catch (TaskException e) {
+            } catch (TaskException | ActivityException e) {
                 throw new RuntimeException(e);
             }
         };

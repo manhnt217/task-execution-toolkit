@@ -20,11 +20,15 @@ import io.github.manhnt217.task.sample.test.example_plugin.Curl;
 import io.github.manhnt217.task.sample.test.example_plugin.ObjectRefConsumer;
 import io.github.manhnt217.task.sample.test.example_plugin.ObjectRefProducer;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.stubbing.Answer;
 
 import java.util.Map;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.*;
 
 public abstract class AbstractEngineTest {
@@ -128,5 +132,15 @@ public abstract class AbstractEngineTest {
                 .plugin(actName, pluginName)
                 .inputMapping(inputMapping)
                 .build();
+    }
+
+    protected PluginActivity mockPlugin(String activityName, Answer<?> answer) throws Exception {
+        Plugin mockPlugin = mock(Plugin.class, Answers.CALLS_REAL_METHODS);
+        lenient().when(mockPlugin.getInputType()).thenReturn(Object.class);
+        lenient().when(mockPlugin.exec(any(), any())).thenAnswer(answer);
+        String randomPluginName = UUID.randomUUID().toString();
+        lenient().when(repo.resolvePlugin(randomPluginName)).thenReturn(mockPlugin);
+        PluginActivity mockPluginAct = ActivityBuilder.plugin(activityName, randomPluginName).build();
+        return mockPluginAct;
     }
 }

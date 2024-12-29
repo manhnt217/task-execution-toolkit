@@ -1,6 +1,5 @@
 package io.github.manhnt217.task.core.activity.plugin;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.core.activity.AbstractActivity;
 import io.github.manhnt217.task.core.activity.InboundMessage;
@@ -9,7 +8,6 @@ import io.github.manhnt217.task.core.activity.SimpleOutboundMessage;
 import io.github.manhnt217.task.core.context.ActivityContext;
 import io.github.manhnt217.task.core.context.JSONUtil;
 import io.github.manhnt217.task.core.exception.ActivityException;
-import io.github.manhnt217.task.core.exception.PluginException;
 import io.github.manhnt217.task.core.task.plugin.Plugin;
 import io.github.manhnt217.task.core.task.plugin.PluginLoggerImpl;
 
@@ -29,37 +27,36 @@ public class PluginActivity extends AbstractActivity {
     @Override
     public OutboundMessage process(InboundMessage in, ActivityContext context) throws ActivityException {
         JsonNode input = in.getContent();
-        try {
-            return executePlugin(context, input);
-        } catch (PluginException e) {
-            throw new ActivityException(this, e);
-        } catch (Exception e) {
-            throw new ActivityException(this, new PluginException(pluginName, input, null, e));
-        }
-    }
-
-    private SimpleOutboundMessage executePlugin(ActivityContext context, JsonNode input) throws PluginException {
         Plugin plugin = getPlugin(pluginName, context);
-        Object in;
+        Object in1;
         try {
-            in = JSONUtil.treeToValue(input, plugin.getInputType(), context);
-        } catch (JsonProcessingException e) {
-            throw new PluginException(pluginName, input, "Cannot convert in to desired type", e);
+            in1 = JSONUtil.treeToValue(input, plugin.getInputType(), context);
+        } catch (Exception e) {
+            throw new PluginActivityException(context.getCurrentTaskName(), this.getName(), "Cannot convert input into to plugin's desired type", pluginName, input, e);
         }
         Object rs;
         try {
-            rs = plugin.exec(in, new PluginLoggerImpl(context.getExecutionId(), context.getCurrentTaskName(), this.getName(), context.getLogger()));
+            rs = plugin.exec(in1, new PluginLoggerImpl(context.getExecutionId(), context.getCurrentTaskName(), this.getName(), context.getLogger()));
         } catch (Exception e) {
-            throw new PluginException(pluginName, input, "Exception while executing plugin", e);
+            throw new PluginActivityException(context.getCurrentTaskName(), this.getName(), "Exception while executing", pluginName, input, e);
         }
-        JsonNode result = JSONUtil.valueToTree(rs, context);
-        return SimpleOutboundMessage.of(result);
+        try {
+            JsonNode result = JSONUtil.valueToTree(rs, context);
+            return SimpleOutboundMessage.of(result);
+        } catch (Exception e) {
+            throw new PluginExecutionException(context.getCurrentTaskName(), this.getName(), "Cannot convert plugin's output into JSON", pluginName, input, e);
+        }
     }
 
-    private static Plugin getPlugin(String pluginName, ActivityContext context) throws PluginException {
-        Plugin plugin = context.getRepo().resolvePlugin(pluginName);
+    private Plugin getPlugin(String pluginName, ActivityContext context) throws PluginActivityException {
+        Plugin plugin;
+        try {
+            plugin = context.getRepo().resolvePlugin(pluginName);
+        } catch (Exception e) {
+            throw new PluginActivityException(context.getCurrentTaskName(), this.getName(), "Exception while resolving plugin '" + pluginName + "'", null, null);
+        }
         if (plugin == null) {
-            throw new PluginException(pluginName, "Plugin not found");
+            throw new PluginActivityException(context.getCurrentTaskName(), this.getName(), "Plugin '" + pluginName + "' not found", null, null);
         }
         plugin.setName(pluginName);
         return plugin;
