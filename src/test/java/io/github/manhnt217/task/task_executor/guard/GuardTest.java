@@ -1,6 +1,7 @@
 package io.github.manhnt217.task.task_executor.guard;
 
 import io.github.manhnt217.task.task_executor.TestUtil;
+import io.github.manhnt217.task.task_executor.activity.ActivityException;
 import io.github.manhnt217.task.task_executor.activity.ContainerActivity;
 import io.github.manhnt217.task.task_executor.process.DefaultLogger;
 import io.github.manhnt217.task.task_executor.process.ExecutionLog;
@@ -23,15 +24,15 @@ public class GuardTest {
      * @throws TaskExecutionException
      */
     @Test
-    public void testSimpleGuard() throws TaskExecutionException {
+    public void testSimpleGuard() throws ActivityException {
         DefaultLogger logHandler = new DefaultLogger();
 
         TemplateTask task1 = new TemplateTask("task1");
-        task1.setInputMappingExpression("{\"severity\": \"INFO\",\"message\": \"task1\"}");
+        task1.setInputMapping("{\"severity\": \"INFO\",\"message\": \"task1\"}");
         task1.setTemplateName("LogTemplate");
 
         TemplateTask task2 = new TemplateTask("task2");
-        task2.setInputMappingExpression("{\"severity\": \"INFO\",\"message\": \"task2\"}");
+        task2.setInputMapping("{\"severity\": \"INFO\",\"message\": \"task2\"}");
         task2.setTemplateName("LogTemplate");
 
 
@@ -58,19 +59,19 @@ public class GuardTest {
      * @throws TaskExecutionException
      */
     @Test
-    public void testOtherwise() throws TaskExecutionException {
+    public void testOtherwise() throws ActivityException {
         DefaultLogger logHandler = new DefaultLogger();
 
         TemplateTask task1 = new TemplateTask("task1");
-        task1.setInputMappingExpression("{\"severity\": \"INFO\",\"message\": \"task1\"}");
+        task1.setInputMapping("{\"severity\": \"INFO\",\"message\": \"task1\"}");
         task1.setTemplateName("LogTemplate");
 
         TemplateTask task2 = new TemplateTask("task2");
-        task2.setInputMappingExpression("{\"severity\": \"INFO\",\"message\": \"task2\"}");
+        task2.setInputMapping("{\"severity\": \"INFO\",\"message\": \"task2\"}");
         task2.setTemplateName("LogTemplate");
 
         TemplateTask task3 = new TemplateTask("task3");
-        task3.setInputMappingExpression("{\"severity\": \"INFO\",\"message\": \"task3\"}");
+        task3.setInputMapping("{\"severity\": \"INFO\",\"message\": \"task3\"}");
         task3.setTemplateName("LogTemplate");
 
         CompoundTask compoundTask = new CompoundTask();
@@ -97,11 +98,11 @@ public class GuardTest {
     @Test
     public void testConflictedGuards() {
         TemplateTask task1 = new TemplateTask("task1");
-        task1.setInputMappingExpression("{\"severity\": \"INFO\",\"message\": \"task1\"}");
+        task1.setInputMapping("{\"severity\": \"INFO\",\"message\": \"task1\"}");
         task1.setTemplateName("LogTemplate");
 
         TemplateTask task2 = new TemplateTask("task2");
-        task2.setInputMappingExpression("{\"severity\": \"INFO\",\"message\": \"task2\"}");
+        task2.setInputMapping("{\"severity\": \"INFO\",\"message\": \"task2\"}");
         task2.setTemplateName("LogTemplate");
 
 

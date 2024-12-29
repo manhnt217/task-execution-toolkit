@@ -1,7 +1,7 @@
 package io.github.manhnt217.task.task_executor.activity;
 
 import io.github.manhnt217.task.task_executor.process.Logger;
-import io.github.manhnt217.task.task_executor.task.ExecContext;
+import io.github.manhnt217.task.task_executor.task.context.ExecContext;
 
 public interface Activity {
 
