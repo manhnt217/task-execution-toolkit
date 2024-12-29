@@ -20,12 +20,12 @@ import java.util.Map;
 public class Main {
 
 	public static final ObjectMapper om = new ObjectMapper();
-	public static final String SQL = "DECLARE\\n" +
-			"    p varchar2(10);\\n" +
-			"BEGIN\\n" +
-			"    select DUMMY into p from dual;\\n" +
-			"    insert into TESTPLSQL(RECORD_NAME) values ('Hell o PL/SQL');" +
-			"    DBMS_OUTPUT.PUT_LINE('Got a result: ================ ' || p);\\n" +
+	public static final String SQL = "DECLARE " +
+			"    p varchar2(10); " +
+			"BEGIN " +
+			"    select DUMMY into p from dual; " +
+			"    insert into TESTPLSQL(RECORD_NAME) values ('Hell o112 PL/SQL');" +
+			"    DBMS_OUTPUT.PUT_LINE('Got a result: ================ ' || p || chr(10) || ' ABC'); " +
 			"END;";
 
 	static {
@@ -51,7 +51,7 @@ public class Main {
 		task2.setId(TASK_2);
 		task2.setTemplateName("LogTemplate");
 		task2.setInputType(Task.InputType.PREVIOUS_TASK);
-		task2.setInputMappingExpression("{\"severity\": \"INFO\", \"message\": \"Status code is \" + .}");
+		task2.setInputMappingExpression("{\"severity\": \"INFO\", \"message\": \"Status code is \\n\" + .}");
 		task2.setDependencies(Collections.singletonList(TASK_1));
 
 		TemplateTask task3 = new TemplateTask();
@@ -65,7 +65,7 @@ public class Main {
 													"method", "GET"
 													);
 
-		CompoundTask mainTask = new CompoundTask(Sets.newHashSet(task3));
+		CompoundTask mainTask = new CompoundTask(Sets.newHashSet(task1, task2, task3));
 
 
 		//		mainTask.setOutputMappingExpression("{\"out_1\": .task1.out, \"out_2\": .task2.out}");

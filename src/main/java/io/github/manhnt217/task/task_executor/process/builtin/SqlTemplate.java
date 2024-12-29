@@ -1,6 +1,7 @@
 package io.github.manhnt217.task.task_executor.process.builtin;
 
 import io.github.manhnt217.task.task_executor.process.LogHandler;
+import io.github.manhnt217.task.task_executor.process.Severity;
 import io.github.manhnt217.task.task_executor.process.Template;
 import io.github.manhnt217.task.task_executor.process.builtin.sql.DataSource;
 import io.github.manhnt217.task.task_executor.process.builtin.sql.DataSourceConfig;
@@ -9,7 +10,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
-import org.hibernate.jdbc.AbstractWork;
 import org.hibernate.query.NativeQuery;
 
 import java.sql.*;
@@ -32,7 +32,7 @@ public class SqlTemplate extends Template<SqlTemplate.Input, Object> {
         try {
             DataSource dataSource = getDataSource();
             dataSourceConnector = new DataSourceConnector(dataSource);
-            dataSourceConnector.executeTransation(session -> this.execute(session, input.getSql()));
+            dataSourceConnector.executeTransation(session -> this.execute(session, input.getSql(), logHanlder));
         } catch (Exception e) {
             log.error("Got an exception while executing query: " + input.getSql(), e);
         } finally {
@@ -44,47 +44,55 @@ public class SqlTemplate extends Template<SqlTemplate.Input, Object> {
         return new Object();
     }
 
-    private void execute(Session session, String sql) {
+    private void execute(Session session, String sql, LogHandler logHanlder) {
+        try {
+            enabledDBMSOutput(session);
 
-        NativeQuery enableDMBSOutputQuery = session.createNativeQuery("begin dbms_output.enable(); end;");
-        enableDMBSOutputQuery.executeUpdate();
+            NativeQuery query = session.createNativeQuery(sql);
+            query.executeUpdate();
 
-        NativeQuery query = session.createNativeQuery(sql);
-        query.executeUpdate();
+            session.doWork((Connection connection) -> logOutput(logHanlder, connection));
+        } finally {
+            disableDBMSOutput(session);
+        }
+    }
 
-        session.doWork(new AbstractWork() {
-            @Override
-            public void execute(Connection connection) throws SQLException {
-                try (CallableStatement call = connection.prepareCall(
-                        "declare "
-                                + " num integer := 1000;"
-                                + " begin "
-                                + "   dbms_output.get_lines(?, num);"
-                                + " end;"
-                )) {
-                    call.registerOutParameter(1, Types.ARRAY,
-                            "DBMSOUTPUT_LINESARRAY");
-                    call.execute();
+    private static void logOutput(LogHandler logHanlder, Connection connection) {
+        try (CallableStatement call = connection.prepareCall(
+                "declare "
+                        + " num integer := 1000;"
+                        + " begin "
+                        + "   dbms_output.get_lines(?, num);"
+                        + " end;"
+        )) {
+            call.registerOutParameter(1, Types.ARRAY,
+                    "DBMSOUTPUT_LINESARRAY");
+            call.execute();
 
-                    Array array = null;
-                    try {
-                        array = call.getArray(1);
-                        Stream.of((Object[]) array.getArray())
-                                .filter(Objects::nonNull)
-                                .forEach(System.out::println);
-                    } finally {
-                        if (array != null)
-                            array.free();
-                    }
-                }
-                catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+            Array array = null;
+            try {
+                array = call.getArray(1);
+                Stream.of((Object[]) array.getArray())
+                        .filter(Objects::nonNull)
+                        .forEach(o -> logHanlder.log(Severity.INFO, String.valueOf(o)));
+            } finally {
+                if (array != null)
+                    array.free();
             }
-        });
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
+    private static void disableDBMSOutput(Session session) {
         NativeQuery disableDMBSOutputQuery = session.createNativeQuery("begin dbms_output.disable(); end;");
         disableDMBSOutputQuery.executeUpdate();
+    }
+
+    private static void enabledDBMSOutput(Session session) {
+        NativeQuery enableDMBSOutputQuery = session.createNativeQuery("begin dbms_output.enable(); end;");
+        enableDMBSOutputQuery.executeUpdate();
     }
 
     // Hardcode data

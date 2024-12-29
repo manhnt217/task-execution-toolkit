@@ -26,7 +26,7 @@ public class CurlTemplate extends Template<CurlTemplate.Input, CurlTemplate.Outp
 	}
 
 	@Override
-	public Output exec(Input input, LogHandler log) {
+	public Output exec(Input input, LogHandler logHandler) {
 		return doRequest(input.getUrl(), input.getMethod(), input.getHeaders(), input.getQueryParams(), input.getBody());
 	}
 

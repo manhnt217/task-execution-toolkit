@@ -34,16 +34,16 @@ public abstract class Template<P, R> {
     }
 
 	@SuppressWarnings("unused")
-	public final JsonNode run(JsonNode inputJS, LogHandler log) throws TemplateExecutionException {
+	public final JsonNode run(JsonNode inputJS, LogHandler logHandler) throws TemplateExecutionException {
 		P input;
 		try {
 			input = Main.om.treeToValue(inputJS, getInputClass());
 		} catch (JsonProcessingException e) {
-			log.log(Severity.ERROR, "Cannot convert input");
+			logHandler.log(Severity.ERROR, "Cannot convert input");
 			throw new TaskExecutionException("Cannot convert input. Process stop", e);
 		}
 		try {
-			R rs = exec(input, log);
+			R rs = exec(input, logHandler);
 			return Main.om.valueToTree(rs);
 		} catch (Exception e) {
 			throw new TemplateExecutionException(e);
@@ -52,5 +52,5 @@ public abstract class Template<P, R> {
 
 	protected abstract Class<? extends P> getInputClass();
 
-	public abstract R exec(P input, LogHandler log);
+	public abstract R exec(P input, LogHandler logHandler);
 }
