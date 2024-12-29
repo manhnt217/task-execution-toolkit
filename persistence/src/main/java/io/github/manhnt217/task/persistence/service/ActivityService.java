@@ -3,6 +3,8 @@ package io.github.manhnt217.task.persistence.service;
 import io.github.manhnt217.task.core.activity.Activity;
 import io.github.manhnt217.task.core.activity.group.GroupActivity;
 import io.github.manhnt217.task.core.activity.loop.ForEachActivity;
+import io.github.manhnt217.task.core.activity.simple.FromLastActivity;
+import io.github.manhnt217.task.core.activity.simple.MapperActivity;
 import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.persistence.builder.ForEachActivityBuilder;
@@ -10,13 +12,7 @@ import io.github.manhnt217.task.persistence.builder.GroupActivityBuilder;
 import io.github.manhnt217.task.persistence.builder.LinkedActivityGroupBuilder;
 import io.github.manhnt217.task.persistence.model.ActivityGroupDto;
 import io.github.manhnt217.task.persistence.model.ActivityLinkDto;
-import io.github.manhnt217.task.persistence.model.activity.ActivityDto;
-import io.github.manhnt217.task.persistence.model.activity.ForeachActivityDto;
-import io.github.manhnt217.task.persistence.model.activity.FunctionActivityDto;
-import io.github.manhnt217.task.persistence.model.activity.GroupActivityDto;
-import io.github.manhnt217.task.persistence.model.activity.PluginActivityDto;
-import io.github.manhnt217.task.persistence.model.activity.SourceActivityDto;
-import io.github.manhnt217.task.persistence.model.activity.TrialActivityDto;
+import io.github.manhnt217.task.persistence.model.activity.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,13 +45,28 @@ public class ActivityService {
             return buildSourceActivity((SourceActivityDto) activityDto);
         } else if (activityDto instanceof TrialActivityDto) {
             return buildTrialActivity((TrialActivityDto) activityDto);
+        } else if (activityDto instanceof FromLastActivityDto) {
+            return buildFromLastActivity((FromLastActivityDto) activityDto);
+        } else if (activityDto instanceof MapperActivityDto) {
+            return buildMapperActivity((MapperActivityDto) activityDto);
         } else {
             throw new IllegalArgumentException("Invalid activity type: " + activityDto.getClass().getName());
         }
     }
 
     private Activity buildTrialActivity(TrialActivityDto activityDto) {
+        // TODO: implement this method
         return null;
+    }
+
+    private Activity buildFromLastActivity(FromLastActivityDto activityDto) {
+        return new FromLastActivity(activityDto.getName());
+    }
+
+    private Activity buildMapperActivity(MapperActivityDto activityDto) {
+        MapperActivity mapperActivity = new MapperActivity(activityDto.getName());
+        mapperActivity.setInputMapping(activityDto.getInputMapping());
+        return mapperActivity;
     }
 
     private Activity buildSourceActivity(SourceActivityDto activityDto) {

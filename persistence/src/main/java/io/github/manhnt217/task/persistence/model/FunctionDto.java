@@ -15,9 +15,4 @@ public class FunctionDto {
     private String outputClass;
     private String outputMapping;
     private ActivityGroupDto group;
-    private Type type;
-
-    public enum Type {
-        FUNCTION, ROUTINE, PRODUCER, CONSUMER
-    }
 }

@@ -13,7 +13,14 @@ import io.github.manhnt217.task.core.task.RootContext;
 import io.github.manhnt217.task.core.task.TaskException;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
+import io.github.manhnt217.task.persistence.model.ActivityGroupDto;
+import io.github.manhnt217.task.persistence.model.ActivityLinkDto;
+import io.github.manhnt217.task.persistence.model.FunctionDto;
+import io.github.manhnt217.task.persistence.model.activity.FromLastActivityDto;
+import io.github.manhnt217.task.persistence.model.activity.MapperActivityDto;
+import io.github.manhnt217.task.persistence.service.TaskService;
 import io.github.manhnt217.task.plugin.Log;
+import io.github.manhnt217.task.sample.SimpleEngineRepository;
 import io.github.manhnt217.task.sample.test.AbstractEngineTest;
 import io.github.manhnt217.task.sample.test.helper.SampleInput;
 import io.github.manhnt217.task.sample.test.helper.SampleOutput;
@@ -23,6 +30,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import static io.github.manhnt217.task.core.context.ActivityContext.from;
 import static io.github.manhnt217.task.core.task.function.Function.*;
@@ -169,6 +177,54 @@ public class GuardTest extends AbstractEngineTest {
                 .linkToEnd(pickFirst)
                 .outputMapping(from("pickFirst"))
                 .build();
+
+        RootContext context = new RootContext(null, repo, logger);
+        SampleOutput result1 = func.exec(new SampleInput("Kevin", 15, "London"), context);
+        SampleOutput result2 = func.exec(new SampleInput("Stacy", 4, "New Jersey"), context);
+
+        assertThat(result1.getCategory(), is("high"));
+        assertThat(result1.isImportant(), is(true));
+        assertThat(result1.getRate(), is(-5.0));
+
+        assertThat(result2.getCategory(), is("low"));
+        assertThat(result2.isImportant(), is(false));
+        assertThat(result2.getRate(), is(0.0));
+    }
+
+    @Test
+    public void testFromLastActivity_Dto() throws TaskException, ActivityException, ConfigurationException {
+
+        MapperActivityDto p1 = new MapperActivityDto();
+        p1.setName("p1");
+        p1.setInputMapping("{\"category\": \"high\", \"important\": true, \"rate\": -5.0}");
+
+        MapperActivityDto p2 = new MapperActivityDto();
+        p2.setName("p2");
+        p2.setInputMapping("{\"category\": \"low\"}");
+
+        FromLastActivityDto pickFirst = new FromLastActivityDto();
+        pickFirst.setName("pickFirst");
+
+        ActivityGroupDto groupDto = new ActivityGroupDto();
+
+        groupDto.setActivities(Arrays.asList(p1, p2, pickFirst));
+        groupDto.setLinks(Arrays.asList(
+                new ActivityLinkDto(){{ setFrom(START_ACTIVITY_NAME); setTo(p1.getName()); setGuard(from(START_ACTIVITY_NAME) + ".age > 10"); }},
+                new ActivityLinkDto(){{ setFrom(START_ACTIVITY_NAME); setTo(p2.getName()); setGuard(Group.OTHERWISE_GUARD_EXP); }},
+                new ActivityLinkDto(){{ setFrom(p1.getName()); setTo(pickFirst.getName());  }},
+                new ActivityLinkDto(){{ setFrom(p2.getName()); setTo(pickFirst.getName());  }},
+                new ActivityLinkDto(){{ setFrom(pickFirst.getName()); setTo(END_ACTIVITY_NAME); }}
+        ));
+
+        FunctionDto functionDto = new FunctionDto();
+        functionDto.setName("c1");
+        functionDto.setInputClass(SampleInput.class.getName());
+        functionDto.setOutputClass(SampleOutput.class.getName());
+        functionDto.setGroup(groupDto);
+        functionDto.setOutputMapping(from("pickFirst"));
+
+        @SuppressWarnings("unchecked")
+        Function<SampleInput, SampleOutput> func = TaskService.instance().buildFunction(functionDto);
 
         RootContext context = new RootContext(null, repo, logger);
         SampleOutput result1 = func.exec(new SampleInput("Kevin", 15, "London"), context);

@@ -2,8 +2,6 @@ package io.github.manhnt217.task.persistence.model.activity;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import io.github.manhnt217.task.core.activity.group.GroupActivity;
-import io.github.manhnt217.task.core.activity.source.FromSourceActivity;
 import io.github.manhnt217.task.persistence.model.ActivityGroupDto;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,6 +20,8 @@ import lombok.Setter;
         @JsonSubTypes.Type(value = ForeachActivityDto.class, name = ActivityDto.Type.FOREACH),
         @JsonSubTypes.Type(value = FunctionActivityDto.class, name = ActivityDto.Type.FUNC),
         @JsonSubTypes.Type(value = PluginActivityDto.class, name = ActivityDto.Type.PLUGIN),
+        @JsonSubTypes.Type(value = MapperActivityDto.class, name = ActivityDto.Type.MAPPER),
+        @JsonSubTypes.Type(value = FromLastActivityDto.class, name = ActivityDto.Type.FROMLAST),
         @JsonSubTypes.Type(value = SourceActivityDto.class, name = ActivityDto.Type.SOURCE)
 })
 public class ActivityDto {
@@ -38,5 +38,7 @@ public class ActivityDto {
         public static final String FUNC = "FUNC";
         public static final String PLUGIN = "PLUGIN";
         public static final String SOURCE = "SOURCE";
+        public static final String MAPPER = "MAPPER";
+        public static final String FROMLAST = "FROMLAST";
     }
 }
