@@ -1,7 +1,6 @@
 package io.github.manhnt217.task.task_executor.executor;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.NullNode;
 import io.github.manhnt217.task.task_executor.process.ExecutionLog;
 import io.github.manhnt217.task.task_executor.process.Severity;
 import io.github.manhnt217.task.task_executor.task.CompoundTask;
@@ -24,7 +23,7 @@ public class CompoundTaskExecutor extends TaskExecutor {
 
         ParamContext context = new ParamContext();
 
-        context.saveGlobalInput(input);
+        context.setGlobalInput(input);
 
         List<Task> executionOrder = null;
         try {
@@ -36,7 +35,7 @@ public class CompoundTaskExecutor extends TaskExecutor {
             executeTask(subTask, context);
         }
 
-        return context.applyTransform(task.getOutputMappingExpression());
+        return context.transform(task.getOutputMappingExpression());
     }
 
     private List<Task> resolveDependencies(Set<Task> tasks) throws UnresolvableDependencyException {
@@ -75,15 +74,7 @@ public class CompoundTaskExecutor extends TaskExecutor {
     }
 
     private static JsonNode extractInput(Task task, ParamContext context) {
-        if (task.getInputType() == null || task.getInputType() == Task.InputType.NONE) {
-            return NullNode.getInstance();
-        } else if (Task.InputType.CONTEXT.equals(task.getInputType())) {
-            return context.applyTransform(task.getInputMappingExpression());
-        } else if (Task.InputType.PREVIOUS_TASK.equals(task.getInputType()) && task.getDependencies().size() == 1) {
-            return context.applyFromTaskOutput(task.getDependencies().iterator().next(), task.getInputMappingExpression());
-        } else {
-            throw new TaskExecutionException("A task should depend on ONLY ONE task when its InputType = Previous Task");
-        }
+        return context.transformInput(task);
     }
 
     private void log(Task task, String jslt, ParamContext ctx) {
@@ -91,8 +82,8 @@ public class CompoundTaskExecutor extends TaskExecutor {
             return;
         }
         try {
-            JsonNode jsonNode = ctx.applyTransform(jslt);
-            logs.add(new ExecutionLog(task.getId(), Severity.INFO, jsonNode.isContainerNode() ? om.writeValueAsString(jsonNode) : jsonNode.asText()));
+            JsonNode jsonNode = ctx.transform(jslt);
+            logs.add(new ExecutionLog(task.getId(), Severity.INFO, jsonNode.isContainerNode() ? "" : jsonNode.asText()));
         } catch (Exception e) {
             logs.add(new ExecutionLog(task.getId(), Severity.WARN, "Error while applying log expression to the context. Expression = " + jslt));
         }
