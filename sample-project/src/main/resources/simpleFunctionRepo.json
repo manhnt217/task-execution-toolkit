@@ -1,10 +1,25 @@
 {
   "plugins": [
-    {"name": "AddTwoNumber", "className": "io.github.manhnt217.task.sample.example_plugin.AddTwoNumber"},
-    {"name": "Curl", "className": "io.github.manhnt217.task.sample.example_plugin.Curl"},
-    {"name": "Log", "className": "io.github.manhnt217.task.plugin.Log"},
-    {"name": "ObjectRefConsumer", "className": "io.github.manhnt217.task.sample.example_plugin.ObjectRefConsumer"},
-    {"name": "ObjectRefProducer", "className": "io.github.manhnt217.task.sample.example_plugin.ObjectRefProducer"}
+    {
+      "name": "AddTwoNumber",
+      "className": "io.github.manhnt217.task.sample.example_plugin.AddTwoNumber"
+    },
+    {
+      "name": "Curl",
+      "className": "io.github.manhnt217.task.sample.example_plugin.Curl"
+    },
+    {
+      "name": "Log",
+      "className": "io.github.manhnt217.task.plugin.Log"
+    },
+    {
+      "name": "ObjectRefConsumer",
+      "className": "io.github.manhnt217.task.sample.example_plugin.ObjectRefConsumer"
+    },
+    {
+      "name": "ObjectRefProducer",
+      "className": "io.github.manhnt217.task.sample.example_plugin.ObjectRefProducer"
+    }
   ],
   "functions": [
     {
@@ -17,20 +32,16 @@
           {
             "type": "MAPPER",
             "name": "p1",
-            "inputMapping": "{\"category\": \"high\", \"important\": true, \"rate\": -5.0}",
-            "group": null
+            "inputMapping": "{\"category\": \"high\", \"important\": true, \"rate\": -5.0}"
           },
           {
             "type": "MAPPER",
             "name": "p2",
-            "inputMapping": "{\"category\": \"low\"}",
-            "group": null
+            "inputMapping": "{\"category\": \"low\"}"
           },
           {
             "type": "FROMLAST",
-            "name": "pickFirst",
-            "inputMapping": null,
-            "group": null
+            "name": "pickFirst"
           }
         ],
         "links": [
@@ -46,18 +57,15 @@
           },
           {
             "from": "p1",
-            "to": "pickFirst",
-            "guard": null
+            "to": "pickFirst"
           },
           {
             "from": "p2",
-            "to": "pickFirst",
-            "guard": null
+            "to": "pickFirst"
           },
           {
             "from": "pickFirst",
-            "to": "END",
-            "guard": null
+            "to": "END"
           }
         ]
       }
