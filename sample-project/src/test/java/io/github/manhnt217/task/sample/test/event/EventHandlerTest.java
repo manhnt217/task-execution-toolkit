@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.manhnt217.task.core.activity.source.FromSourceActivity;
 import io.github.manhnt217.task.core.container.TaskContainer;
 import io.github.manhnt217.task.core.event.source.EventSource;
+import io.github.manhnt217.task.core.exception.ContainerException;
 import io.github.manhnt217.task.core.exception.MultipleHandlersException;
 import io.github.manhnt217.task.core.exception.NoHandlerException;
 import io.github.manhnt217.task.core.exception.TaskException;
@@ -14,6 +15,7 @@ import io.github.manhnt217.task.core.task.event.EventSourceConfig;
 import io.github.manhnt217.task.core.task.handler.Handler;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.sample.TestUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -28,6 +30,8 @@ import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("ALL")
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 public class EventHandlerTest {
 
@@ -38,7 +42,7 @@ public class EventHandlerTest {
     private ArgumentCaptor<JsonNode> inputCaptor;
 
     @Test
-    public void testSimpleHandler(@Mock EngineRepository repo) throws MultipleHandlersException, TaskException, NoHandlerException, ConfigurationException {
+    public void testSimpleHandler(@Mock EngineRepository repo) throws ContainerException, TaskException, ConfigurationException, InterruptedException {
         String sourceName = "simpleEventSource";
 
         ObjectNode props = TestUtil.OM.createObjectNode();
@@ -62,6 +66,7 @@ public class EventHandlerTest {
         when(repo.findHandlerBySourceName(sourceName)).thenReturn(Collections.singletonList(handler));
 
         taskContainer.start();
+        Thread.sleep(1000);
 
         verify(taskContainer).dispatch(eventSourceCaptor.capture(), eq("Hello world"), eq(String.class));
         verify(handler).handle(inputCaptor.capture(), any());
@@ -88,7 +93,15 @@ public class EventHandlerTest {
 
         @Override
         protected void startInternal(Object props) throws Exception {
-            dispatch("Hello world");
+            new Thread(() -> {
+                try {
+                    log.info("Dispatching...");
+                    dispatch("Hello world");
+                    log.info("Done dispatching.");
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
         }
 
         @Override
