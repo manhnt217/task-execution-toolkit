@@ -1,7 +1,7 @@
 package io.github.manhnt217.task.core.context;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public class SyncContext {
     // TODO: Implement synchronization

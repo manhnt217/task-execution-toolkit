@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public interface InboundMessage {
     JsonNode getContent();

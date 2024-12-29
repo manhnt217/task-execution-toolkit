@@ -1,7 +1,17 @@
 package io.github.manhnt217.task.core.context;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.TreeNode;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -20,20 +30,23 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public class JSONUtil {
 
+    public static final ObjectMapper MAPPER = new ObjectMapper();
+    static {
+        setUpDefaultConfig(MAPPER);
+    }
+
     private static final ThreadLocal<OM> OBJECT_MAPPER_THREAD_LOCAL = ThreadLocal.withInitial(() -> {
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        objectMapper.registerModule(new JSR310Module());
-        objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+        setUpDefaultConfig(objectMapper);
         SimpleModule objectRefModule = new SimpleModule();
         ObjectRefDeserializer deserializer = new ObjectRefDeserializer();
         ObjectRefSerializer serializer = new ObjectRefSerializer();
@@ -43,6 +56,13 @@ public class JSONUtil {
 
         return new OM(objectMapper, serializer, deserializer);
     });
+
+    private static void setUpDefaultConfig(ObjectMapper objectMapper) {
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        objectMapper.registerModule(new JSR310Module());
+        objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+    }
 
     private static final String REF_ID = "refId";
 
@@ -88,15 +108,15 @@ public class JSONUtil {
         return getObjectMapper().createObjectNode();
     }
 
-    public static <T> T treeToValue(TreeNode n, Class<T> valueType, ActivityContext activityContext) throws IllegalArgumentException, JsonProcessingException {
+    public static synchronized  <T> T treeToValue(TreeNode n, Type valueType, ActivityContext activityContext) throws IllegalArgumentException, JsonProcessingException {
 
         setActivityContext(activityContext);
-        T value = getObjectMapper().treeToValue(n, valueType);
+        T value = getObjectMapper().treeToValue(n, getObjectMapper().constructType(valueType));
         clearActivityContext();
         return  value;
     }
 
-    public static <T extends JsonNode> T valueToTree(Object fromValue, ActivityContext activityContext) throws IllegalArgumentException {
+    public static synchronized <T extends JsonNode> T valueToTree(Object fromValue, ActivityContext activityContext) throws IllegalArgumentException {
         setActivityContext(activityContext);
         T value = getObjectMapper().valueToTree(fromValue);
         clearActivityContext();
@@ -125,7 +145,7 @@ public class JSONUtil {
         public ObjectRef deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
             TreeNode treeNode = p.getCodec().readTree(p);
             TreeNode refIdNode = treeNode.get(REF_ID);
-            if (refIdNode == null || !(refIdNode instanceof TextNode)) {
+            if (!(refIdNode instanceof TextNode)) {
                 throw new JsonParseException(p, "refId not found for ObjectRef");
             }
             if (activityContext == null) {

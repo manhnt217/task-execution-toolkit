@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- * @author manhnguyen
+ * @author manh nguyen
  */
 public interface Activity {
 
@@ -30,10 +30,9 @@ public interface Activity {
 
     /**
      * @param in
-     * @param activityLogger
      * @param context
      * @return <code>null</code> means the activity has done processing the input,
      * but hasn't returned any output yet due to some certain criteria are not met
      */
-    OutboundMessage process(InboundMessage in, ActivityLogger activityLogger, ActivityContext context) throws ActivityException;
+    OutboundMessage process(InboundMessage in, ActivityContext context) throws ActivityException;
 }
