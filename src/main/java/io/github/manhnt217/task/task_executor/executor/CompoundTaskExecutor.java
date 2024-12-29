@@ -19,7 +19,7 @@ public class CompoundTaskExecutor extends TaskExecutor {
     public JsonNode execute(Task task, JsonNode input, String executionSessionId, Logger logger) throws TaskExecutionException {
 
         if (!(task instanceof CompoundTask)) {
-            throw new IllegalArgumentException("Task " + task + " is not a compound task");
+            throw new IllegalArgumentException("Task '" + task.getTaskName() + "' is not a compound task");
         }
         CompoundTask compoundTask = (CompoundTask) task;
 
@@ -32,7 +32,7 @@ public class CompoundTaskExecutor extends TaskExecutor {
             for (Task subTask : executionOrder) {
                 executeTask(subTask, context, executionSessionId, logger);
             }
-            return context.allTaskOutputs();
+            return context.transform(compoundTask.getOutputMapping());
         } catch (UnresolvableDependencyException e) {
             throw new TaskExecutionException("Cannot execute task because of unresolvable dependencies", task, e);
         } catch (TaskExecutionException e) {
@@ -43,9 +43,9 @@ public class CompoundTaskExecutor extends TaskExecutor {
     }
 
     private List<Task> resolveDependencies(List<Task> tasks) throws UnresolvableDependencyException {
-        Map<String, Task> taskMap = tasks.stream().collect(Collectors.toMap(Task::getId, Function.identity()));
+        Map<String, Task> taskMap = tasks.stream().collect(Collectors.toMap(Task::getTaskName, Function.identity()));
         List<DependentItem> dependentItems = tasks.stream()
-                .map(t -> new DependentItem(t.getId(), new HashSet<>(t.getDependencies())))
+                .map(t -> new DependentItem(t.getTaskName(), new HashSet<>(t.getDependencies())))
                         .collect(Collectors.toList());
         DependencyResolver resolver = new DependencyResolver(dependentItems);
         List<Task> result = new ArrayList<>();
@@ -78,9 +78,9 @@ public class CompoundTaskExecutor extends TaskExecutor {
         }
         try {
             JsonNode jsonNode = ctx.transform(logExp);
-            logger.info(executionSessionId, task.getId(), jsonNode.isContainerNode() ? "" : jsonNode.asText());
+            logger.info(executionSessionId, task.getTaskName(), jsonNode.isContainerNode() ? "" : jsonNode.asText());
         } catch (Exception e) {
-            logger.warn(executionSessionId, task.getId(), "Error while applying log expression to the context. Expression = " + logExp, e);
+            logger.warn(executionSessionId, task.getTaskName(), "Error while applying log expression to the context. Expression = " + logExp, e);
         }
     }
 

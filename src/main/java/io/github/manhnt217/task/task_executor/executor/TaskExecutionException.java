@@ -10,13 +10,13 @@ public class TaskExecutionException extends Exception {
 	private final Task task;
 
 	public TaskExecutionException(Task task, TemplateExecutionException e) {
-		super("Task " + task.getId() + " cannot be executed", e);
+		super("Task " + task.getTaskName() + " cannot be executed because: An an error occurred in template '" + e.getTemplateName() + "'", e);
 		this.task = task;
 	}
 
 
 	public TaskExecutionException(String message, Task task, Exception e) {
-		super("Task " + task.getId() + " cannot be executed.\nCaused by: " + message, e);
+		super("Task " + task.getTaskName() + " cannot be executed because: " + message, e);
 		this.task = task;
 	}
 }

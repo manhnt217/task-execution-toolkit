@@ -20,7 +20,7 @@ public class TemplateTaskExecutor extends TaskExecutor {
             return Template.run(
                     templateTask.getTemplateName(),
                     input,
-                    new TemplateLogger(executionSessionId, task.getId(), logger));
+                    new TemplateLogger(executionSessionId, task.getTaskName(), logger));
         } catch (TemplateExecutionException e) {
             throw new TaskExecutionException(task, e);
         } catch (Exception e) {

@@ -16,19 +16,19 @@ public class LogTemplate extends Template<LogTemplate.LogDto, Object> {
 	}
 
 	@Override
-	public Object exec(LogDto input, TemplateLogger logHandler) {
+	public Object exec(LogDto input, TemplateLogger logger) {
 		switch (input.getSeverity()) {
 			case INFO:
 				log.info(input.getMessage());
-				logHandler.info(input.getMessage());
+				logger.info(input.getMessage());
 				break;
 			case WARN:
 				log.warn(input.getMessage());
-				logHandler.warn(input.getMessage(), null);
+				logger.warn(input.getMessage(), null);
 				break;
 			case ERROR:
 				log.error(input.getMessage());
-				logHandler.error(input.getMessage(), null);
+				logger.error(input.getMessage(), null);
 				break;
 			default:
 				break;

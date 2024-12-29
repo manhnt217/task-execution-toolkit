@@ -1,14 +1,12 @@
 package io.github.manhnt217.task.task_executor.process;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import io.github.manhnt217.task.task_executor.common.CommonUtil;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.stream.Collectors;
 
 @Getter
 public class ExecutionLog {
@@ -31,10 +29,12 @@ public class ExecutionLog {
 		this.severity = severity;
 	}
 
-	@JsonProperty("errorSummary")
-	public String getErrorSummary() {
-		return ExceptionUtils.getThrowableList(error).stream()
-				.map(t -> t.getClass().getName() + ": " + StringUtils.defaultIfBlank(t.getMessage(), ""))
-				.collect(Collectors.joining("\nCaused by: "));
+	public String getContent() {
+		String errorSummary = CommonUtil.getErrorSummary(error);
+		if (StringUtils.isNotBlank(errorSummary)) {
+			return content + " Error summary: " + errorSummary;
+		} else {
+			return content;
+		}
 	}
 }
