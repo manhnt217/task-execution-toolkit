@@ -14,7 +14,6 @@ import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
-import io.github.manhnt217.task.sample.TestUtil;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -69,7 +68,7 @@ public class SyncGroupTest {
                 .linkToEnd(pluginCall)
                 .build();
 
-        Function testSyncGroup = ActivityBuilder
+        Function<Void, Void> testSyncGroup = ActivityBuilder
                 .routine("testSyncGroup")
                 .linkFromStart(syncGroup)
                 .linkToEnd(syncGroup)
@@ -91,9 +90,8 @@ public class SyncGroupTest {
 
         Runnable task = () -> {
             TaskContext syncContext = new TaskContext(UUID.randomUUID().toString(), null, mock(EngineRepository.class), mock(TaskLogger.class));
-            JsonNode input = TestUtil.OM.createObjectNode();
             try {
-                testSyncGroup.exec(input, syncContext);
+                testSyncGroup.exec(null, syncContext);
             } catch (TaskException e) {
                 throw new RuntimeException(e);
             }

@@ -3,8 +3,6 @@ package io.github.manhnt217.task.sample.test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import io.github.manhnt217.task.core.activity.DefaultTaskLogger;
-import io.github.manhnt217.task.core.activity.ExecutionLog;
 import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.activity.func.FunctionCallActivity;
 import io.github.manhnt217.task.core.activity.group.Group;
@@ -15,7 +13,6 @@ import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import io.github.manhnt217.task.core.repo.EngineRepository;
 import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
-import io.github.manhnt217.task.core.task.plugin.Plugin;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.sample.LinearFunction;
 import io.github.manhnt217.task.sample.TestUtil;
@@ -32,32 +29,22 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.*;
 
 /**
  * @author manh nguyen
  */
 @SuppressWarnings("ALL")
 @ExtendWith(MockitoExtension.class)
-public class ComplexFunctionTest {
-
-    public static final Map<String, Class<? extends Plugin<?, ?>>> PLUGINS = ImmutableMap.of(
-            "AddTwoNumber", io.github.manhnt217.task.sample.plugin.AddTwoNumber.class,
-            "Curl", io.github.manhnt217.task.sample.plugin.Curl.class,
-            "Log", io.github.manhnt217.task.sample.plugin.Log.class,
-            "ObjectRefConsumer", io.github.manhnt217.task.sample.plugin.ObjectRefConsumer.class,
-            "ObjectRefProducer", io.github.manhnt217.task.sample.plugin.ObjectRefProducer.class
-    );
+public class ComplexFunctionTest extends AbstractEngineTest {
 
     @Test
-    public void testComplex1(@Mock EngineRepository repo) throws IOException, ConfigurationException, TaskException {
-        DefaultTaskLogger logHandler = new DefaultTaskLogger();
-        mockBuiltInRepo(repo);
+    public void testComplex1() throws IOException, ConfigurationException, TaskException {
         PluginActivity p1 = ActivityBuilder
                 .plugin("p1", Curl.class.getSimpleName())
                 .inputMapping(ActivityContext.FROM_PROPS)
@@ -74,7 +61,7 @@ public class ComplexFunctionTest {
                 "url", "https://example.com",
                 "method", "GET"
         );
-        TaskContext taskContext = new TaskContext("uuid", TestUtil.OM.valueToTree(props), repo, logHandler);
+        TaskContext taskContext = new TaskContext("uuid", TestUtil.OM.valueToTree(props), repo, logger);
         Map<String, ?> out = func.exec(null, taskContext);
         assertThat(out.size(), is(2));
         assertThat(out, hasKey("p1"));
@@ -83,24 +70,12 @@ public class ComplexFunctionTest {
         assertThat((Map<String, Object>) out.get("p1"), hasKey("statusCode"));
         assertThat(((Map) out.get("p2")).size(), is(0));
 
-        assertThat(logHandler.getLogs().size(), greaterThanOrEqualTo(1));
-        Optional<ExecutionLog> optionalExecutionLog = logHandler.getLogs().stream().filter(logLine -> "p2".equals(logLine.getActivityName())).findAny();
-        assertThat(optionalExecutionLog.isPresent(), is(true));
-        assertThat(optionalExecutionLog.get().getContent(), is("Status code is 200"));
-    }
-
-    public static void mockBuiltInRepo(EngineRepository repo) {
-        given(repo.resolvePluginClass(any(String.class)))
-            .will(invocation -> {
-                String pluginName = invocation.getArgument(0);
-                return PLUGINS.get(pluginName);
-            });
+        verify(logger, atLeastOnce()).info(any(), any(), any(), any());
+        verify(logger).info(any(), any(), any(), eq("Status code is 200"));
     }
 
     @Test
-    public void testComplex2_PassingInputFromParent(@Mock EngineRepository repo, @Mock TaskLogger logger) throws IOException, ConfigurationException, TaskException {
-        DefaultTaskLogger logHandler = new DefaultTaskLogger();
-        mockBuiltInRepo(repo);
+    public void testComplex2_PassingInputFromParent() throws IOException, ConfigurationException, TaskException {
 
         PluginActivity act1 = ActivityBuilder
                 .plugin("act1", Curl.class.getSimpleName())
@@ -110,7 +85,7 @@ public class ComplexFunctionTest {
         LinearFunction<Map, Map> func = new LinearFunction("c1", Lists.newArrayList(act1), Map.class, Map.class);
 
         Map<String, Object> input = ImmutableMap.of("url", "https://example.com");
-        TaskContext taskContext = new TaskContext("uuid", null, repo, logHandler);
+        TaskContext taskContext = new TaskContext("uuid", null, repo, logger);
         Map<String, ?> out = func.exec(input, taskContext);
         assertThat(out.size(), is(2));
         assertThat(out, hasKey(Function.START_ACTIVITY_NAME));

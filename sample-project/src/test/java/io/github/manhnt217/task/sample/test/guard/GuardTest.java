@@ -10,6 +10,7 @@ import io.github.manhnt217.task.core.task.TaskContext;
 import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.sample.plugin.Log;
+import io.github.manhnt217.task.sample.test.AbstractEngineTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -18,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.IOException;
 
 import static io.github.manhnt217.task.core.task.function.Function.START_ACTIVITY_NAME;
-import static io.github.manhnt217.task.sample.test.ComplexFunctionTest.mockBuiltInRepo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,14 +28,13 @@ import static org.mockito.Mockito.*;
  * @author manh nguyen
  */
 @ExtendWith(MockitoExtension.class)
-public class GuardTest {
+public class GuardTest extends AbstractEngineTest {
 
     /**
      * <img src="{@docRoot}/doc-files/images/testSimpleGuard.png">
      */
     @Test
-    public void testSimpleGuard(@Mock EngineRepository repo, @Mock TaskLogger logger) throws ConfigurationException, TaskException, IOException {
-        mockBuiltInRepo(repo);
+    public void testSimpleGuard() throws ConfigurationException, TaskException, IOException {
 
         PluginActivity p1 = ActivityBuilder
                 .plugin("p1", Log.class.getSimpleName())
@@ -65,8 +64,7 @@ public class GuardTest {
      * <img src="{@docRoot}/doc-files/images/testOtherwise.png">
      */
     @Test
-    public void testOtherwise(@Mock EngineRepository repo, @Mock TaskLogger logger) throws ConfigurationException, TaskException, IOException {
-        mockBuiltInRepo(repo);
+    public void testOtherwise() throws ConfigurationException, TaskException, IOException {
         PluginActivity task1 = ActivityBuilder
                 .plugin("task1", Log.class.getSimpleName())
                 .inputMapping("{\"severity\": \"INFO\",\"message\": \"task1\"}")
