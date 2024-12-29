@@ -24,8 +24,8 @@
   "functions": [
     {
       "name": "simpleFunction",
-      "inputClass": "io.github.manhnt217.task.sample.test.helper.SampleInput",
-      "outputClass": "io.github.manhnt217.task.sample.test.helper.SampleOutput",
+      "inputClass": "java.util.Map",
+      "outputClass": "java.util.Map",
       "group": {
         "activities": [
           {
