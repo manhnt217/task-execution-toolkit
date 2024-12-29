@@ -6,9 +6,9 @@ import io.github.manhnt217.task.sample.JsonBasedTaskResolver;
 import io.github.manhnt217.task.sample.TestUtil;
 import io.github.manhnt217.task.sample.Util;
 import io.github.manhnt217.task.sample.plugin.AddTwoNumberTask;
-import io.github.manhnt217.task.task_engine.activity.DefaultActivityLogger;
-import io.github.manhnt217.task.task_engine.exception.TaskException;
-import io.github.manhnt217.task.task_engine.exception.inner.ConfigurationException;
+import io.github.manhnt217.task.core.activity.DefaultActivityLogger;
+import io.github.manhnt217.task.core.exception.TaskException;
+import io.github.manhnt217.task.core.exception.inner.ConfigurationException;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

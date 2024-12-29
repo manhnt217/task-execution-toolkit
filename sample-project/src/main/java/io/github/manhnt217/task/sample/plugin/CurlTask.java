@@ -2,8 +2,8 @@ package io.github.manhnt217.task.sample.plugin;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.manhnt217.task.sample.Util;
-import io.github.manhnt217.task.task_engine.task.PluginTask;
-import io.github.manhnt217.task.task_engine.task.TaskLogger;
+import io.github.manhnt217.task.core.task.PluginTask;
+import io.github.manhnt217.task.core.task.TaskLogger;
 import kong.unirest.HttpMethod;
 import kong.unirest.HttpRequestWithBody;
 import kong.unirest.HttpResponse;
