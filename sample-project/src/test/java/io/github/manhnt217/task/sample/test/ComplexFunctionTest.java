@@ -16,7 +16,7 @@ import io.github.manhnt217.task.core.task.function.Function;
 import io.github.manhnt217.task.persistence.builder.ActivityBuilder;
 import io.github.manhnt217.task.plugin.Log;
 import io.github.manhnt217.task.sample.TestUtil;
-import io.github.manhnt217.task.sample.test.example_plugin.Curl;
+import io.github.manhnt217.task.sample.example_plugin.Curl;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

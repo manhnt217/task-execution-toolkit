@@ -2,7 +2,7 @@
   "plugins": [
     {
       "name": "AddTwoNumber",
-      "className": "io.github.manhnt217.task.sample.plugin.AddTwoNumber"
+      "className": "io.github.manhnt217.task.sample.example_plugin.AddTwoNumber"
     }
   ],
   "sources": [
@@ -11,13 +11,15 @@
       "pluginClassName": "io.github.manhnt217.task.sample.event.TimerEventSource",
       "propsJSLT": ".timerInterval",
       "autoStart": true,
-      "async": true
+      "async": false
     }
   ],
   "handlers": [
     {
       "name": "h1",
-      "outputMapping": "\"Hello world\"",
+      "outputMapping": "if (mod(.FromTimer, 10) > 8) \"EXIT\" else \"Hehe\"",
+      "eventClass": "java.lang.String",
+      "outputClass": "java.lang.String",
       "fromSourceActivity": {
         "name": "FromTimer",
         "type": "SOURCE",

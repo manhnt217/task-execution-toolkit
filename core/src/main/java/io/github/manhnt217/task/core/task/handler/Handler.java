@@ -6,6 +6,7 @@ import io.github.manhnt217.task.core.activity.simple.StartActivity;
 import io.github.manhnt217.task.core.activity.source.FromSourceActivity;
 import io.github.manhnt217.task.core.context.ActivityContext;
 import io.github.manhnt217.task.core.context.Callstack;
+import io.github.manhnt217.task.core.context.JSONUtil;
 import io.github.manhnt217.task.core.exception.ActivityException;
 import io.github.manhnt217.task.core.task.TaskException;
 import io.github.manhnt217.task.core.task.Task;
@@ -16,7 +17,7 @@ import lombok.Getter;
  * @author manh nguyen
  */
 // TODO: We may add type for Handler, just like we did with #io.github.manhnt217.task.core.task.function.Function
-public class Handler implements Task {
+public class Handler<E, R> implements Task {
 
     @Getter
     private final String name;
@@ -25,9 +26,16 @@ public class Handler implements Task {
 
     private final Group activityGroup;
 
-    public Handler(String name, Group activityGroup) {
+    @Getter
+    protected final Class<? extends E> eventType;
+    @Getter
+    protected final Class<? extends R> outputType;
+
+    public Handler(String name, Group activityGroup, Class<? extends E> eventType, Class<? extends R> outputType) {
         this.name = name;
         this.activityGroup = activityGroup;
+        this.eventType = eventType;
+        this.outputType = outputType;
         StartActivity startActivity = activityGroup.getStartActivity();
         if (startActivity instanceof FromSourceActivity) {
             sourceName = ((FromSourceActivity) startActivity).getSourceName();
@@ -36,7 +44,7 @@ public class Handler implements Task {
         }
     }
 
-    public JsonNode handle(JsonNode input, ActivityContext context) throws TaskException, ActivityException {
+    public R handle(E in, ActivityContext context) throws TaskException, ActivityException {
 
         TaskContext handlerContext = new TaskContext(
                 context.getExecutionId(),
@@ -45,8 +53,21 @@ public class Handler implements Task {
                 context.getRepo(),
                 context.getFutureProcessor(),
                 context.getLogger());
-
+        JsonNode input;
+        try {
+            input = JSONUtil.valueToTree(in, handlerContext);
+        } catch (Exception e) {
+            throw new TaskException(getName(), null, "Cannot serialize input to Json. Input = " + in, e);
+        }
         handlerContext.setTaskName(name);
-        return activityGroup.execute(input, handlerContext);
+        JsonNode groupOutput = activityGroup.execute(input, handlerContext);
+        if (outputType == null || Void.class.equals(outputType)) {
+            return null;
+        }
+        try {
+            return JSONUtil.treeToValue(groupOutput, outputType, handlerContext);
+        } catch (Exception e) {
+            throw new TaskException(getName(), input, "Cannot convert output to desired type. Output = " + groupOutput + ". Desired type = " + outputType, e);
+        }
     }
 }

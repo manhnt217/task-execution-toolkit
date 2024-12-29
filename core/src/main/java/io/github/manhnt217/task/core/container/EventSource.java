@@ -1,4 +1,4 @@
-package io.github.manhnt217.task.core.event.source;
+package io.github.manhnt217.task.core.container;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.manhnt217.task.core.context.JSONUtil;
@@ -8,7 +8,7 @@ import io.github.manhnt217.task.core.task.TaskException;
 import lombok.Getter;
 import lombok.Setter;
 
-public abstract class EventSource<P, R> {
+public abstract class EventSource<P, E, R> {
 
     @Getter @Setter
     private String name;
@@ -25,7 +25,7 @@ public abstract class EventSource<P, R> {
     @Setter
     private JsonNode props;
 
-    public final synchronized void start() throws Exception {
+    final synchronized void start() throws Exception {
         if (running) {
             return;
         }
@@ -35,7 +35,7 @@ public abstract class EventSource<P, R> {
         running = true;
     }
 
-    public synchronized final void shutdown() throws Exception {
+    final synchronized void shutdown() throws Exception {
         if (!running) {
             return;
         }
@@ -56,12 +56,17 @@ public abstract class EventSource<P, R> {
      * @param e the event object
      * @return <code>null</code> only when async = true
      */
-    protected final R dispatch(Object e) throws ContainerException, TaskException, ActivityException {
-        return dispatcher.dispatch(this, e, getDispatcherReturnType());
+    protected final R dispatch(E e) throws ContainerException, TaskException, ActivityException {
+        return dispatcher.dispatch(this, e, getDispatcherEventType(), getDispatcherReturnType());
     }
 
     protected abstract Class<? extends P> getPropsType();
+    public abstract Class<? extends E> getDispatcherEventType();
     public abstract Class<? extends R> getDispatcherReturnType();
     protected abstract void startInternal(P props) throws Exception;
     protected abstract void shutdownInternal() throws Exception ;
+
+    protected void shutdownSelf(boolean forceStop) throws ContainerException {
+        dispatcher.shutdownEventSource(this, forceStop);
+    }
 }

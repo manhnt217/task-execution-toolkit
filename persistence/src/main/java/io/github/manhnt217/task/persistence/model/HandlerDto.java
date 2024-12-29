@@ -11,6 +11,8 @@ import lombok.Setter;
 @Setter
 public class HandlerDto {
     private String name;
+    private String eventClass;
+    private String outputClass;
     private String outputMapping;
     private SourceActivityDto fromSourceActivity;
     private ActivityGroupDto group;
