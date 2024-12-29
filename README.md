@@ -5,6 +5,15 @@
   * Core
   * Persistence
   * Sample Project
+* Some UI (to be developed)
+
+![testGroup.png](sample-project%2Fsrc%2Ftest%2Fjava%2Fdoc-files%2Fimages%2FtestGroup.png)
+
+![testForEachSimple.png](sample-project%2Fsrc%2Ftest%2Fjava%2Fdoc-files%2Fimages%2FtestForEachSimple.png)
+
+![testSimpleGuard.png](sample-project%2Fsrc%2Ftest%2Fjava%2Fdoc-files%2Fimages%2FtestSimpleGuard.png)
+
+![testOtherwise.png](sample-project%2Fsrc%2Ftest%2Fjava%2Fdoc-files%2Fimages%2FtestOtherwise.png)
 
 ### Core
 * Contains basic interfaces and classes that helps defineing tasks
