@@ -16,6 +16,7 @@ import io.github.manhnt217.task.sample.test.helper.SampleOutput;
 import lombok.Data;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * @author manh nguyen
@@ -34,9 +35,20 @@ public class Main {
         RootContext rootContext = new RootContext(null, repo, new DefaultTaskLogger());
 
         @SuppressWarnings("unchecked")
-        Function<SampleInput, SampleOutput> simpleFunction = repo.getFunction("simpleFunction");
-		System.out.println("Result 1: " + simpleFunction.exec(new SampleInput("Lanne", 21, "Kyoto"), rootContext));
-		System.out.println("Result 2: " + simpleFunction.exec(new SampleInput("Phil", 7, "Paris"), rootContext));
+        Function<Map<?, ?>, Map<?, ?>> simpleFunction = repo.getFunction("simpleFunction");
+        Map<?, ?> rs1 = simpleFunction.exec(ImmutableMap.of(
+                "name", "Lanne",
+                "age", 21,
+                "address", "Kyoto"
+        ), rootContext);
+        Map<?, ?> rs2 = simpleFunction.exec(ImmutableMap.of(
+                "name", "Phil",
+                "age", 7,
+                "address", "Paris"
+        ), rootContext);
+
+        System.out.println("Result 1: " + rs1);
+        System.out.println("Result 2: " + rs2);
     }
 
     private static void testHandler() throws IOException, ConfigurationException {

@@ -1,6 +1,7 @@
 package io.github.manhnt217.task.sample.test.guard;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.ImmutableMap;
 import io.github.manhnt217.task.core.activity.Activity;
 import io.github.manhnt217.task.core.activity.TaskLogger;
 import io.github.manhnt217.task.core.activity.group.Group;
@@ -34,6 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Map;
 
 import static io.github.manhnt217.task.core.context.ActivityContext.from;
 import static io.github.manhnt217.task.core.task.function.Function.*;
@@ -268,26 +270,34 @@ public class GuardTest extends AbstractEngineTest {
 
         FunctionDto functionDto = new FunctionDto();
         functionDto.setName("simpleFunction");
-        functionDto.setInputClass(SampleInput.class.getName());
-        functionDto.setOutputClass(SampleOutput.class.getName());
+        functionDto.setInputClass(Map.class.getName());
+        functionDto.setOutputClass(Map.class.getName());
         functionDto.setGroup(groupDto);
 
         System.out.println(TestUtil.OM.writeValueAsString(functionDto));
 
         @SuppressWarnings("unchecked")
-        Function<SampleInput, SampleOutput> func = TaskService.instance().buildFunction(functionDto);
+        Function<Map<?, ?>, Map<?, ?>> func = TaskService.instance().buildFunction(functionDto);
 
         RootContext context1 = new RootContext(null, repo, logger);
         RootContext context2 = new RootContext(null, repo, logger);
-        SampleOutput result1 = func.exec(new SampleInput("Kevin", 15, "London"), context1);
-        SampleOutput result2 = func.exec(new SampleInput("Stacy", 4, "New Jersey"), context2);
+        Map<?, ?> result1 = func.exec(ImmutableMap.of(
+                "name", "Kevin",
+                "age", 15,
+                "address", "London"
+        ), context1);
+        Map<?, ?> result2 = func.exec(ImmutableMap.of(
+                "name", "Stacy",
+                "age", 4,
+                "address", "New Jersey"
+        ), context2);
 
-        assertThat(result1.getCategory(), is("high"));
-        assertThat(result1.isImportant(), is(true));
-        assertThat(result1.getRate(), is(-5.0));
+        assertThat(result1.get("category"), is("high"));
+        assertThat(result1.get("important"), is(true));
+        assertThat(result1.get("rate"), is(-5.0));
 
-        assertThat(result2.getCategory(), is("low"));
-        assertThat(result2.isImportant(), is(false));
-        assertThat(result2.getRate(), is(0.0));
+        assertThat(result2.get("category"), is("low"));
+        assertThat(result2.get("important"), nullValue());
+        assertThat(result2.get("rate"), nullValue());
     }
 }
