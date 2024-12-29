@@ -30,7 +30,7 @@ public class JsonBasedEngineRepository extends SimpleEngineRepository {
 
         if (repoDto.getPlugins() != null) {
             for (PluginDto plugin : repoDto.getPlugins()) {
-                registerFunctionPlugin(plugin);
+                registerPlugin(plugin);
             }
         }
 

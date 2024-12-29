@@ -82,7 +82,7 @@ public class ActivityService {
 
     private GroupActivity buildGroupActivity(ActivityDto activityDto) throws ConfigurationException {
         GroupActivityBuilder groupActivityBuilder = ActivityBuilder
-                .group()
+                .group(activityDto.isSyncGroup())
                 .name(activityDto.getName())
                 .inputMapping(activityDto.getInputMapping())
                 .outputMapping(activityDto.getOutputMapping())
