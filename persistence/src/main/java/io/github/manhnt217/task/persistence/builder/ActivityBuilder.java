@@ -57,7 +57,7 @@ public class ActivityBuilder {
         return new FunctionBuilder<>(name, null, null);
     }
 
-    public static HandlerBuilder handler(String name) {
-        return new HandlerBuilder(name);
+    public static <E, R> HandlerBuilder<E, R> handler(String name, Class<? extends E> eventType, Class<? extends R> outputType) {
+        return new HandlerBuilder<>(name, eventType, outputType);
     }
 }

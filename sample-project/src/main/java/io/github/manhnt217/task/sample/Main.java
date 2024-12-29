@@ -16,14 +16,14 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String[] args) throws IOException, ConfigurationException, InterruptedException {
-        Foo foo = TestUtil.OM.treeToValue(NullNode.getInstance(), Foo.class);
-        System.out.println("Foo: " + (foo == null));
-//        testHandler();
+//        Foo foo = TestUtil.OM.treeToValue(NullNode.getInstance(), Foo.class);
+//        System.out.println("Foo: " + (foo == null));
+        testHandler();
     }
 
     private static void testHandler() throws IOException, ConfigurationException {
         ObjectNode props = TestUtil.OM.valueToTree(
-                ImmutableMap.of("timerInterval", 10000L)
+                ImmutableMap.of("timerInterval", 2343L)
         );
         EngineRepository repo = new JsonBasedEngineRepository("simpleHandlerRepo.json");
         TaskContainer taskContainer = new TaskContainer(props, repo);

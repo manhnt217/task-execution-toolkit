@@ -1,6 +1,6 @@
 package io.github.manhnt217.task.core.container.exception;
 
-import io.github.manhnt217.task.core.event.source.EventSource;
+import io.github.manhnt217.task.core.container.EventSource;
 
 /**
  * @author manhnguyen

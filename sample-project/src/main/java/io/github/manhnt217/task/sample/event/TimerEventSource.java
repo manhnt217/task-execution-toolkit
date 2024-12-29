@@ -1,6 +1,6 @@
 package io.github.manhnt217.task.sample.event;
 
-import io.github.manhnt217.task.core.event.source.EventSource;
+import io.github.manhnt217.task.core.container.EventSource;
 
 import java.time.Instant;
 import java.util.concurrent.Executors;
@@ -10,13 +10,18 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author manh nguyen
  */
-public class TimerEventSource extends EventSource<Long, String> {
+public class TimerEventSource extends EventSource<Long, Long, String> {
 
     private long interval;
     private ScheduledExecutorService executor;
 
     @Override
     protected Class<? extends Long> getPropsType() {
+        return Long.class;
+    }
+
+    @Override
+    public Class<? extends Long> getDispatcherEventType() {
         return Long.class;
     }
 
@@ -37,7 +42,7 @@ public class TimerEventSource extends EventSource<Long, String> {
     }
 
     @Override
-    public void shutdownInternal() throws Exception {
+    protected void shutdownInternal() throws Exception {
         this.executor.shutdownNow();
     }
 
@@ -49,7 +54,7 @@ public class TimerEventSource extends EventSource<Long, String> {
             }
         } catch (Exception e) {
             try {
-                shutdown();
+                shutdownSelf(true);
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
