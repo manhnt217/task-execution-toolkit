@@ -1,4 +1,4 @@
-package io.github.manhnt217.task.sample;
+package io.github.manhnt217.task.persistence.repo;
 
 import io.github.manhnt217.task.core.ClassUtil;
 import io.github.manhnt217.task.core.repo.EngineRepository;
