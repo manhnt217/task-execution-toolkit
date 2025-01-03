@@ -1,28 +1,24 @@
-import {useState} from 'react'
 import './App.css'
-
-import {PrimeReactProvider} from 'primereact/api';
-import sampleRequest from "./SampleRequest.ts";
+import Pallet from "./component/pallet/Pallet.tsx";
+import Control from "./component/control/Control.tsx";
+import Diagram from "./component/diagram/Diagram.tsx";
 
 function App() {
-    const [count, setCount] = useState(0)
-    const [output, setOutput] = useState({})
-
-    return (
-        <PrimeReactProvider>
-            <div className="card">
-                <button onClick={() => {
-                    setCount((count) => count + 1);
-                    sampleRequest().then((response) => {
-                        setOutput(response.data);
-                    });
-                }}>
-                    count is {count}
-                </button>
-                <div>{ JSON.stringify(output) }</div>
-            </div>
-        </PrimeReactProvider>
-    )
+  return (
+    <div className="w-full h-full flex">
+      <div className="surface-800 w-1">
+        <Pallet/>
+      </div>
+      <div className="flex-grow-1 flex flex-column">
+        <div className="flex-grow-1">
+          <Diagram />
+        </div>
+        <div className="surface-900 w-full h-15rem">
+          <Control />
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default App
